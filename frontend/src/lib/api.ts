@@ -6,6 +6,8 @@ export interface Server {
   quality: string;
   referrer: string;
   user_agent: string;
+  license_type?: string;
+  license_key?: string;
 }
 
 export interface Channel {
@@ -64,7 +66,61 @@ export async function fetchFixtures(): Promise<FixturesData> {
   }
 }
 
+export function isBdixOrLocal(urlStr: string): boolean {
+  try {
+    const url = new URL(urlStr);
+    const host = url.hostname.toLowerCase();
+    
+    // Check for loopback and local ranges
+    if (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host.startsWith("10.") ||
+      host.startsWith("192.168.")
+    ) {
+      return true;
+    }
+    
+    // Check 172.16.x.x to 172.31.x.x
+    const parts = host.split(".");
+    if (parts.length === 4) {
+      const first = parseInt(parts[0], 10);
+      const second = parseInt(parts[1], 10);
+      if (first === 172 && second >= 16 && second <= 31) {
+        return true;
+      }
+    }
+    
+    return false;
+  } catch (e) {
+    const lower = urlStr.toLowerCase();
+    return lower.startsWith("http://10.") || lower.startsWith("http://192.168.");
+  }
+}
+
+function stringToHex(str: string): string {
+  return Array.from(new TextEncoder().encode(str))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 export function getProxyStreamUrl(server: Server): string {
+  if (isBdixOrLocal(server.url)) {
+    return server.url;
+  }
+
+  const isDash = server.url.includes(".mpd") || server.url.includes("mpd");
+
+  if (isDash) {
+    const config = {
+      referrer: server.referrer || "",
+      user_agent: server.user_agent || "",
+    };
+    const hexConfig = stringToHex(JSON.stringify(config));
+    const hexUrl = stringToHex(server.url);
+    return `${API_BASE}/api/proxy-stream/c/${hexConfig}/${hexUrl}/`;
+  }
+
   const params = new URLSearchParams({ url: server.url });
   if (server.referrer) params.set("referrer", server.referrer);
   if (server.user_agent) params.set("user_agent", server.user_agent);

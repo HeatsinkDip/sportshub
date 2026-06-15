@@ -453,6 +453,21 @@ a:hover { color: var(--accent-cyan); }
 }
 .player-btn:hover { background: rgba(255,255,255,0.2); }
 
+.refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+.refresh-btn:hover {
+  transform: rotate(180deg);
+}
+.refresh-btn:active {
+  transform: scale(0.9) rotate(360deg);
+  transition: transform 0.15s ease;
+}
+
 .video-wrapper {
   position: relative;
   width: 100%;

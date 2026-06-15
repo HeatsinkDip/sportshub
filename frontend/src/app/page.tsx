@@ -2,10 +2,14 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Header from "@/components/Header";
-import VideoPlayer from "@/components/VideoPlayer";
 import ChannelGrid from "@/components/ChannelGrid";
 import FixturesSidebar from "@/components/FixturesSidebar";
 import Footer from "@/components/Footer";
+import dynamic from "next/dynamic";
+
+const VideoPlayer = dynamic(() => import("@/components/VideoPlayer"), {
+  ssr: false,
+});
 import {
   Channel,
   FixturesData,

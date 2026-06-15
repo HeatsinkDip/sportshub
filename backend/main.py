@@ -29,26 +29,45 @@ async def periodic_refresh():
         await asyncio.sleep(600)  # 10 minutes
 
 
+# Create global HTTP client for stream proxying
+global_proxy_client = None
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: fetch initial data, start background refresh."""
-    print("[Startup] Fetching initial M3U playlist...")
-    await fetch_and_parse_m3u()
-    print("[Startup] Fetching initial fixtures...")
-    await scrape_fifa_fixtures()
+    """Startup: load disk cache, initialize client, start background tasks."""
+    print("[Startup] Initializing global HTTP client and cache...")
+    global global_proxy_client
+    limits = httpx.Limits(max_keepalive_connections=100, max_connections=200)
+    global_proxy_client = httpx.AsyncClient(limits=limits, timeout=30.0, follow_redirects=True)
 
-    # Start background refresh
-    task = asyncio.create_task(periodic_refresh())
-    print("[Startup] Background refresh task started")
+    # Load from disk cache instantly (takes ~10ms)
+    try:
+        from m3u_parser import load_channels_from_disk
+        load_channels_from_disk()
+    except Exception as e:
+        print(f"[Startup] Cache load error: {e}")
+
+    # Trigger async scraping in background to refresh the list without blocking server startup
+    asyncio.create_task(fetch_and_parse_m3u())
+    asyncio.create_task(scrape_fifa_fixtures())
+
+    # Start periodic refresh every 10 minutes
+    refresh_task = asyncio.create_task(periodic_refresh())
+    print("[Startup] Background tasks initialized successfully.")
 
     yield
 
     # Cleanup
-    task.cancel()
+    refresh_task.cancel()
     try:
-        await task
+        await refresh_task
     except asyncio.CancelledError:
         pass
+
+    # Close HTTP client pool
+    if global_proxy_client:
+        await global_proxy_client.aclose()
 
 
 # ── FastAPI App ──────────────────────────────────────────────────────
@@ -112,15 +131,81 @@ async def refresh_data():
     }
 
 
+def decode_config(hex_config: str) -> dict:
+    if hex_config == "empty":
+        return {}
+    try:
+        import json
+        return json.loads(bytes.fromhex(hex_config).decode('utf-8'))
+    except Exception:
+        return {}
+
+def encode_config(config: dict) -> str:
+    if not config:
+        return "empty"
+    import json
+    return json.dumps(config).encode('utf-8').hex()
+
+def decode_url(hex_url: str) -> str:
+    try:
+        return bytes.fromhex(hex_url).decode('utf-8')
+    except Exception:
+        return ""
+
+def encode_url(url: str) -> str:
+    return url.encode('utf-8').hex()
+
+def _rewrite_mpd_manifest(content: str, manifest_url: str, referrer: str, user_agent: str) -> str:
+    """
+    Rewrite base URLs or inject a BaseURL tag pointing to the path-based proxy
+    so that relative DASH segments resolve through the proxy correctly.
+    """
+    base_dir = manifest_url.rsplit('/', 1)[0] + '/'
+    
+    config = {}
+    if referrer:
+        config["referrer"] = referrer
+    if user_agent:
+        config["user_agent"] = user_agent
+    hex_config = encode_config(config)
+    
+    hex_base = encode_url(base_dir)
+    # We use a path-based BaseURL relative to the local proxy
+    proxy_base_url = f"/api/proxy-stream/c/{hex_config}/{hex_base}/"
+    
+    # Check if there are existing <BaseURL> tags
+    has_base_url = "<BaseURL" in content
+    
+    if has_base_url:
+        def replace_base_url(match):
+            inner_url = match.group(2).strip()
+            # Resolve relative/absolute URL
+            abs_url = urljoin(manifest_url, inner_url)
+            if not abs_url.endswith('/'):
+                abs_url += '/'
+            hex_abs = encode_url(abs_url)
+            return f'<{match.group(1)}>/api/proxy-stream/c/{hex_config}/{hex_abs}/</BaseURL>'
+            
+        content = re.sub(r'<(BaseURL[^>]*)>(.*?)</BaseURL>', replace_base_url, content, flags=re.DOTALL)
+    else:
+        # Insert BaseURL tag directly inside the <MPD> element
+        mpd_match = re.search(r'<MPD[^>]*>', content)
+        if mpd_match:
+            insert_idx = mpd_match.end()
+            content = content[:insert_idx] + f'\n<BaseURL>{proxy_base_url}</BaseURL>' + content[insert_idx:]
+            
+    return content
+
+
 @app.get("/api/proxy-stream")
 async def proxy_stream(
-    url: str = Query(..., description="M3U8 stream URL to proxy"),
+    url: str = Query(..., description="M3U8/MPD stream URL to proxy"),
     referrer: str = Query("", description="HTTP Referer header"),
     user_agent: str = Query("", description="HTTP User-Agent header"),
 ):
     """
-    Proxy an HLS M3U8 manifest or TS segment to bypass CORS.
-    Rewrites internal URLs in manifests to also go through the proxy.
+    Proxy HLS/DASH manifests and segments using a global connection pool
+    to minimize latency, resolving CORS and omitting Content-Length to avoid mismatch errors.
     """
     if not url:
         return JSONResponse({"error": "Missing url parameter"}, status_code=400)
@@ -137,51 +222,208 @@ async def proxy_stream(
         headers["Referer"] = referrer
         headers["Origin"] = urlparse(referrer).scheme + "://" + urlparse(referrer).netloc
 
+    global global_proxy_client
+    if not global_proxy_client:
+        global_proxy_client = httpx.AsyncClient(timeout=30.0, follow_redirects=True)
+
     try:
-        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
-            resp = await client.get(url, headers=headers)
+        req = global_proxy_client.build_request("GET", url, headers=headers)
+        resp = await global_proxy_client.send(req, stream=True)
 
-            content_type = resp.headers.get("content-type", "application/octet-stream")
-            
-            # Read first chunk or entire text to check if it is a manifest
-            is_m3u8 = False
-            body_text = ""
-            if url.endswith(".m3u8") or "mpegurl" in content_type.lower() or "m3u" in content_type.lower():
-                is_m3u8 = True
-                body_text = resp.text
-            else:
+        if resp.status_code >= 400:
+            body = await resp.aread()
+            await resp.aclose()
+            return Response(content=body, status_code=resp.status_code, media_type=resp.headers.get("content-type"))
+
+        content_type = resp.headers.get("content-type", "").lower()
+        is_m3u8 = (
+            url.endswith(".m3u8")
+            or "mpegurl" in content_type
+            or "m3u" in content_type
+            or "application/x-mpegurl" in content_type
+        )
+        is_mpd = (
+            url.endswith(".mpd")
+            or "dash+xml" in content_type
+            or "mpd" in content_type
+        )
+
+        if is_m3u8:
+            body_bytes = await resp.aread()
+            await resp.aclose()
+            body_text = body_bytes.decode("utf-8", errors="ignore")
+            body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent)
+            return Response(
+                content=body,
+                media_type="application/vnd.apple.mpegurl",
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Allow-Methods": "*",
+                    "Cache-Control": "no-cache",
+                },
+            )
+        elif is_mpd:
+            body_bytes = await resp.aread()
+            await resp.aclose()
+            body_text = body_bytes.decode("utf-8", errors="ignore")
+            body = _rewrite_mpd_manifest(body_text, str(resp.url), referrer, user_agent)
+            return Response(
+                content=body,
+                media_type="application/dash+xml",
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Allow-Methods": "*",
+                    "Cache-Control": "no-cache",
+                },
+            )
+        else:
+            # Segment/binary: Stream content chunk by chunk, omitting Content-Length to prevent mismatches
+            response_headers = {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Cache-Control": "public, max-age=86400" if url.endswith((".ts", ".mp4", ".m4s")) else "no-cache",
+            }
+
+            async def stream_content():
                 try:
-                    # Try to decode to check for #EXTM3U
-                    body_text = resp.text
-                    if body_text.strip().startswith("#EXTM3U"):
-                        is_m3u8 = True
-                except Exception:
-                    pass
+                    async for chunk in resp.aiter_bytes(chunk_size=32768):
+                        yield chunk
+                finally:
+                    await resp.aclose()
 
-            # If it's an M3U8 manifest, rewrite internal URLs
-            if is_m3u8:
-                # Use str(resp.url) to resolve relative URLs against the final redirected URL
-                body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent)
+            return StreamingResponse(
+                stream_content(),
+                status_code=resp.status_code,
+                media_type=resp.headers.get("content-type", "video/mp2t"),
+                headers=response_headers,
+            )
 
-                return Response(
-                    content=body,
-                    media_type="application/vnd.apple.mpegurl",
-                    headers={
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Headers": "*",
-                        "Cache-Control": "no-cache",
-                    },
-                )
-            else:
-                # Binary content (TS segments, keys, etc.)
-                return Response(
-                    content=resp.content,
-                    media_type=content_type,
-                    headers={
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Headers": "*",
-                    },
-                )
+    except httpx.TimeoutException:
+        return JSONResponse({"error": "Stream timeout"}, status_code=504)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=502)
+
+
+@app.get("/api/proxy-stream/c/{hex_config}/{hex_url}/{relative_path:path}")
+async def proxy_stream_path(
+    hex_config: str,
+    hex_url: str,
+    relative_path: str,
+    request: Request
+):
+    """
+    Path-based stream proxy endpoint to handle relative DASH segment requests cleanly.
+    """
+    config = decode_config(hex_config)
+    base_url = decode_url(hex_url)
+    if not base_url:
+        return JSONResponse({"error": "Invalid base URL"}, status_code=400)
+
+    # Resolve absolute URL for the segment/nested resource
+    url = urljoin(base_url, relative_path)
+
+    # Append any incoming query parameters (tokens, keys, etc.)
+    query_params = request.url.query
+    if query_params:
+        client_params = dict(request.query_params)
+        client_params.pop("referrer", None)
+        client_params.pop("user_agent", None)
+        if client_params:
+            from urllib.parse import urlencode
+            sep = "&" if "?" in url else "?"
+            url = f"{url}{sep}{urlencode(client_params)}"
+
+    referrer = config.get("referrer", "")
+    user_agent = config.get("user_agent", "")
+
+    headers = {
+        "User-Agent": user_agent or "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+    if referrer:
+        headers["Referer"] = referrer
+        headers["Origin"] = urlparse(referrer).scheme + "://" + urlparse(referrer).netloc
+
+    global global_proxy_client
+    if not global_proxy_client:
+        global_proxy_client = httpx.AsyncClient(timeout=30.0, follow_redirects=True)
+
+    try:
+        req = global_proxy_client.build_request("GET", url, headers=headers)
+        resp = await global_proxy_client.send(req, stream=True)
+
+        if resp.status_code >= 400:
+            body = await resp.aread()
+            await resp.aclose()
+            return Response(content=body, status_code=resp.status_code, media_type=resp.headers.get("content-type"))
+
+        content_type = resp.headers.get("content-type", "").lower()
+        is_m3u8 = (
+            url.endswith(".m3u8")
+            or "mpegurl" in content_type
+            or "m3u" in content_type
+        )
+        is_mpd = (
+            url.endswith(".mpd")
+            or "dash+xml" in content_type
+            or "mpd" in content_type
+        )
+
+        if is_m3u8:
+            body_bytes = await resp.aread()
+            await resp.aclose()
+            body_text = body_bytes.decode("utf-8", errors="ignore")
+            body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent)
+            return Response(
+                content=body,
+                media_type="application/vnd.apple.mpegurl",
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Allow-Methods": "*",
+                    "Cache-Control": "no-cache",
+                },
+            )
+        elif is_mpd:
+            body_bytes = await resp.aread()
+            await resp.aclose()
+            body_text = body_bytes.decode("utf-8", errors="ignore")
+            body = _rewrite_mpd_manifest(body_text, str(resp.url), referrer, user_agent)
+            return Response(
+                content=body,
+                media_type="application/dash+xml",
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Allow-Methods": "*",
+                    "Cache-Control": "no-cache",
+                },
+            )
+        else:
+            response_headers = {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Cache-Control": "public, max-age=86400" if url.endswith((".ts", ".mp4", ".m4s")) else "no-cache",
+            }
+
+            async def stream_content():
+                try:
+                    async for chunk in resp.aiter_bytes(chunk_size=32768):
+                        yield chunk
+                finally:
+                    await resp.aclose()
+
+            return StreamingResponse(
+                stream_content(),
+                status_code=resp.status_code,
+                media_type=resp.headers.get("content-type", "video/mp2t"),
+                headers=response_headers,
+            )
 
     except httpx.TimeoutException:
         return JSONResponse({"error": "Stream timeout"}, status_code=504)

@@ -4,6 +4,9 @@ Fetches from iptv-org sports playlist + main playlist + lupael IPTV,
 parses entries, and filters for World Cup broadcast channels.
 """
 
+import asyncio
+import os
+import json
 import re
 import httpx
 from typing import Optional
@@ -13,28 +16,28 @@ from typing import Optional
 # search_patterns is a list of alternative keyword-lists — channel matches if ANY pattern matches
 CHANNEL_WHITELIST = [
     # ── FIFA Live (Recommended / Featured) ──
-    ([["tapmad", "hd"], ["tapmad"]], "Tapmad HD", "featured"),
-    ([["macao", "sport"]], "Macao Sports (FHD)", "featured"),
-    ([["bein", "sports", "1"], ["bein", "sport", "1"]], "beIN Sports 1 (Full HD)", "featured"),
-    ([["elta", "sport"]], "ELTA Sports (FHD)", "featured"),
-    ([["cctv", "5"]], "CCTV 5 (Full HD)", "featured"),
-    ([["win", "sports"]], "WIN Sports (Full HD)", "featured"),
-    ([["bein", "sports", "türkiye"], ["bein", "sports", "turkiye"], ["bein", "turkey"]], "beIN SPORTS Türkiye", "featured"),
-    ([["dazn"]], "DAZN (Full HD)", "featured"),
     ([["d sports"], ["dsports"], ["d-sports"]], "D Sports", "featured"),
-    ([["tudn", "canal", "5"], ["tudn", "sports"]], "TUDN Sports - Canal 5 (Full HD)", "featured"),
-    ([["tv", "azteca", "7"], ["azteca", "7"], ["tv", "azteca"]], "TV Azteca", "featured"),
-    ([["telemundo"]], "Telemundo", "featured"),
-    ([["m6", "direct"], ["m6"]], "M6 Direct", "featured"),
     ([["t sports", "hd"], ["t-sports"], ["tsports"]], "T Sports HD", "featured"),
-    ([["sports", "18"]], "Sports 18 HD", "featured"),
+    ([["somoy", "tv"]], "Somoy TV", "featured"),
+    ([["ptv", "sports"]], "PTV Sports", "featured"),
 
     # ── Live Channels ──
+    ([["tapmad", "hd"], ["tapmad"]], "Tapmad HD", "live"),
+    ([["macao", "sport"]], "Macao Sports (FHD)", "live"),
+    ([["bein", "sports", "1"], ["bein", "sport", "1"]], "beIN Sports 1 (Full HD)", "live"),
+    ([["elta", "sport"]], "ELTA Sports (FHD)", "live"),
+    ([["cctv", "5"]], "CCTV 5 (Full HD)", "live"),
+    ([["win", "sports"]], "WIN Sports (Full HD)", "live"),
+    ([["bein", "sports", "türkiye"], ["bein", "sports", "turkiye"], ["bein", "turkey"]], "beIN SPORTS Türkiye", "live"),
+    ([["dazn"]], "DAZN (Full HD)", "live"),
+    ([["tudn", "canal", "5"], ["tudn", "sports"]], "TUDN Sports - Canal 5 (Full HD)", "live"),
+    ([["tv", "azteca", "7"], ["azteca", "7"], ["tv", "azteca"]], "TV Azteca", "live"),
+    ([["telemundo"]], "Telemundo", "live"),
+    ([["m6", "direct"], ["m6"]], "M6 Direct", "live"),
+    ([["sports", "18"]], "Sports 18 HD", "live"),
     ([["fussball"], ["fußball"]], "Fussball.tv1", "live"),
     ([["tsn", "1"], ["tsn", "sports", "1"]], "TSN Sports 1", "live"),
     ([["tudn", "usa"], ["tudn"]], "TUDN", "live"),
-    ([["somoy", "tv"]], "Somoy TV", "live"),
-    ([["ptv", "sports"]], "PTV Sports", "live"),
     ([["gazi", "tv"], ["gtv"]], "Gazi TV HD", "live"),
     ([["fox", "sports", "1"], ["fox", "sport"]], "FOX Sports 1", "live"),
     ([["bioscope"]], "BIOSCOPE+", "live"),
@@ -115,6 +118,8 @@ def parse_m3u(content: str) -> list[dict]:
                 "referrer": "",
                 "user_agent": "",
                 "quality": "SD",
+                "license_type": "",
+                "license_key": "",
             }
 
             # Extract attributes
@@ -146,7 +151,7 @@ def parse_m3u(content: str) -> list[dict]:
             else:
                 entry["quality"] = "SD"
 
-            # Read EXTVLCOPT lines and URL
+            # Read EXTVLCOPT and KODIPROP lines and URL
             i += 1
             while i < len(lines):
                 next_line = lines[i].strip()
@@ -155,6 +160,17 @@ def parse_m3u(content: str) -> list[dict]:
                     i += 1
                 elif next_line.startswith('#EXTVLCOPT:http-user-agent='):
                     entry["user_agent"] = next_line.split('=', 1)[1]
+                    i += 1
+                elif next_line.startswith('#KODIPROP:'):
+                    opt_part = next_line.split(':', 1)[1]
+                    if '=' in opt_part:
+                        k, v = opt_part.split('=', 1)
+                        k = k.strip()
+                        v = v.strip()
+                        if 'license_type' in k:
+                            entry["license_type"] = v
+                        elif 'license_key' in k:
+                            entry["license_key"] = v
                     i += 1
                 elif next_line.startswith('#'):
                     i += 1
@@ -199,6 +215,8 @@ def filter_worldcup_channels(all_channels: list[dict]) -> list[dict]:
                     "quality": channel["quality"],
                     "referrer": channel["referrer"],
                     "user_agent": channel["user_agent"],
+                    "license_type": channel.get("license_type", ""),
+                    "license_key": channel.get("license_key", ""),
                 }
 
                 existing_urls = [s["url"] for s in grouped[key]["servers"]]
@@ -226,8 +244,192 @@ def filter_worldcup_channels(all_channels: list[dict]) -> list[dict]:
 _cached_channels: list[dict] = []
 
 
+async def fetch_single_m3u(client: httpx.AsyncClient, url: str) -> list[dict]:
+    """Fetch and parse a single M3U URL with raw GitHub URL conversion."""
+    raw_url = url
+    if "github.com" in url:
+        if "/blob/" in url:
+            raw_url = url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
+        elif "/raw/" in url:
+            raw_url = url.replace("github.com", "raw.githubusercontent.com").replace("/raw/", "/")
+
+    try:
+        resp = await client.get(raw_url, timeout=15.0)
+        resp.raise_for_status()
+        parsed = parse_m3u(resp.text)
+        print(f"[M3U] Parsed {len(parsed)} channels from {url.split('/')[-1]}")
+        return parsed
+    except Exception as e:
+        print(f"[M3U] Error fetching {url}: {e}")
+        return []
+
+
+async def is_server_working(client: httpx.AsyncClient, server: dict) -> bool:
+    """Validate if a stream URL is working. Private IPs and BDIX streams bypass checks."""
+    url = server["url"]
+    
+    # 1. Skip local/BDIX URLs as they won't resolve on a public cloud server
+    try:
+        # Bypass validation for user-verified stream URLs to prevent them from being dropped
+        user_verified_keywords = [
+            "exmax.workers.dev",
+            "het4444.ycn-redirect.com",
+            "d1g8wgjurz8via.cloudfront.net",
+            "dfr80qz435crc.cloudfront.net",
+            "thebosstv.com",
+            "tsports",
+            "180.94.28.28",
+            "zohanayaan.com"
+        ]
+        if any(kw in url for kw in user_verified_keywords):
+            return True
+
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        host = parsed.hostname.lower() if parsed.hostname else ""
+        if (
+            host == "localhost"
+            or host == "127.0.0.1"
+            or host.startswith("10.")
+            or host.startswith("192.168.")
+            or "bdix" in host
+            or "bdix" in url.lower()
+        ):
+            return True
+            
+        parts = host.split(".")
+        if len(parts) == 4:
+            first = int(parts[0])
+            second = int(parts[1])
+            if first == 172 and 16 <= second <= 31:
+                return True
+    except Exception:
+        pass
+
+    # 2. Perform a fast GET stream request for public streams
+    headers = {
+        "User-Agent": server.get("user_agent") or "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    }
+    if server.get("referrer"):
+        headers["Referer"] = server["referrer"]
+
+    try:
+        # Check connection and read the first chunk to filter out HTML error/parking pages
+        async with client.stream("GET", url, headers=headers, timeout=4.0) as resp:
+            if resp.status_code >= 400:
+                return False
+                
+            content_type = resp.headers.get("content-type", "").lower()
+            
+            first_chunk = b""
+            async for chunk in resp.aiter_bytes(chunk_size=512):
+                first_chunk = chunk
+                break
+                
+            if not first_chunk:
+                return False
+                
+            first_chunk_text = first_chunk.decode("utf-8", errors="ignore").strip()
+            
+            # If it is an HLS playlist, it must start with #EXTM3U
+            if ".m3u8" in url.lower() or "mpegurl" in content_type:
+                return first_chunk_text.startswith("#EXTM3U")
+                
+            # If it is DASH, it must contain <MPD or <Period or <xml
+            if ".mpd" in url.lower() or "xml" in content_type:
+                return "<MPD" in first_chunk_text or "<Period" in first_chunk_text or "<xml" in first_chunk_text or "<MPD" in first_chunk_text.upper()
+                
+            # If it is an HTML landing page (but URL was supposed to be a stream), it's dead
+            if "html" in first_chunk_text.lower() and ("<!doctype html" in first_chunk_text.lower() or "<html" in first_chunk_text.lower()):
+                return False
+                
+            return True
+    except Exception:
+        return False
+
+
+def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
+    """
+    Applies manual user overrides to categories, server order, and server filtering.
+    """
+    modified_channels = []
+    for chan in channels:
+        # Create a copy to avoid in-place modification of mutable objects if reused
+        chan_copy = dict(chan)
+        cid = chan_copy["id"]
+        
+        # 1. PTV Sports (ptv_sports)
+        # Category: featured. Remove server 1 (url containing "119.156.228.231").
+        if cid == "ptv_sports":
+            chan_copy["category"] = "featured"
+            chan_copy["servers"] = [s for s in chan_copy["servers"] if "119.156.228.231" not in s["url"]]
+        
+        # 2. Somoy TV (somoy_tv)
+        # Category: featured. Remove server 1 (url containing "bozztv.com") and server 4 (url containing "toffee/play/somoy_tv").
+        # Prioritize thebosstv.com to the top.
+        elif cid == "somoy_tv":
+            chan_copy["category"] = "featured"
+            filtered_servers = [
+                s for s in chan_copy["servers"] 
+                if "bozztv.com" not in s["url"] and "toffee/play/somoy_tv" not in s["url"]
+            ]
+            s_top = [s for s in filtered_servers if "thebosstv.com" in s["url"]]
+            s_others = [s for s in filtered_servers if "thebosstv.com" not in s["url"]]
+            chan_copy["servers"] = s_top + s_others
+            
+        # 3. beIN Sports 1 (bein_sports_1_full_hd_)
+        # Category: featured (Fifa live). Make server 2 (containing "het4444.ycn-redirect.com") default.
+        elif cid == "bein_sports_1_full_hd_":
+            chan_copy["category"] = "featured"
+            target = [s for s in chan_copy["servers"] if "het4444.ycn-redirect.com" in s["url"]]
+            others = [s for s in chan_copy["servers"] if "het4444.ycn-redirect.com" not in s["url"]]
+            chan_copy["servers"] = target + others
+            
+        # 4. Zee Bangla (zee_bangla)
+        # Category: featured (Fifa live). Make server 2 (containing "d1g8wgjurz8via.cloudfront.net") default, remove others.
+        elif cid == "zee_bangla":
+            chan_copy["category"] = "featured"
+            chan_copy["servers"] = [s for s in chan_copy["servers"] if "d1g8wgjurz8via.cloudfront.net" in s["url"]]
+            
+        # 5. DAZN (dazn_full_hd_)
+        # Category: featured (Fifa live). Make server 3 (containing "exmax.workers.dev") default, remove others.
+        elif cid == "dazn_full_hd_":
+            chan_copy["category"] = "featured"
+            chan_copy["servers"] = [s for s in chan_copy["servers"] if "exmax.workers.dev" in s["url"]]
+            
+        # 6. CAZE TV (caze_tv)
+        # Category: featured (Fifa live). Make server 3 (containing "dfr80qz435crc.cloudfront.net") default, remove others.
+        elif cid == "caze_tv":
+            chan_copy["category"] = "featured"
+            chan_copy["servers"] = [s for s in chan_copy["servers"] if "dfr80qz435crc.cloudfront.net" in s["url"]]
+            
+        # 7. T Sports HD (t_sports_hd)
+        # Category: featured. Priority: make server containing "tsports/index.m3u8" first, and "tsports/tracks-v1a1/mono.m3u8" second. Keep others.
+        elif cid == "t_sports_hd":
+            chan_copy["category"] = "featured"
+            s1 = [s for s in chan_copy["servers"] if "/tsports/index.m3u8" in s["url"]]
+            s2 = [s for s in chan_copy["servers"] if "/tsports/tracks-v1a1/mono.m3u8" in s["url"]]
+            others = [
+                s for s in chan_copy["servers"] 
+                if "/tsports/index.m3u8" not in s["url"] and "/tsports/tracks-v1a1/mono.m3u8" not in s["url"]
+            ]
+            chan_copy["servers"] = s1 + s2 + others
+            
+        # 8. D Sports (d_sports)
+        # Category: featured.
+        elif cid == "d_sports":
+            chan_copy["category"] = "featured"
+
+        if chan_copy["servers"]:
+            modified_channels.append(chan_copy)
+            
+    # Sort featured first, then by name
+    modified_channels.sort(key=lambda c: (0 if c["category"] == "featured" else 1, c["name"]))
+    return modified_channels
+
+
 async def fetch_and_parse_m3u() -> list[dict]:
-    """Fetch M3U playlists (sports + main + lupael) and return filtered World Cup channels."""
+    """Fetch M3U playlists in parallel, filter, and validate them."""
     global _cached_channels
 
     all_channels = []
@@ -242,22 +444,46 @@ async def fetch_and_parse_m3u() -> list[dict]:
         "https://github.com/abusaeeidx/BDxTV/blob/main/channels_pl2.m3u",
         "https://raw.githubusercontent.com/abusaeeidx/CricHd-playlists-Auto-Update-permanent/refs/heads/main/ALL.m3u",
         "https://raw.githubusercontent.com/abusaeeidx/CricHd-playlists-Auto-Update-permanent/refs/heads/main/playlist.m3u",
+        "https://github.com/sm-monirulislam/SM-Live-TV/blob/main/World_Cup.m3u",
+        "https://github.com/sm-monirulislam/SM-Live-TV/blob/main/Combined_Live_TV.m3u",
+        "https://github.com/sm-monirulislam/SM-Live-TV/blob/main/All_Live_HD_Sports_Channels.m3u",
+        "https://raw.githubusercontent.com/sm-monirulislam/SM-Live-TV/refs/heads/main/All_Live_HD_Sports_Channels.m3u",
+        "https://raw.githubusercontent.com/sm-monirulislam/SM-Live-TV/refs/heads/main/Combined_Live_TV.m3u",
+        "https://raw.githubusercontent.com/sm-monirulislam/SM-Live-TV/refs/heads/main/World_Cup.m3u"
     ]
 
     try:
-        async with httpx.AsyncClient(timeout=90.0) as client:
-            for url in urls:
-                try:
-                    resp = await client.get(url)
-                    resp.raise_for_status()
-                    parsed = parse_m3u(resp.text)
-                    all_channels.extend(parsed)
-                    print(f"[M3U] Parsed {len(parsed)} channels from {url.split('/')[-1]}")
-                except Exception as e:
-                    print(f"[M3U] Error fetching {url}: {e}")
+        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+            tasks = [fetch_single_m3u(client, url) for url in urls]
+            results = await asyncio.gather(*tasks)
+            for parsed in results:
+                all_channels.extend(parsed)
 
-        _cached_channels = filter_worldcup_channels(all_channels)
-        print(f"[M3U] Total: {len(all_channels)} → {len(_cached_channels)} World Cup channels matched")
+        filtered = filter_worldcup_channels(all_channels)
+        print(f"[M3U] Validating stream servers in parallel...")
+
+        # Parallel validation of matched stream servers
+        valid_channels = []
+        async with httpx.AsyncClient(follow_redirects=True) as check_client:
+            for chan in filtered:
+                tasks = [is_server_working(check_client, s) for s in chan["servers"]]
+                status_results = await asyncio.gather(*tasks)
+                
+                working_servers = [s for s, ok in zip(chan["servers"], status_results) if ok]
+                if working_servers:
+                    chan["servers"] = working_servers
+                    valid_channels.append(chan)
+
+        _cached_channels = apply_server_and_category_overrides(valid_channels)
+        print(f"[M3U] Total: {len(all_channels)} → {len(_cached_channels)} working channels matched")
+
+        # Save to disk cache
+        try:
+            with open(CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump(_cached_channels, f, indent=2, ensure_ascii=False)
+            print(f"[M3U] Saved {len(_cached_channels)} channels to disk cache.")
+        except Exception as cache_err:
+            print(f"[M3U] Error writing disk cache: {cache_err}")
 
     except Exception as e:
         print(f"[M3U] Error: {e}")
@@ -265,6 +491,25 @@ async def fetch_and_parse_m3u() -> list[dict]:
             _cached_channels = []
 
     return _cached_channels
+
+
+CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels_cache.json")
+
+
+def load_channels_from_disk() -> list[dict]:
+    """Load cached channels from local JSON file if it exists."""
+    global _cached_channels
+    if os.path.exists(CACHE_FILE):
+        try:
+            with open(CACHE_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if data:
+                    _cached_channels = data
+                    print(f"[M3U] Loaded {len(_cached_channels)} channels from disk cache.")
+                    return _cached_channels
+        except Exception as e:
+            print(f"[M3U] Error reading disk cache: {e}")
+    return []
 
 
 def get_cached_channels() -> list[dict]:
