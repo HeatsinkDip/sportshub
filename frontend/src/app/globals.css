@@ -66,14 +66,22 @@ a:hover { color: var(--accent-cyan); }
    HEADER — Centered, compact like boilerplate
    ═══════════════════════════════════════════════════════════════════ */
 .site-header {
-  text-align: center;
-  padding: 12px 0 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  background: rgba(13, 3, 18, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .header-inner {
+  width: 95%;
+  max-width: 1440px;
+  margin: 0 auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  gap: 2px;
+  padding: 0 16px;
+  gap: 16px;
 }
 .header-brand { display: flex; align-items: center; justify-content: center; }
 .header-logo {
@@ -1088,110 +1096,120 @@ a:hover { color: var(--accent-cyan); }
   .date-select { min-height: 36px; font-size: 13px; }
 }
 
-/* ── Tabs Component ────────────────────────────────────────────────── */
+/* ── Tabs Component (Mobile Bottom Sticky Navigation) ──────────────── */
 .tabs-container {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin: 8px auto 16px;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 30px;
-  width: 92%;
-  max-width: 480px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  display: none; /* Hidden on desktop by default */
 }
 
-.tab-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 14px;
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  border-radius: 24px;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
+@media (min-width: 768px) {
+  /* Ensure all components are visible in the 3-column grid layout on desktop */
+  .main-layout {
+    display: grid !important;
+  }
+  .main-layout .fixtures-sidebar-left,
+  .main-layout .fixtures-sidebar-right,
+  .main-layout .player-area,
+  .main-layout .channels-area {
+    display: block !important;
+  }
 }
 
-.tab-btn:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.tab-btn.active {
-  color: #fff;
-  background: linear-gradient(135deg, #d946ef 0%, #8b5cf6 100%);
-  box-shadow: 0 4px 12px rgba(217, 70, 239, 0.3);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.tab-icon {
-  font-size: 15px;
-}
-
-/* Main Layout adjustments under tabbed mode */
-.main-layout.tabbed-layout {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 95%;
-  max-width: 960px;
-  margin: 0 auto;
-  gap: 16px;
-}
-
-.main-layout.tabbed-layout .player-area {
-  width: 100%;
-}
-
-.main-layout.tabbed-layout .channels-area {
-  width: 100%;
-}
-
-.main-layout.tabbed-layout .fixtures-panel {
-  width: 100%;
-  max-width: 600px;
-  height: 520px !important;
-  max-height: 75vh !important;
-  margin: 8px auto;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Adjust for small screens */
-@media (max-width: 480px) {
+@media (max-width: 767px) {
+  /* Tabs container fixed at bottom like native app */
   .tabs-container {
-    width: 96%;
-    margin: 4px auto 12px;
-    gap: 4px;
-    padding: 3px;
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+    background: rgba(13, 3, 18, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0;
+    box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    justify-content: space-around;
+    gap: 0;
   }
-  
+
   .tab-btn {
-    padding: 8px 10px;
-    font-size: 11px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 4px;
+    padding: 6px 0;
+    background: transparent !important;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 0;
+    cursor: pointer;
+    box-shadow: none !important;
+    transition: color 0.2s ease;
   }
-  
+
+  .tab-btn:hover {
+    color: var(--text-primary);
+  }
+
+  .tab-btn.active {
+    color: var(--accent-pink);
+    text-shadow: 0 0 10px rgba(217, 70, 239, 0.4);
+  }
+
   .tab-icon {
-    font-size: 13px;
+    font-size: 20px;
   }
-  
-  .main-layout.tabbed-layout .fixtures-panel {
-    height: 460px !important;
-    max-height: 70vh !important;
+
+  /* Main Layout: Hide all columns by default on mobile */
+  .main-layout {
+    display: flex;
+    flex-direction: column;
+    width: 98%;
+    margin: 8px auto;
+  }
+
+  .main-layout .fixtures-sidebar-left,
+  .main-layout .fixtures-sidebar-right,
+  .main-layout .player-area,
+  .main-layout .channels-area {
+    display: none !important;
+  }
+
+  /* Show active panel depending on parent tab state */
+  .main-layout.active-tab-stream .player-area,
+  .main-layout.active-tab-stream .channels-area {
+    display: block !important;
+    width: 100%;
+  }
+
+  .main-layout.active-tab-upcoming .fixtures-sidebar-left {
+    display: block !important;
+    width: 100%;
+    height: calc(100vh - 170px) !important;
+    max-height: none !important;
+  }
+
+  .main-layout.active-tab-results .fixtures-sidebar-right {
+    display: block !important;
+    width: 100%;
+    height: calc(100vh - 170px) !important;
+    max-height: none !important;
+  }
+
+  /* Push app contents up so it's not hidden under bottom tabs */
+  .app-root {
+    padding-bottom: calc(75px + env(safe-area-inset-bottom)) !important;
   }
 }

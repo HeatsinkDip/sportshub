@@ -66,33 +66,24 @@ export default function HomePage() {
         </button>
       </div>
 
-      {/* MAIN INTERFACE — Tabbed Layout */}
-      <main className="main-layout tabbed-layout">
-        {activeTab === "stream" && (
-          <>
-            {/* Center Player */}
-            <section className="player-area">
-              <VideoPlayer channel={activeChannel} />
-            </section>
+      {/* MAIN INTERFACE — Desktop 3-Column / Mobile Tabbed Layout */}
+      <main className={`main-layout active-tab-${activeTab}`}>
+        {/* Left Upcoming & Right Past Sidebars */}
+        <FixturesSidebar fixtures={fixtures} />
 
-            {/* Channels List */}
-            <section className="channels-area">
-              <ChannelGrid
-                channels={channels}
-                activeChannel={activeChannel}
-                onSelectChannel={setActiveChannel}
-              />
-            </section>
-          </>
-        )}
+        {/* Center Player */}
+        <section className="player-area">
+          <VideoPlayer channel={activeChannel} />
+        </section>
 
-        {activeTab === "upcoming" && (
-          <FixturesSidebar fixtures={fixtures} view="upcoming" />
-        )}
-
-        {activeTab === "results" && (
-          <FixturesSidebar fixtures={fixtures} view="past" />
-        )}
+        {/* Channel Carousel */}
+        <section className="channels-area">
+          <ChannelGrid
+            channels={channels}
+            activeChannel={activeChannel}
+            onSelectChannel={setActiveChannel}
+          />
+        </section>
       </main>
 
       <Footer />
