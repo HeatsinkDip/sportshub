@@ -24,6 +24,7 @@ export default function HomePage() {
     past: [],
     live: [],
   });
+  const [activeTab, setActiveTab] = useState<"stream" | "upcoming" | "results">("stream");
   const [activeChannel, setActiveChannel] = useState<Channel | null>(null);
 
   const loadData = useCallback(async () => {
@@ -43,24 +44,55 @@ export default function HomePage() {
     <div className="app-root">
       <Header />
 
-      {/* MAIN INTERFACE — 3-column grid matching worldcuphub.tsx */}
-      <main className="main-layout">
-        {/* LEFT: Upcoming Fixtures */}
-        <FixturesSidebar fixtures={fixtures} />
+      {/* Tab Switcher for watch/upcoming/results */}
+      <div className="tabs-container">
+        <button
+          className={`tab-btn ${activeTab === "stream" ? "active" : ""}`}
+          onClick={() => setActiveTab("stream")}
+        >
+          <span className="tab-icon">📺</span> Live Stream
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "upcoming" ? "active" : ""}`}
+          onClick={() => setActiveTab("upcoming")}
+        >
+          <span className="tab-icon">📅</span> Upcoming
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "results" ? "active" : ""}`}
+          onClick={() => setActiveTab("results")}
+        >
+          <span className="tab-icon">🏆</span> Results
+        </button>
+      </div>
 
-        {/* CENTER: Video Player */}
-        <section className="player-area">
-          <VideoPlayer channel={activeChannel} />
-        </section>
+      {/* MAIN INTERFACE — Tabbed Layout */}
+      <main className="main-layout tabbed-layout">
+        {activeTab === "stream" && (
+          <>
+            {/* Center Player */}
+            <section className="player-area">
+              <VideoPlayer channel={activeChannel} />
+            </section>
 
-        {/* Channel Carousel (full width spanning all columns) */}
-        <section className="channels-area">
-          <ChannelGrid
-            channels={channels}
-            activeChannel={activeChannel}
-            onSelectChannel={setActiveChannel}
-          />
-        </section>
+            {/* Channels List */}
+            <section className="channels-area">
+              <ChannelGrid
+                channels={channels}
+                activeChannel={activeChannel}
+                onSelectChannel={setActiveChannel}
+              />
+            </section>
+          </>
+        )}
+
+        {activeTab === "upcoming" && (
+          <FixturesSidebar fixtures={fixtures} view="upcoming" />
+        )}
+
+        {activeTab === "results" && (
+          <FixturesSidebar fixtures={fixtures} view="past" />
+        )}
       </main>
 
       <Footer />

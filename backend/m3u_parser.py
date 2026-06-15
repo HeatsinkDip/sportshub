@@ -367,24 +367,21 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
         cid = chan_copy["id"]
         
         # 1. PTV Sports (ptv_sports)
-        # Category: featured. Remove server 1 (url containing "119.156.228.231").
+        # Category: featured. Keep both working servers (zohanayaan.com and second), remove only dead 119.156.228.231.
         if cid == "ptv_sports":
             chan_copy["category"] = "featured"
-            # Remove dead server 1; user verified only server 3 (last) works in production
             filtered = [s for s in chan_copy["servers"] if "119.156.228.231" not in s["url"]]
-            if len(filtered) > 1:
-                chan_copy["servers"] = filtered[-1:]  # Keep only last server (server 3)
-            else:
-                chan_copy["servers"] = filtered
+            s_zohan = [s for s in filtered if "zohanayaan.com" in s["url"]]
+            s_others = [s for s in filtered if "zohanayaan.com" not in s["url"]]
+            chan_copy["servers"] = s_zohan + s_others
         
         # 2. Somoy TV (somoy_tv)
-        # Category: featured. Remove server 1 (url containing "bozztv.com") and server 4 (url containing "toffee/play/somoy_tv").
-        # Prioritize thebosstv.com to the top.
+        # Category: featured. Remove bozztv, toffee, and gpcdn.net. Prioritize thebosstv.com first.
         elif cid == "somoy_tv":
             chan_copy["category"] = "featured"
             filtered_servers = [
                 s for s in chan_copy["servers"] 
-                if "bozztv.com" not in s["url"] and "toffee/play/somoy_tv" not in s["url"]
+                if "bozztv.com" not in s["url"] and "toffee/play/somoy_tv" not in s["url"] and "gpcdn.net" not in s["url"]
             ]
             s_top = [s for s in filtered_servers if "thebosstv.com" in s["url"]]
             s_others = [s for s in filtered_servers if "thebosstv.com" not in s["url"]]
@@ -399,16 +396,15 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
             chan_copy["servers"] = target + others
             
         # 4. Zee Bangla (zee_bangla)
-        # Category: featured (Fifa live). Make server 2 (containing "d1g8wgjurz8via.cloudfront.net") default, remove others.
+        # Category: featured (Fifa live). Keep server containing ColorsHD only.
         elif cid == "zee_bangla":
             chan_copy["category"] = "featured"
-            chan_copy["servers"] = [s for s in chan_copy["servers"] if "d1g8wgjurz8via.cloudfront.net" in s["url"]]
+            chan_copy["servers"] = [s for s in chan_copy["servers"] if "ColorsHD" in s["url"]]
             
         # 5. DAZN (dazn_full_hd_)
-        # Category: featured (Fifa live). Make server 3 (containing "exmax.workers.dev") default, remove others.
+        # Category: featured (Fifa live). Custom URL will be made default in inject_custom_channels.
         elif cid == "dazn_full_hd_":
             chan_copy["category"] = "featured"
-            # Custom URL injected as default by inject_custom_channels
             
         # 6. CAZE TV (caze_tv)
         # Category: featured (Fifa live). Make server 3 (containing "dfr80qz435crc.cloudfront.net") default, remove others.
@@ -417,20 +413,23 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
             chan_copy["servers"] = [s for s in chan_copy["servers"] if "dfr80qz435crc.cloudfront.net" in s["url"]]
             
         # 7. T Sports HD (t_sports_hd)
-        # Category: featured. Priority: make server containing "tsports/index.m3u8" first, and "tsports/tracks-v1a1/mono.m3u8" second. Keep others.
+        # Category: featured. Keep only index.m3u8 and tracks-v1a1/mono.m3u8 working servers.
         elif cid == "t_sports_hd":
             chan_copy["category"] = "featured"
             s1 = [s for s in chan_copy["servers"] if "/tsports/index.m3u8" in s["url"]]
             s2 = [s for s in chan_copy["servers"] if "/tsports/tracks-v1a1/mono.m3u8" in s["url"]]
-            others = [
-                s for s in chan_copy["servers"] 
-                if "/tsports/index.m3u8" not in s["url"] and "/tsports/tracks-v1a1/mono.m3u8" not in s["url"]
-            ]
-            chan_copy["servers"] = s1 + s2 + others
+            chan_copy["servers"] = s1 + s2
             
         # 8. D Sports (d_sports)
-        # Category: featured.
-        elif cid in ["d_sports", "fussball_tv_1", "fussball_tv_2"]:
+        # Category: featured. Remove otte servers. Custom URL will be made default in inject_custom_channels.
+        elif cid == "d_sports":
+            chan_copy["category"] = "featured"
+            chan_copy["servers"] = [
+                s for s in chan_copy["servers"]
+                if "otte.live.fly.ww.aiv-cdn.net" not in s["url"]
+            ]
+            
+        elif cid in ["fussball_tv_1", "fussball_tv_2"]:
             chan_copy["category"] = "featured"
 
         if chan_copy["servers"]:
@@ -444,16 +443,17 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
 # ── Custom hardcoded channels (user-verified URLs) ──────────────────
 CUSTOM_CHANNEL_SERVERS = {
     # channel_id: (display_name, category, quality, [server_dicts])
-    "win_sports_full_hd_": ("WIN Sports (Full HD)", "live", "FHD", [
+    # Set all custom channels to featured (Fifa Live section)
+    "win_sports_full_hd_": ("WIN Sports (Full HD)", "featured", "FHD", [
         {"url": "https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8", "name": "Win Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
-    "cctv_5_full_hd_": ("CCTV 5 (Full HD)", "live", "FHD", [
+    "cctv_5_full_hd_": ("CCTV 5 (Full HD)", "featured", "FHD", [
         {"url": "https://live12.szyac.com/live/35291799.m3u8", "name": "CCTV Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
-    "elta_sports_fhd_": ("ELTA Sports (FHD)", "live", "FHD", [
+    "elta_sports_fhd_": ("ELTA Sports (FHD)", "featured", "FHD", [
         {"url": "https://live12.szyac.com/live/22457616.m3u8", "name": "ELTA Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
-    "macao_sports_fhd_": ("Macao Sports (FHD)", "live", "FHD", [
+    "macao_sports_fhd_": ("Macao Sports (FHD)", "featured", "FHD", [
         {"url": "https://live12.szyac.com/live/09139583.m3u8", "name": "Macao Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
     "dazn_full_hd_": ("DAZN (Full HD)", "featured", "FHD", [
@@ -462,13 +462,13 @@ CUSTOM_CHANNEL_SERVERS = {
     "d_sports": ("D Sports", "featured", "FHD", [
         {"url": "https://1nyaler.streamhostingcdn.top/stream/106/index.m3u8", "name": "D Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
-    "tudn": ("TUDN", "live", "FHD", [
+    "tudn": ("TUDN", "featured", "FHD", [
         {"url": "https://1nyaler.streamhostingcdn.top/stream/52/index.m3u8", "name": "TUDN Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
-    "colatv": ("ColaTV", "live", "FHD", [
+    "colatv": ("ColaTV", "featured", "FHD", [
         {"url": "https://live05.msdht.app/live/24561735.m3u8", "name": "ColaTV Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
-    "trt_1": ("TRT 1", "live", "FHD", [
+    "trt_1": ("TRT 1", "featured", "FHD", [
         {"url": "https://tv-trt1.medya.trt.com.tr/master_1440.m3u8", "name": "TRT 1 Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
     "somoy_tv": ("Somoy TV", "featured", "HD", [
@@ -482,8 +482,13 @@ def inject_custom_channels(channels: list[dict]) -> list[dict]:
     for cid, (name, category, quality, servers) in CUSTOM_CHANNEL_SERVERS.items():
         existing = next((c for c in channels if c["id"] == cid), None)
         if existing:
+            existing["category"] = category  # Override category (e.g., to featured/FIFA Live)
             for srv in reversed(servers):
-                if srv["url"] not in [s["url"] for s in existing["servers"]]:
+                urls = [s["url"] for s in existing["servers"]]
+                if srv["url"] in urls:
+                    idx = urls.index(srv["url"])
+                    existing["servers"].insert(0, existing["servers"].pop(idx))
+                else:
                     existing["servers"].insert(0, srv)  # Insert as default
         else:
             channels.append({

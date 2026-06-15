@@ -1087,3 +1087,111 @@ a:hover { color: var(--accent-cyan); }
   .footer-btn { min-height: 36px; }
   .date-select { min-height: 36px; font-size: 13px; }
 }
+
+/* ── Tabs Component ────────────────────────────────────────────────── */
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px auto 16px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  width: 92%;
+  max-width: 480px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tab-btn.active {
+  color: #fff;
+  background: linear-gradient(135deg, #d946ef 0%, #8b5cf6 100%);
+  box-shadow: 0 4px 12px rgba(217, 70, 239, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.tab-icon {
+  font-size: 15px;
+}
+
+/* Main Layout adjustments under tabbed mode */
+.main-layout.tabbed-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 95%;
+  max-width: 960px;
+  margin: 0 auto;
+  gap: 16px;
+}
+
+.main-layout.tabbed-layout .player-area {
+  width: 100%;
+}
+
+.main-layout.tabbed-layout .channels-area {
+  width: 100%;
+}
+
+.main-layout.tabbed-layout .fixtures-panel {
+  width: 100%;
+  max-width: 600px;
+  height: 520px !important;
+  max-height: 75vh !important;
+  margin: 8px auto;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Adjust for small screens */
+@media (max-width: 480px) {
+  .tabs-container {
+    width: 96%;
+    margin: 4px auto 12px;
+    gap: 4px;
+    padding: 3px;
+  }
+  
+  .tab-btn {
+    padding: 8px 10px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  
+  .tab-icon {
+    font-size: 13px;
+  }
+  
+  .main-layout.tabbed-layout .fixtures-panel {
+    height: 460px !important;
+    max-height: 70vh !important;
+  }
+}

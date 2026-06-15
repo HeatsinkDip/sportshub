@@ -22,47 +22,52 @@ interface Fixture {
 
 interface FixturesSidebarProps {
   fixtures: { upcoming: Fixture[]; past: Fixture[]; live: Fixture[] };
+  view?: "upcoming" | "past" | "all";
 }
 
-export default function FixturesSidebar({ fixtures }: FixturesSidebarProps) {
+export default function FixturesSidebar({ fixtures, view = "all" }: FixturesSidebarProps) {
   return (
     <>
       {/* LEFT: Upcoming */}
-      <section className="fixtures-panel fixtures-sidebar-left">
-        <div className="fixtures-container">
-          {/* Live matches first if any */}
-          {fixtures.live.length > 0 && (
-            <div className="fixture-section">
-              <h2 className="fixture-heading live-heading">
-                <span className="live-dot-heading"></span> Live Now
-              </h2>
-              <div className="fixture-list">
-                {fixtures.live.map((m) => (
-                  <LiveCard key={m.id} match={m} />
-                ))}
+      {(view === "all" || view === "upcoming") && (
+        <section className="fixtures-panel fixtures-sidebar-left">
+          <div className="fixtures-container">
+            {/* Live matches first if any */}
+            {fixtures.live.length > 0 && (
+              <div className="fixture-section">
+                <h2 className="fixture-heading live-heading">
+                  <span className="live-dot-heading"></span> Live Now
+                </h2>
+                <div className="fixture-list">
+                  {fixtures.live.map((m) => (
+                    <LiveCard key={m.id} match={m} />
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-
-          <h2 className="fixture-heading upcoming-heading">
-            <span className="heading-icon">📅</span> Upcoming Fixtures
-          </h2>
-          <div className="fixture-list">
-            {fixtures.upcoming.length > 0 ? (
-              fixtures.upcoming.map((m) => (
-                <UpcomingCard key={m.id} match={m} />
-              ))
-            ) : (
-              <div className="no-fixtures">No upcoming fixtures</div>
             )}
+
+            <h2 className="fixture-heading upcoming-heading">
+              <span className="heading-icon">📅</span> Upcoming Fixtures
+            </h2>
+            <div className="fixture-list">
+              {fixtures.upcoming.length > 0 ? (
+                fixtures.upcoming.map((m) => (
+                  <UpcomingCard key={m.id} match={m} />
+                ))
+              ) : (
+                <div className="no-fixtures">No upcoming fixtures</div>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* RIGHT: Past Results */}
-      <section className="fixtures-panel fixtures-sidebar-right">
-        <PastResults matches={fixtures.past} />
-      </section>
+      {(view === "all" || view === "past") && (
+        <section className="fixtures-panel fixtures-sidebar-right">
+          <PastResults matches={fixtures.past} />
+        </section>
+      )}
     </>
   );
 }
