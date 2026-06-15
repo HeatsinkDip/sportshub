@@ -35,7 +35,8 @@ CHANNEL_WHITELIST = [
     ([["telemundo"]], "Telemundo", "live"),
     ([["m6", "direct"], ["m6"]], "M6 Direct", "live"),
     ([["sports", "18"]], "Sports 18 HD", "live"),
-    ([["fussball"], ["fußball"]], "Fussball.tv1", "live"),
+    ([["fussball", "1"], ["fussball", "tv", "1"], ["fußball", "1"]], "Fussball TV 1", "featured"),
+    ([["fussball", "2"], ["fussball", "tv", "2"], ["fußball", "2"]], "Fussball TV 2", "featured"),
     ([["tsn", "1"], ["tsn", "sports", "1"]], "TSN Sports 1", "live"),
     ([["tudn", "usa"], ["tudn"]], "TUDN", "live"),
     ([["gazi", "tv"], ["gtv"]], "Gazi TV HD", "live"),
@@ -279,7 +280,8 @@ async def is_server_working(client: httpx.AsyncClient, server: dict) -> bool:
             "thebosstv.com",
             "tsports",
             "180.94.28.28",
-            "zohanayaan.com"
+            "zohanayaan.com",
+            "t-online.de"
         ]
         if any(kw in url for kw in user_verified_keywords):
             return True
@@ -417,7 +419,7 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
             
         # 8. D Sports (d_sports)
         # Category: featured.
-        elif cid == "d_sports":
+        elif cid in ["d_sports", "fussball_tv_1", "fussball_tv_2"]:
             chan_copy["category"] = "featured"
 
         if chan_copy["servers"]:
