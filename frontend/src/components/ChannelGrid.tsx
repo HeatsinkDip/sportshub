@@ -1,0 +1,174 @@
+"use client";
+
+import { useRef } from "react";
+import { Channel } from "@/lib/api";
+
+interface ChannelGridProps {
+  channels: Channel[];
+  activeChannel: Channel | null;
+  onSelectChannel: (channel: Channel) => void;
+}
+
+export default function ChannelGrid({
+  channels,
+  activeChannel,
+  onSelectChannel,
+}: ChannelGridProps) {
+  const featured = channels.filter((c) => c.category === "featured");
+  const live = channels.filter((c) => c.category === "live");
+
+  return (
+    <section className="channel-section">
+      {/* Featured / Recommended */}
+      {featured.length > 0 && (
+        <>
+          <div className="section-header">
+            <h2 className="section-title featured-title">
+              <span className="title-icon">⭐</span> FIFA Live (Recommended)
+            </h2>
+            <span className="channel-count">{featured.length} channels</span>
+          </div>
+          <ChannelCarousel
+            channels={featured}
+            activeChannel={activeChannel}
+            onSelectChannel={onSelectChannel}
+          />
+        </>
+      )}
+
+      {/* Live Channels */}
+      {live.length > 0 && (
+        <>
+          <div className="section-header" style={{ marginTop: 16 }}>
+            <h2 className="section-title live-title">
+              <span className="title-icon">📡</span> Live Channels
+            </h2>
+            <span className="channel-count">{live.length} channels</span>
+          </div>
+          <ChannelCarousel
+            channels={live}
+            activeChannel={activeChannel}
+            onSelectChannel={onSelectChannel}
+          />
+        </>
+      )}
+
+      {channels.length === 0 && (
+        <div className="no-channels">
+          <div className="loading-spinner" />
+          <p>Loading channels from iptv-org...</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function ChannelCarousel({
+  channels,
+  activeChannel,
+  onSelectChannel,
+}: {
+  channels: Channel[];
+  activeChannel: Channel | null;
+  onSelectChannel: (channel: Channel) => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (dir: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const amount = dir === "left" ? -300 : 300;
+    scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
+  };
+
+  return (
+    <div className="carousel-wrapper">
+      <button
+        className="carousel-btn carousel-btn-left"
+        onClick={() => scroll("left")}
+        aria-label="Scroll left"
+      >
+        ‹
+      </button>
+
+      <div className="channel-grid" ref={scrollRef}>
+        {channels.map((ch) => (
+          <ChannelCard
+            key={ch.id}
+            channel={ch}
+            isActive={activeChannel?.id === ch.id}
+            onClick={() => onSelectChannel(ch)}
+          />
+        ))}
+      </div>
+
+      <button
+        className="carousel-btn carousel-btn-right"
+        onClick={() => scroll("right")}
+        aria-label="Scroll right"
+      >
+        ›
+      </button>
+    </div>
+  );
+}
+
+function ChannelCard({
+  channel,
+  isActive,
+  onClick,
+}: {
+  channel: Channel;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={`channel-card ${isActive ? "active" : ""}`}
+      onClick={onClick}
+    >
+      <div className="card-top">
+        {channel.logo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={channel.logo}
+            alt={channel.name}
+            className="channel-logo"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+              const parent = (e.target as HTMLImageElement).parentElement;
+              if (parent) {
+                const fallback = parent.querySelector(".logo-fallback") as HTMLElement;
+                if (fallback) fallback.style.display = "flex";
+              }
+            }}
+          />
+        ) : null}
+        <div
+          className="logo-fallback"
+          style={{ display: channel.logo ? "none" : "flex" }}
+        >
+          {channel.name.charAt(0)}
+        </div>
+      </div>
+
+      <div className="card-bottom">
+        <span className="channel-card-name">{channel.name}</span>
+        <div className="card-meta">
+          <span className={`quality-tag ${channel.quality.toLowerCase()}`}>
+            {channel.quality}
+          </span>
+          {channel.servers.length > 1 && (
+            <span className="server-count-badge">
+              {channel.servers.length} srv
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Live indicator */}
+      <div className="card-live-dot">
+        <span className="live-pulse"></span>
+      </div>
+    </button>
+  );
+}
