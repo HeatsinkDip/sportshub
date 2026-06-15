@@ -81,8 +81,8 @@ app = FastAPI(
 # CORS — allow Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "*"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -131,6 +131,20 @@ async def refresh_data():
     }
 
 
+def get_backend_base_url(request: Request) -> str:
+    """Dynamically determine the backend's external base URL from request headers or URL."""
+    proto = request.headers.get("x-forwarded-proto")
+    if not proto:
+        proto = request.url.scheme
+        
+    host = request.headers.get("x-forwarded-host")
+    if not host:
+        host = request.headers.get("host")
+    if not host:
+        host = request.url.netloc
+        
+    return f"{proto}://{host}"
+
 def decode_config(hex_config: str) -> dict:
     if hex_config == "empty":
         return {}
@@ -155,7 +169,7 @@ def decode_url(hex_url: str) -> str:
 def encode_url(url: str) -> str:
     return url.encode('utf-8').hex()
 
-def _rewrite_mpd_manifest(content: str, manifest_url: str, referrer: str, user_agent: str) -> str:
+def _rewrite_mpd_manifest(content: str, manifest_url: str, referrer: str, user_agent: str, backend_base_url: str) -> str:
     """
     Rewrite base URLs or inject a BaseURL tag pointing to the path-based proxy
     so that relative DASH segments resolve through the proxy correctly.
@@ -171,7 +185,7 @@ def _rewrite_mpd_manifest(content: str, manifest_url: str, referrer: str, user_a
     
     hex_base = encode_url(base_dir)
     # We use a path-based BaseURL relative to the local proxy
-    proxy_base_url = f"/api/proxy-stream/c/{hex_config}/{hex_base}/"
+    proxy_base_url = f"{backend_base_url}/api/proxy-stream/c/{hex_config}/{hex_base}/"
     
     # Check if there are existing <BaseURL> tags
     has_base_url = "<BaseURL" in content
@@ -184,7 +198,7 @@ def _rewrite_mpd_manifest(content: str, manifest_url: str, referrer: str, user_a
             if not abs_url.endswith('/'):
                 abs_url += '/'
             hex_abs = encode_url(abs_url)
-            return f'<{match.group(1)}>/api/proxy-stream/c/{hex_config}/{hex_abs}/</BaseURL>'
+            return f'<{match.group(1)}>{backend_base_url}/api/proxy-stream/c/{hex_config}/{hex_abs}/</BaseURL>'
             
         content = re.sub(r'<(BaseURL[^>]*)>(.*?)</BaseURL>', replace_base_url, content, flags=re.DOTALL)
     else:
@@ -199,6 +213,7 @@ def _rewrite_mpd_manifest(content: str, manifest_url: str, referrer: str, user_a
 
 @app.get("/api/proxy-stream")
 async def proxy_stream(
+    request: Request,
     url: str = Query(..., description="M3U8/MPD stream URL to proxy"),
     referrer: str = Query("", description="HTTP Referer header"),
     user_agent: str = Query("", description="HTTP User-Agent header"),
@@ -252,7 +267,8 @@ async def proxy_stream(
             body_bytes = await resp.aread()
             await resp.aclose()
             body_text = body_bytes.decode("utf-8", errors="ignore")
-            body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent)
+            backend_base_url = get_backend_base_url(request)
+            body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent, backend_base_url)
             return Response(
                 content=body,
                 media_type="application/vnd.apple.mpegurl",
@@ -267,7 +283,8 @@ async def proxy_stream(
             body_bytes = await resp.aread()
             await resp.aclose()
             body_text = body_bytes.decode("utf-8", errors="ignore")
-            body = _rewrite_mpd_manifest(body_text, str(resp.url), referrer, user_agent)
+            backend_base_url = get_backend_base_url(request)
+            body = _rewrite_mpd_manifest(body_text, str(resp.url), referrer, user_agent, backend_base_url)
             return Response(
                 content=body,
                 media_type="application/dash+xml",
@@ -377,7 +394,8 @@ async def proxy_stream_path(
             body_bytes = await resp.aread()
             await resp.aclose()
             body_text = body_bytes.decode("utf-8", errors="ignore")
-            body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent)
+            backend_base_url = get_backend_base_url(request)
+            body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent, backend_base_url)
             return Response(
                 content=body,
                 media_type="application/vnd.apple.mpegurl",
@@ -392,7 +410,8 @@ async def proxy_stream_path(
             body_bytes = await resp.aread()
             await resp.aclose()
             body_text = body_bytes.decode("utf-8", errors="ignore")
-            body = _rewrite_mpd_manifest(body_text, str(resp.url), referrer, user_agent)
+            backend_base_url = get_backend_base_url(request)
+            body = _rewrite_mpd_manifest(body_text, str(resp.url), referrer, user_agent, backend_base_url)
             return Response(
                 content=body,
                 media_type="application/dash+xml",
@@ -431,10 +450,10 @@ async def proxy_stream_path(
         return JSONResponse({"error": str(e)}, status_code=502)
 
 
-def _rewrite_manifest_urls(manifest: str, base_url: str, referrer: str, user_agent: str) -> str:
+def _rewrite_manifest_urls(manifest: str, base_url: str, referrer: str, user_agent: str, backend_base_url: str) -> str:
     """
     Rewrite URLs in an HLS manifest to go through our proxy.
-    Handles both relative and absolute URLs.
+    Handles both relative and absolute URLs, producing absolute URLs.
     """
     lines = manifest.split('\n')
     rewritten = []
@@ -448,10 +467,12 @@ def _rewrite_manifest_urls(manifest: str, base_url: str, referrer: str, user_age
             if 'URI="' in stripped:
                 def replace_uri(match):
                     uri = match.group(1)
-                    if uri.startswith("/api/proxy-stream"):
+                    if uri.startswith(f"{backend_base_url}/api/proxy-stream"):
                         return match.group(0)
+                    if uri.startswith("/api/proxy-stream"):
+                        return f'URI="{backend_base_url}{uri}"'
                     abs_url = urljoin(base_url, uri)
-                    proxy_url = f"/api/proxy-stream?url={quote(abs_url)}"
+                    proxy_url = f"{backend_base_url}/api/proxy-stream?url={quote(abs_url)}"
                     if referrer:
                         proxy_url += f"&referrer={quote(referrer)}"
                     if user_agent:
@@ -463,11 +484,13 @@ def _rewrite_manifest_urls(manifest: str, base_url: str, referrer: str, user_age
             rewritten.append(stripped)
         else:
             # This is a URL line — rewrite it
-            if stripped.startswith("/api/proxy-stream"):
+            if stripped.startswith(f"{backend_base_url}/api/proxy-stream"):
                 rewritten.append(stripped)
+            elif stripped.startswith("/api/proxy-stream"):
+                rewritten.append(f"{backend_base_url}{stripped}")
             else:
                 abs_url = urljoin(base_url, stripped)
-                proxy_url = f"/api/proxy-stream?url={quote(abs_url)}"
+                proxy_url = f"{backend_base_url}/api/proxy-stream?url={quote(abs_url)}"
                 if referrer:
                     proxy_url += f"&referrer={quote(referrer)}"
                 if user_agent:
