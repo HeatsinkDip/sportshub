@@ -43,15 +43,66 @@ export interface FixturesData {
   live: Fixture[];
 }
 
+export const FALLBACK_CHANNELS: Channel[] = [
+  {
+    id: "win_sports_full_hd_",
+    name: "WIN Sports (Full HD)",
+    category: "featured",
+    logo: "https://i.imgur.com/DuSSrHV.png",
+    quality: "FHD",
+    servers: [{ url: "https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8", name: "Win Sports Custom", quality: "FHD", referrer: "", user_agent: "" }]
+  },
+  {
+    id: "cctv_5_full_hd_",
+    name: "CCTV 5 (Full HD)",
+    category: "featured",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/d/d3/CCTVNewLogo.svg",
+    quality: "FHD",
+    servers: [{ url: "https://live12.szyac.com/live/35291799.m3u8", name: "CCTV Custom", quality: "FHD", referrer: "", user_agent: "" }]
+  },
+  {
+    id: "elta_sports_fhd_",
+    name: "ELTA Sports (FHD)",
+    category: "featured",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/5/5b/ELTA_logo.svg",
+    quality: "FHD",
+    servers: [{ url: "https://live12.szyac.com/live/22457616.m3u8", name: "ELTA Sports Custom", quality: "FHD", referrer: "", user_agent: "" }]
+  },
+  {
+    id: "macao_sports_fhd_",
+    name: "Macao Sports (FHD)",
+    category: "featured",
+    logo: "https://static.wikia.nocookie.net/logopedia/images/2/2c/TDMSport.png",
+    quality: "FHD",
+    servers: [{ url: "https://live12.szyac.com/live/09139583.m3u8", name: "Macao Sports Custom", quality: "FHD", referrer: "", user_agent: "" }]
+  },
+  {
+    id: "dazn_full_hd_",
+    name: "DAZN (Full HD)",
+    category: "featured",
+    logo: "https://i.postimg.cc/VsW3Jsrz/logo-DAZN-Combat.png",
+    quality: "FHD",
+    servers: [{ url: "https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8", name: "DAZN Custom", quality: "FHD", referrer: "", user_agent: "" }]
+  },
+  {
+    id: "colatv",
+    name: "ColaTV",
+    category: "featured",
+    logo: "https://colatv.app/favicon.png",
+    quality: "FHD",
+    servers: [{ url: "https://live05.msdht.app/live/24561735.m3u8", name: "ColaTV Custom", quality: "FHD", referrer: "", user_agent: "" }]
+  }
+];
+
 export async function fetchChannels(): Promise<Channel[]> {
   try {
     const res = await fetch(`${API_BASE}/api/channels`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    return data.channels || [];
+    return data.channels && data.channels.length > 0 ? data.channels : FALLBACK_CHANNELS;
   } catch (err) {
-    console.error("Failed to fetch channels:", err);
-    return [];
+    console.error("Failed to fetch channels, using fallback list:", err);
+    return FALLBACK_CHANNELS;
   }
 }
 

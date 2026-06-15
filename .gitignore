@@ -38,5 +38,5 @@ Thumbs.db
 
 # Project Scratch & Caches
 scratch/
-backend/channels_cache.json
 .gemini/
+

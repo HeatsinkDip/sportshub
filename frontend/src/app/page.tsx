@@ -16,10 +16,11 @@ import {
   FixturesData,
   fetchChannels,
   fetchFixtures,
+  FALLBACK_CHANNELS,
 } from "@/lib/api";
 
 export default function HomePage() {
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<Channel[]>(FALLBACK_CHANNELS);
   const [upcomingFixtures, setUpcomingFixtures] = useState<any[]>([]);
   const [pastFixtures, setPastFixtures] = useState<any[]>([]);
   const [liveFixtures, setLiveFixtures] = useState<any[]>([]);

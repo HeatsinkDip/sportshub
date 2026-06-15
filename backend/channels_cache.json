@@ -1,0 +1,1253 @@
+[
+  {
+    "id": "caze_tv",
+    "name": "CAZE TV",
+    "category": "featured",
+    "logo": "https://static.wikia.nocookie.net/logopedia/images/e/e9/CazeTV2022.svg",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://dfr80qz435crc.cloudfront.net/MNOP/Amagi/Caze/Caze_TV_BR/Caze_TV.m3u8",
+        "name": "Caze TV Brazil 🇧🇷",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "cctv_5_full_hd_",
+    "name": "CCTV 5 (Full HD)",
+    "category": "featured",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/d/d3/CCTVNewLogo.svg",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://live12.szyac.com/live/35291799.m3u8",
+        "name": "CCTV Custom",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "colatv",
+    "name": "ColaTV",
+    "category": "featured",
+    "logo": "https://colatv.app/favicon.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://live05.msdht.app/live/24561735.m3u8",
+        "name": "ColaTV Custom",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "d_sports",
+    "name": "D Sports",
+    "category": "featured",
+    "logo": "https://i.imgur.com/2PoEm1x.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://1nyaler.streamhostingcdn.top/stream/106/index.m3u8",
+        "name": "D Sports",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "dazn_full_hd_",
+    "name": "DAZN (Full HD)",
+    "category": "featured",
+    "logo": "https://i.postimg.cc/VsW3Jsrz/logo-DAZN-Combat.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8",
+        "name": "Dazn Direct",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://dazn-combat-rakuten.amagi.tv/hls/amagi_hls_data_rakutenAA-dazn-combat-rakuten/CDN/master.m3u8",
+        "name": "DAZN Combat (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://aegis-cloudfront-1.tubi.video/bfad29e2-5bee-44f3-8256-127324e8b106/playlist.m3u8",
+        "name": "Dazn Ringside (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://fhd60fps-by-opensourecflix.exmax.workers.dev/index.m3u8",
+        "name": "DAZN HDR",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "elta_sports_fhd_",
+    "name": "ELTA Sports (FHD)",
+    "category": "featured",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/5/5b/ELTA_logo.svg",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://live12.szyac.com/live/22457616.m3u8",
+        "name": "ELTA Sports Custom",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "fussball_tv_1",
+    "name": "Fussball TV 1",
+    "category": "featured",
+    "logo": "https://static.wikia.nocookie.net/logopedia/images/0/0a/Sportdigital_Fu%C3%9Fball.svg",
+    "quality": "4K",
+    "servers": [
+      {
+        "url": "https://svc45.main.sl.t-online.de/bpk-tv/KID01037_FUSSBALLTV1_hd/DASH/index.mpd",
+        "name": "FUSSBALL TV 1 4K",
+        "quality": "4K",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "clearkey",
+        "license_key": "1cb20afcd9d979c833cfd208c7d3eeb2:fef0c15b4a523370892edd5e4133c269"
+      }
+    ]
+  },
+  {
+    "id": "fussball_tv_2",
+    "name": "Fussball TV 2",
+    "category": "featured",
+    "logo": "https://static.wikia.nocookie.net/logopedia/images/0/0a/Sportdigital_Fu%C3%9Fball.svg",
+    "quality": "4K",
+    "servers": [
+      {
+        "url": "https://svc45.main.sl.t-online.de/bpk-tv/KID01064_FUSSBALLTV2_hd/DASH/index.mpd",
+        "name": "FUSSBALL TV 2 4K",
+        "quality": "4K",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "clearkey",
+        "license_key": "1889c6c8cdf57aa3bc90bb976ca6cbdc:48ef3649d9076965b70e79e58b0028ef"
+      }
+    ]
+  },
+  {
+    "id": "macao_sports_fhd_",
+    "name": "Macao Sports (FHD)",
+    "category": "featured",
+    "logo": "https://static.wikia.nocookie.net/logopedia/images/2/2c/TDMSport.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://live12.szyac.com/live/09139583.m3u8",
+        "name": "Macao Sports Custom",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "ptv_sports",
+    "name": "PTV Sports",
+    "category": "featured",
+    "logo": "https://i.imgur.com/CPm6GHA.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "http://119.156.228.231:9983/stream/channelid/679185749?ticket=DED82FB8AE85893524A1035AAE7CD187020FFA04&profile=pass",
+        "name": "PTV Sports",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://180.94.28.28:8097/PTV-Sports/index.fmp4.m3u8?token=0afd64dfdff056a802054ceb369650609e3f7903-ce3f54a7704ae11d5cc2c64e6af9db86-1781451407-1781447807",
+        "name": "PTV SPORTS",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "somoy_tv",
+    "name": "Somoy TV",
+    "category": "featured",
+    "logo": "https://i.imgur.com/i54AQic.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8",
+        "name": "Somoy TV",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "t_sports_hd",
+    "name": "T Sports HD",
+    "category": "featured",
+    "logo": "https://i.imgur.com/2JzlorD.png",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "http://198.195.239.50:8095/tsports/index.m3u8",
+        "name": "T Sports",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://198.195.239.50:8095/tsports/tracks-v1a1/mono.m3u8",
+        "name": "T Sports BDIX",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "trt_1",
+    "name": "TRT 1",
+    "category": "featured",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/TRT_1_logo_%282021-%29.svg/960px-TRT_1_logo_%282021-%29.svg.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://tv-trt1.medya.trt.com.tr/master_1440.m3u8",
+        "name": "TRT 1 Custom",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://tv-trt1.medya.trt.com.tr/master.m3u8",
+        "name": "TRT 1 (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "tudn",
+    "name": "TUDN",
+    "category": "featured",
+    "logo": "https://i.imgur.com/oT5CAvd.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://1nyaler.streamhostingcdn.top/stream/52/index.m3u8",
+        "name": "TUDN Custom",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://streaming.alwaysdata.net/tudn.php",
+        "name": "TUDN (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://linear-357.frequency.stream/dist/vizio/357/hls/master/playlist.m3u8",
+        "name": "TUDN MX",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "win_sports_full_hd_",
+    "name": "WIN Sports (Full HD)",
+    "category": "featured",
+    "logo": "https://i.imgur.com/DuSSrHV.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8",
+        "name": "Win Sports",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "zee_bangla",
+    "name": "Zee Bangla",
+    "category": "featured",
+    "logo": "https://sunplex.net/iptv/logo/zee-bangla.jpg",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/ColorsHD/default/ColorsHD.m3u8",
+        "name": "Zee Bangla Cinema",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "bein_sports_1_full_hd_",
+    "name": "beIN Sports 1 (Full HD)",
+    "category": "featured",
+    "logo": "http://ftpbdlive.com/assets/images/BEIN-SPORTS-1-ENG.png",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "http://het4444.ycn-redirect.com/live/610303030/index.m3u8?t=XgTsAjb1QkrYQQnjbPWlsw&e=1781176238",
+        "name": "BeIN Sports Max 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://het4444.ycn-redirect.com/live/610303030/index.m3u8?t=XgTsAjb1QkrYQQnjbPWlsw&e=1781176238|User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+        "name": "Bein Sports Max 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://starhub.pro/live/farhat-3379/67897-913379/744517.ts",
+        "name": "Bein Sports 1 Max Arabic",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg02873-kravemedia-mtrspt1-distrotv/playlist.m3u8",
+        "name": "Bein Sports 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://180.94.28.28:8097/BEIN-SPORTS-1-ENG/index.fmp4.m3u8?token=42c18a10b98142fbccda683c7e4d4c82122cdfe4-f73700184d792fabc04e29b7997ae647-1781451450-1781447850",
+        "name": "BEIN SPORTS 1 ENG",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://180.94.28.28:8097/BEIN-SPORTS-1/index.fmp4.m3u8?token=2861a467543695fe932675641e6dc4ffe7010bd6-8ebe8a35d5b036c87d25d8a5c4c5f5b9-1781451454-1781447854",
+        "name": "BEIN SPORTS 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8",
+        "name": "BeIN Sports 1 Direct",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://otte.live.fly.ww.aiv-cdn.net/syd-nitro/live/clients/dash/enc/ghwcl6hv68/out/v1/83536910d8034e9b9895a20fbe1c1687/cenc.mpd",
+        "name": "BEIN SPORTS 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "Mozilla/5.0",
+        "license_type": "clearkey",
+        "license_key": "335dad778109954503dcbb21dc92015f:24bfd75d436cbf73168a2a2dccd40281"
+      }
+    ]
+  },
+  {
+    "id": "espn",
+    "name": "ESPN",
+    "category": "live",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/ESPN_Deportes.svg/960px-ESPN_Deportes.svg.png",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "https://cdn9.zohanayaan.com:1686/hls/espnusa.m3u8?md5=89Hap5UOv52MaUt9CaXzGQ&expires=1781570306",
+        "name": "ESPN 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn8.zohanayaan.com:1686/hls/espn2.m3u8?md5=P76WA-mjqlMvZMl8TDT03Q&expires=1781570306",
+        "name": "ESPN 2",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn2.zohanayaan.com:1686/hls/espnusa.m3u8?md5=PVARlpzjpCG16p5ATdtkog&expires=1781570423",
+        "name": "ESPN 1",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn7.zohanayaan.com:1686/hls/espn2.m3u8?md5=GMMDzBvc8ifff_lnabFhiA&expires=1781570423",
+        "name": "ESPN 2",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "fifa_tv",
+    "name": "FIFA TV",
+    "category": "live",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/FIFA%2B_(2025).svg/960px-FIFA%2B_(2025).svg.png",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "https://37b4c228.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWZyX0ZJRkFQbHVzRnJlbmNoX0hMUw/playlist.m3u8",
+        "name": "FIFA+ French (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://4397879b.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWRlX0ZJRkFQbHVzR2VybWFuX0hMUw/playlist.m3u8",
+        "name": "FIFA+ German (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://6c849fb3.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/TEctbXhfRklGQVBsdXNTcGFuaXNoLTFfSExT/playlist.m3u8",
+        "name": "FIFA+ Hispanic America (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://5d95f7d7.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWl0X0ZJRkFQbHVzSXRhbGlhbl9ITFM/playlist.m3u8",
+        "name": "FIFA+ Italy (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://e3be9ac5.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/TEctYnJfRklGQVBsdXNQb3J0dWd1ZXNlX0hMUw/playlist.m3u8",
+        "name": "FIFA+ Portuguese (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://d63fabad.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWVzX0ZJRkFQbHVzU3BhbmlzaF9ITFM/playlist.m3u8",
+        "name": "FIFA+ Spain (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://d2w9q46ikgrcwx.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-of5cbk3sav3w5/v1/sysdata_s_p_a_fifa_7/samsungheadend_us/latest/main/hls/playlist.m3u8",
+        "name": "FIFA+ United States (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cffda8ff.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/U2Ftc3VuZy1nYl9GSUZBUGx1c3dvbWVuX0hMUw/playlist.m3u8",
+        "name": "FIFA+ Women (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://180.94.28.28:8097/Fifa-2026/index.fmp4.m3u8?token=e6ab1067647770980325ef83942bc5c314edc845-a37f1e574ebf492c7a25f84f36a9ea7b-1781451404-1781447804",
+        "name": "FIFA 2026",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://a62dad94.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X0ZJRkFQbHVzRW5nbGlzaF9ITFM/playlist.m3u8",
+        "name": "FIFA+",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://str2.v3v3v.xyz:2082/live/rokhsi25_951396/POm6KqnW/277428.ts",
+        "name": "Zee Bangla Sonar (FIFA BANGLA COMMENTARY)",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "fox_sports_1",
+    "name": "FOX Sports 1",
+    "category": "live",
+    "logo": "https://i.imgur.com/O9BapV9.png",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "https://cors-everywhere-wc8b4.ondigitalocean.app/https://otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/tmpzbbdj9y/out/v1/962736723a534ba294e7592fef49827b/cenc.mpd",
+        "name": "Fox Sports 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+        "license_type": "clearkey",
+        "license_key": "5466ebd70704bdeb657f0abf3c5ca4ef:bdd79b72d8e48ed483aa623cc38a8a16"
+      }
+    ]
+  },
+  {
+    "id": "gazi_tv_hd",
+    "name": "Gazi TV HD",
+    "category": "live",
+    "logo": "https://i.imgur.com/b0Wx7pE.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "http://media3.smc-host.com:1935/elbesharagtv.com/gtv.smil/playlist.m3u8",
+        "name": "Elbeshara GTV (1080p) [Not 24/7]",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://g2qd3exjy7an-hls-live.5centscdn.com/gtvghana/ghanaweb.stream/playlist.m3u8",
+        "name": "GTV (540p)",
+        "quality": "SD",
+        "referrer": "https://liveghanatv.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://livestream.telvue.com/nashuanh3/f7b44cfafd5c52223d5498196c8a2e7b.sdp/playlist.m3u8",
+        "name": "Nashua GTV Channel 16 Nashua NH (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://180.94.28.28:8097/GAZI-TV/index.fmp4.m3u8?token=4c401501fec2f3e4d3f551dd89c935849afd26b1-932a1c7338c725f8482dd3329a32dcb5-1781451468-1781447868",
+        "name": "GAZI TV",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "m6_direct",
+    "name": "M6 Direct",
+    "category": "live",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/c/c9/M6_Music_%282012%29.png",
+    "quality": "SD",
+    "servers": [
+      {
+        "url": "https://test.946985.filegear-sg.me/proxy/803c517b325bfafc",
+        "name": "M6 Music",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
+        "name": "M6 Direct TV",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "clearkey",
+        "license_key": "433ffba670963e70857859a9dff4be04:51ede3a821229fe81e71282c8eff80e3"
+      }
+    ]
+  },
+  {
+    "id": "sky_sports",
+    "name": "Sky Sports",
+    "category": "live",
+    "logo": "https://abusaeeidx.github.io/Tv-Channel-Logo/CricHD/runded/56-by-xfireflix.png",
+    "quality": "SD",
+    "servers": [
+      {
+        "url": "https://cdn3.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=kuB42WD7giUGRePbSwksrQ&expires=1781570302",
+        "name": "Sky Sport Nz 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn9.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=WiTvB5ecPAFOwYNEH_VjVQ&expires=1781570303",
+        "name": "Sky Sport Nz 2",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn2.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=JO8lurwS1jyeSzGpsFO4GQ&expires=1781570303",
+        "name": "Sky Sport Nz 3",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn1.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=C7kXKsIc7gO2gNLfrGPM7A&expires=1781570303",
+        "name": "Sky Sport Nz 4",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn8.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=RACgNjgtOqMxMBT7CQBuOg&expires=1781570303",
+        "name": "Sky Sport Nz 5",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn2.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=3mf-0zbkEKMXKfkiLdbB5Q&expires=1781570303",
+        "name": "Sky Sport 6 Nz",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn4.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=6iafQsdu_JQZSa0kFwcn_g&expires=1781570303",
+        "name": "Sky Sport Nz 7",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn1.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=7s96UYJ2mSyS4fVlU4DuYg&expires=1781570304",
+        "name": "Sky Sport Nz 8",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn4.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=KQT4Zwp5HGBU5gLnbEbPdQ&expires=1781570304",
+        "name": "Sky Sport Nz 9",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn10.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=jGtrBqm7s8m5QmBO9-pU4Q&expires=1781570420",
+        "name": "Sky Sport Nz 1",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn7.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=rbHFZrSklSfNI3rMsSjthg&expires=1781570420",
+        "name": "Sky Sport Nz 2",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn3.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=TJvIV2j_OpUPpw0ZaqPiZg&expires=1781570420",
+        "name": "Sky Sport Nz 3",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn9.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=cgeZDVH4dVVM0Cs7mWA-8g&expires=1781570421",
+        "name": "Sky Sport Nz 4",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn7.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=C4cUIwmr-VL-DFI4OZp-nQ&expires=1781570421",
+        "name": "Sky Sport Nz 5",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn8.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=rnBjlSgG-6xCKhmynZNseQ&expires=1781570421",
+        "name": "Sky Sport 6 Nz",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn3.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=NLTNYjvhXudCw2wvgAR1Pw&expires=1781570421",
+        "name": "Sky Sport Nz 7",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn3.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=xEysESGvmT_DBi4smNfiPQ&expires=1781570421",
+        "name": "Sky Sport Nz 8",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn5.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=6xwSTXSKiyYnf-Lvoja1Ag&expires=1781570421",
+        "name": "Sky Sport Nz 9",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "sony_ten_1_hd",
+    "name": "Sony TEN 1 HD",
+    "category": "live",
+    "logo": "https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_SONY_SPORTS_TEN_1/images/LOGO_HD/image.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "http://180.94.28.28:8097/Sony-Ten-1/index.fmp4.m3u8?token=e5024890b3c468d0d049f0e5d3b1fa15f5fac2a6-29841768e6a8407b240ea06f2806c197-1781451423-1781447823",
+        "name": "SONY TEN 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://sm-monirul.top/toffee/play/sony_sports_1_hd.m3u8",
+        "name": "SONY SPORTS TEN 1 HD",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "sony_ten_2_hd",
+    "name": "Sony TEN 2 HD",
+    "category": "live",
+    "logo": "https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_SONY_SPORTS_TEN_2/images/LOGO_HD/image.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "http://180.94.28.28:8097/Sony-Ten-2/index.fmp4.m3u8?token=b2bae9ceb9bed26804c18b151788e2c37c295d17-e3ce7e6b9c2d6d901d13ac7b36b24fa6-1781451425-1781447825",
+        "name": "SONY TEN 2",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://sm-monirul.top/toffee/play/sony_sports_2_hd.m3u8",
+        "name": "SONY SPORTS TEN 2 HD",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "sony_ten_3",
+    "name": "Sony TEN 3",
+    "category": "live",
+    "logo": "https://dtil.tmsimg.com/assets/GNLZZGG0025TCMR.png?lock=720x540",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "http://180.94.28.28:8097/Sony-Ten-3/index.fmp4.m3u8?token=c8ca442bcf0dbe3d3484612e6d70eadc4021d200-9bd027e087f73619dafbd67b32c5a705-1781451427-1781447827",
+        "name": "SONY TEN 3",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "supersport",
+    "name": "SuperSport",
+    "category": "live",
+    "logo": "http://ftpbdlive.com/assets/images/SuperSportcricket.png",
+    "quality": "SD",
+    "servers": [
+      {
+        "url": "http://180.94.28.28:8097/SUPERSPORT-CRICKET/index.fmp4.m3u8?token=4231c4fa9b8872a5da68d7245aff99853c6b3e95-7634050a04435b1c189a5bde3d1849db-1781451440-1781447840",
+        "name": "SUPERSPORT CRICKET",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "tipik_fr",
+    "name": "TIPIK FR",
+    "category": "live",
+    "logo": "https://i.imgur.com/LKLjnrp.png",
+    "quality": "SD",
+    "servers": [
+      {
+        "url": "https://c9851ec-rbm-hilv-fsly.cdn.redbee.live/L26/6b640fa2/a765d074.isml/dash/.mpd",
+        "name": "Tipik Direct",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "clearkey",
+        "license_key": "adca25b8779e4168a0cd710f59f61ccf:be5383ed3cd8079f4ffe78ad067f476a"
+      }
+    ]
+  },
+  {
+    "id": "tsn_sports_1",
+    "name": "TSN Sports 1",
+    "category": "live",
+    "logo": "https://static.wikia.nocookie.net/logopedia/images/3/30/TSN1_HD.svg",
+    "quality": "SD",
+    "servers": [
+      {
+        "url": "https://otte-tim.live.pv-cdn.net/pdx-nitro/live/clients/dash/enc/aezp9y6l15/out/v1/69a2a7041395406b970598f61680e7cf/cenc.mpd",
+        "name": "TSN 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "clearkey",
+        "license_key": "7b37e4614fcee2ec2ff6e5900c2f798f:f349a9c28c55c20b9a2c50af99d1fc76"
+      }
+    ]
+  },
+  {
+    "id": "tudn_sports_canal_5_full_hd_",
+    "name": "TUDN Sports - Canal 5 (Full HD)",
+    "category": "live",
+    "logo": "https://static.wikia.nocookie.net/logopedia/images/f/f6/TUDN.svg",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/8u9cregwlt/out/v1/687f6b2a559943549be271504a948ffd/cenc.mpd",
+        "name": "TUDN SPORTS HD",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "clearkey",
+        "license_key": "1710ac2bbfcd3032d0f6533850968f47:d2548dacc8efcd1cd0af0373060c82dc"
+      },
+      {
+        "url": "https://a162aivottevtad-a.akamaihd.net/IAD/83926f460d3441c0981f73bd62d7abab/v1/dash/091788724010/univision_vix_linear_amzn1_dv_live_csid_38f331a6-f6dd-4396-9193-4c0d5b6678b4_us-east-1_iad_dash_h264_none_stereo/live/clients/dash/enc/8u9cregwlt/out/v1/687f6b2a559943549be271504a948ffd/cenc.mpd?aws.sessionId=bac94a06-9cdd-4392-a494-8e68c98055ae&amznDtid=AOAGZA014O5RE&encoding=segmentBase",
+        "name": "TUDN SPORTS FHD",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "clearkey",
+        "license_key": "1710ac2bbfcd3032d0f6533850968f47:d2548dacc8efcd1cd0af0373060c82dc"
+      }
+    ]
+  },
+  {
+    "id": "tv_azteca",
+    "name": "TV Azteca",
+    "category": "live",
+    "logo": "http://images.mi.tv/channels/mx_azteca-7_m.png",
+    "quality": "SD",
+    "servers": [
+      {
+        "url": "https://1nyaler.streamhostingcdn.top/stream/117/index.m3u8",
+        "name": "TV Azteca",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "telemundo",
+    "name": "Telemundo",
+    "category": "live",
+    "logo": "https://images.fubo.tv/channel-config-ui/station-logos/on-white/telemundo_al_dia_1000x1500_2x3_logo_300dpi_vertical_full_color_logo_xumo-3-copy.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist.m3u8",
+        "name": "NBCU Telemundo Florida (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://nbcu-telemundonortheast-firetv.amagi.tv/playlist.m3u8",
+        "name": "NBCU Telemundo North East (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://nbcu-telemundotexas-firetv.amagi.tv/playlist.m3u8",
+        "name": "NBCU Telemundo Texas (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://nbcu-telemundowest-firetv.amagi.tv/playlist.m3u8",
+        "name": "NBCU Telemundo West (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://xumo-drct-ch835-ekq0p.fast.nbcuni.com/live/master.m3u8",
+        "name": "Telemundo Accion (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://d1rqgw5gocwo9i.cloudfront.net/manifest/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod_default_xumo-nbcu-stitched/10a44c37-f976-4d2b-ab23-8637a7a094ca/3.m3u8",
+        "name": "Telemundo Al Dia",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://d1kq7q3vteqjb.cloudfront.net/master.m3u8",
+        "name": "Telemundo Al Día (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://content.uplynk.com/channel/b6a96ed39d694ae1b738faa98cf7dd3f.m3u8",
+        "name": "Telemundo Corpus Christi (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://xumo-xumoent-ch827-uj0ch.fast.nbcuni.com/live/master.m3u8",
+        "name": "Telemundo Noticias Ahora (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://amg00884-nbcuniversal-nbctelemundoflorida-xumo-atn0m.amagi.tv/playlist.m3u8",
+        "name": "Telemundo Noticias Florida (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://amg00884-nbcuniversal-nbctelemundonortheast-xumo-ok3ha.amagi.tv/playlist.m3u8",
+        "name": "Telemundo Noticias Noreste (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://xumo-drct-ch836-57aiq.fast.nbcuni.com/live/master.m3u8",
+        "name": "Telemundo Romance (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://nbculocallive.akamaized.net/hls/live/2037499/puertorico/stream1/master.m3u8",
+        "name": "WKAQ-DT1 (Telemundo PR) (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://live-oneapp-prd-news.akamaized.net/Content/CMAF_OL2-CTR-4s-v2/Live/channel(kvea)/master.mpd",
+        "name": "TELEMUNDO FHD",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "clearkey",
+        "license_key": "ce7ab3022e753307997f58afe001bac4:72d631a66e635c60829a0fe7705516c1"
+      }
+    ]
+  },
+  {
+    "id": "universo",
+    "name": "Universo",
+    "category": "live",
+    "logo": "https://i.imgur.com/RZ8pIKe.png",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "http://190.11.225.124:5000/live/universo_hd/playlist.m3u8",
+        "name": "NBC Universo West (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://5bf8041cb3fed.streamlock.net/TUUNIVERSOTV/TUUNIVERSOTV/playlist.m3u8",
+        "name": "Tu Universo TV (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "yes_tv_hd",
+    "name": "YES TV HD",
+    "category": "live",
+    "logo": "https://i.imgur.com/3CDxatu.png",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "https://stream1.aswifi.it/radioyes/live/index.m3u8",
+        "name": "TV Yes Italia (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "bein_sports_2",
+    "name": "beIN Sports 2",
+    "category": "live",
+    "logo": "http://ftpbdlive.com/assets/images/BEIN-SPORTS-2.png",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "http://180.94.28.28:8097/BEIN-SPORTS-2/index.fmp4.m3u8?token=ef32cb011c922bc77b4aff085842b3dba3dba8bc-8fb8c3ba83a66120d9f2a93da247179e-1781451456-1781447856",
+        "name": "BEIN SPORTS 2",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://het4444.ycn-redirect.com/live/1515000000/index.m3u8?t=GL6h-5KFWoH5-xlxp4aZqw&e=1781180635",
+        "name": "BeIN Sports Max 2",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://otte.live.fly.ww.aiv-cdn.net/syd-nitro/live/clients/dash/enc/8m8cd46i1t/out/v1/83985c68e4174e90a58a1f2c024be4c9/cenc.mpd",
+        "name": "BEIN SPORTS 2",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "Mozilla/5.0",
+        "license_type": "clearkey",
+        "license_key": "0b42be2664d7e811d04f3e504e0924c5:ae24090123b8c72ac5404dc152847cb8"
+      },
+      {
+        "url": "http://het4444.ycn-redirect.com/live/1515000000/index.m3u8?t=GL6h-5KFWoH5-xlxp4aZqw&e=1781180635|User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+        "name": "Bein Sports Max 2",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  }
+]
