@@ -58,7 +58,7 @@ export default function ChannelGrid({
       {channels.length === 0 && (
         <div className="no-channels">
           <div className="loading-spinner" />
-          <p>Loading channels from iptv-org...</p>
+          <p>Loading channels. Please wait...</p>
         </div>
       )}
     </section>

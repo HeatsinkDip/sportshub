@@ -591,7 +591,7 @@ CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels_
 
 
 def load_channels_from_disk() -> list[dict]:
-    """Load cached channels from local JSON file if it exists."""
+    """Load cached channels from local JSON file if it exists, otherwise initialize fallback custom channels."""
     global _cached_channels
     if os.path.exists(CACHE_FILE):
         try:
@@ -603,7 +603,16 @@ def load_channels_from_disk() -> list[dict]:
                     return _cached_channels
         except Exception as e:
             print(f"[M3U] Error reading disk cache: {e}")
-    return []
+            
+    # Fallback/Default: initialize with custom channels immediately if cache is missing
+    print("[M3U] Cache file missing. Initializing cache with custom channels fallback.")
+    fallback = inject_custom_channels([])
+    for chan in fallback:
+        cid = chan.get("id")
+        if (not chan.get("logo") or chan.get("logo") == "") and cid in CHANNEL_LOGOS:
+            chan["logo"] = CHANNEL_LOGOS[cid]
+    _cached_channels = fallback
+    return _cached_channels
 
 
 def get_cached_channels() -> list[dict]:

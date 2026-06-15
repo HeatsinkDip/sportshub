@@ -102,8 +102,8 @@ async def get_channels():
     """Return all World Cup channels with their stream servers."""
     channels = get_cached_channels()
     if not channels:
-        # Try fetching again
-        channels = await fetch_and_parse_m3u()
+        from m3u_parser import load_channels_from_disk
+        channels = load_channels_from_disk()
 
     return {
         "channels": channels,
