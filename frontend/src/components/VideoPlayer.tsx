@@ -172,15 +172,21 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
         const hls = new Hls({
           debug: false,
           enableWorker: true,
-          lowLatencyMode: true,            // Tuned for faster startup/low-latency
-          backBufferLength: 30,            // Smaller buffer to preserve memory
-          maxBufferLength: 10,             // Start playing faster (10s buffer instead of 30s)
-          maxMaxBufferLength: 15,          // Cap max buffer to 15s instead of 60s
+          lowLatencyMode: false,              // Disabled: proxy adds latency, low-latency mode causes stalls
+          backBufferLength: 30,
+          maxBufferLength: 30,                // 30s buffer for proxy latency tolerance
+          maxMaxBufferLength: 60,             // Allow up to 60s to avoid rebuffering
           startFragPrefetch: true,
-          liveSyncDurationCount: 3,        // Keep sync close to live edge
-          liveMaxLatencyDurationCount: 5,  // Fail/fallback if latency is too large
+          liveSyncDurationCount: 4,           // 4 segments behind live edge (tolerant)
+          liveMaxLatencyDurationCount: 10,    // Allow up to 10 segments latency before seeking
+          liveBackBufferLength: 30,
+          fragLoadingTimeOut: 20000,           // 20s timeout per fragment (proxy can be slow)
+          manifestLoadingTimeOut: 15000,       // 15s manifest timeout
+          levelLoadingTimeOut: 15000,
+          fragLoadingMaxRetry: 3,
+          manifestLoadingMaxRetry: 3,
           xhrSetup: (xhr) => {
-            xhr.timeout = 10000;           // 10s timeout instead of 30s to trigger failover faster
+            xhr.timeout = 20000;              // 20s XHR timeout for proxy
           },
         });
 

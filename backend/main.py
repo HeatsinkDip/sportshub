@@ -38,8 +38,8 @@ async def lifespan(app: FastAPI):
     """Startup: load disk cache, initialize client, start background tasks."""
     print("[Startup] Initializing global HTTP client and cache...")
     global global_proxy_client
-    limits = httpx.Limits(max_keepalive_connections=100, max_connections=200)
-    global_proxy_client = httpx.AsyncClient(limits=limits, timeout=30.0, follow_redirects=True)
+    limits = httpx.Limits(max_keepalive_connections=150, max_connections=300)
+    global_proxy_client = httpx.AsyncClient(limits=limits, timeout=45.0, follow_redirects=True)
 
     # Load from disk cache instantly (takes ~10ms)
     try:

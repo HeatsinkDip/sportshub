@@ -915,18 +915,175 @@ a:hover { color: var(--accent-cyan); }
 .footer-link { display: none; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE — Mobile-app-like experience
    ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet (≤ 768px) ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .header-logo { height: 36px; }
-  .header-tagline { font-size: 22px; }
-  .main-layout { width: 98%; gap: 12px; }
-  .fixtures-panel { height: auto; max-height: 320px; }
-  .channel-card { flex: 0 0 100px; }
-  .footer-nav { justify-content: center; }
+  body {
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+  }
+
+  .site-header { padding: 8px 0 4px; }
+  .header-logo { height: 32px; }
+  .header-tagline { font-size: 20px; letter-spacing: -0.3px; }
+  .tournament-badge { font-size: 9px; letter-spacing: 3px; }
+  .header-tagline-sub { font-size: 8px; }
+
+  .main-layout {
+    width: 100%;
+    gap: 8px;
+    padding: 0 4px;
+    margin: 4px auto;
+  }
+
+  /* Player takes full width, no side padding */
+  .player-area { width: 100%; }
+  .video-player-container { border-radius: 0; }
+  .player-header-bar {
+    border-radius: 8px 8px 0 0;
+    padding: 6px 10px;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+  .channel-name-player { font-size: 10px; padding: 2px 8px; }
+  .video-wrapper {
+    border-radius: 0 0 8px 8px;
+    border-width: 1px;
+  }
+  .player-bottom-bar {
+    font-size: 10px;
+    padding: 6px 8px;
+    border-radius: 0 0 6px 6px;
+  }
+
+  /* Fixtures: horizontal scrolling cards on mobile */
+  .fixtures-panel {
+    height: auto;
+    max-height: 260px;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  .fixture-heading { font-size: 11px; letter-spacing: 1px; padding-bottom: 4px; }
+  .fixture-card { padding: 8px; }
+  .team-name { font-size: 12px; }
+  .team-flag { font-size: 12px; }
+  .fixture-time { font-size: 10px; padding: 2px 6px; }
+
+  /* Channel cards: smaller, tighter grid */
+  .channel-section { padding: 8px; border-radius: 8px; }
+  .channel-grid { gap: 8px; padding: 4px 32px; }
+  .channel-card {
+    flex: 0 0 96px;
+    border-radius: 6px;
+    padding: 6px 4px;
+  }
+  .channel-card-name { font-size: 8px; }
+  .channel-logo { max-height: 32px; }
+  .logo-fallback { width: 32px; height: 32px; font-size: 14px; }
+  .carousel-btn { width: 26px; height: 26px; font-size: 14px; }
+
+  /* Footer: stack vertically */
+  .footer-nav {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 9px;
+  }
+  .footer-left, .footer-right { flex-wrap: wrap; justify-content: center; }
+  .disclaimer-bar { font-size: 9px; padding: 5px 10px; }
 }
 
+/* ── Phone (≤ 480px) — True app-like feel ──────────────────────────── */
 @media (max-width: 480px) {
-  .channel-card { flex: 0 0 88px; }
-  .player-header-bar { flex-wrap: wrap; gap: 4px; padding: 4px 8px; }
+  .site-header { padding: 6px 0 2px; }
+  .header-logo { height: 28px; }
+  .header-tagline { font-size: 17px; }
+  .tournament-badge { font-size: 8px; letter-spacing: 2px; }
+
+  .main-layout {
+    gap: 6px;
+    padding: 0 2px;
+    margin: 2px auto;
+  }
+
+  /* Full-bleed player */
+  .player-header-bar {
+    border-radius: 6px 6px 0 0;
+    padding: 4px 8px;
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+  .live-badge-player { font-size: 8px; padding: 2px 6px; }
+  .channel-name-player { font-size: 9px; padding: 1px 6px; }
+  .server-select { font-size: 10px; padding: 4px 6px; }
+  .player-btn { padding: 4px 8px; font-size: 16px; min-height: 32px; min-width: 32px; }
+  .video-wrapper { border-radius: 0 0 6px 6px; }
+
+  /* Fixtures compact */
+  .fixtures-panel { max-height: 220px; padding: 8px; }
+  .fixture-card { padding: 6px; }
+  .fixture-meta { margin-bottom: 4px; }
+  .team-name { font-size: 11px; }
+  .fixture-time { font-size: 9px; }
+  .fixture-venue { font-size: 8px; }
+
+  /* Channel cards for thumb scrolling */
+  .channel-grid { gap: 6px; padding: 4px 28px; }
+  .channel-card {
+    flex: 0 0 82px;
+    aspect-ratio: 1 / 1;
+    padding: 6px 3px;
+    gap: 3px;
+  }
+  .channel-card.active { transform: scale(1.08); border-width: 3px; }
+  .channel-card-name { font-size: 7px; letter-spacing: 0.2px; }
+  .quality-tag { font-size: 6px; }
+  .server-count-badge { font-size: 6px; }
+  .channel-logo { max-height: 28px; }
+  .logo-fallback { width: 28px; height: 28px; font-size: 12px; border-radius: 6px; }
+  .carousel-btn { width: 22px; height: 22px; font-size: 12px; border-radius: 4px; }
+  .section-title { font-size: 11px; }
+  .section-header { margin-bottom: 6px; }
+
+  /* Footer ultra-compact */
+  .disclaimer-bar { font-size: 8px; padding: 4px 8px; gap: 4px; margin-bottom: 4px; border-radius: 4px; }
+  .disclaimer-icon { font-size: 12px; }
+  .footer-btn { padding: 5px 8px; font-size: 9px; }
+  .footer-badge { font-size: 8px; padding: 1px 4px; }
+  .site-footer { padding: 6px 0; }
+}
+
+/* ── Small phones (≤ 360px) ────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .header-tagline { font-size: 15px; }
+  .channel-card { flex: 0 0 72px; }
+  .player-header-bar { gap: 2px; }
+  .channel-name-player { display: none; }
+  .fixtures-panel { max-height: 180px; }
+}
+
+/* ── Safe area for notched devices ─────────────────────────────────── */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .site-footer {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+  .app-root {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* ── Touch optimization ────────────────────────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+  .channel-card { min-height: 44px; }
+  .player-btn { min-height: 36px; min-width: 36px; }
+  .server-select { min-height: 36px; font-size: 12px; }
+  .retry-btn { min-height: 44px; padding: 10px 24px; font-size: 14px; }
+  .carousel-btn { min-height: 36px; min-width: 36px; }
+  .footer-btn { min-height: 36px; }
+  .date-select { min-height: 36px; font-size: 13px; }
 }

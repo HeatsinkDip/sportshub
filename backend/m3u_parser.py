@@ -59,6 +59,8 @@ CHANNEL_WHITELIST = [
     ([["sony", "six"]], "Sony SIX", "live"),
     ([["skynet", "sport"]], "Skynet Sports HD", "live"),
     ([["zee", "bangla"]], "Zee Bangla", "live"),
+    ([["cola", "tv"], ["colatv"]], "ColaTV", "live"),
+    ([["trt", "1"]], "TRT 1", "live"),
 ]
 
 
@@ -281,7 +283,11 @@ async def is_server_working(client: httpx.AsyncClient, server: dict) -> bool:
             "tsports",
             "180.94.28.28",
             "zohanayaan.com",
-            "t-online.de"
+            "t-online.de",
+            "streamhostingcdn.top",
+            "szyac.com",
+            "msdht.app",
+            "medya.trt.com.tr"
         ]
         if any(kw in url for kw in user_verified_keywords):
             return True
@@ -364,7 +370,12 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
         # Category: featured. Remove server 1 (url containing "119.156.228.231").
         if cid == "ptv_sports":
             chan_copy["category"] = "featured"
-            chan_copy["servers"] = [s for s in chan_copy["servers"] if "119.156.228.231" not in s["url"]]
+            # Remove dead server 1; user verified only server 3 (last) works in production
+            filtered = [s for s in chan_copy["servers"] if "119.156.228.231" not in s["url"]]
+            if len(filtered) > 1:
+                chan_copy["servers"] = filtered[-1:]  # Keep only last server (server 3)
+            else:
+                chan_copy["servers"] = filtered
         
         # 2. Somoy TV (somoy_tv)
         # Category: featured. Remove server 1 (url containing "bozztv.com") and server 4 (url containing "toffee/play/somoy_tv").
@@ -397,7 +408,7 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
         # Category: featured (Fifa live). Make server 3 (containing "exmax.workers.dev") default, remove others.
         elif cid == "dazn_full_hd_":
             chan_copy["category"] = "featured"
-            chan_copy["servers"] = [s for s in chan_copy["servers"] if "exmax.workers.dev" in s["url"]]
+            # Custom URL injected as default by inject_custom_channels
             
         # 6. CAZE TV (caze_tv)
         # Category: featured (Fifa live). Make server 3 (containing "dfr80qz435crc.cloudfront.net") default, remove others.
@@ -428,6 +439,64 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
     # Sort featured first, then by name
     modified_channels.sort(key=lambda c: (0 if c["category"] == "featured" else 1, c["name"]))
     return modified_channels
+
+
+# ── Custom hardcoded channels (user-verified URLs) ──────────────────
+CUSTOM_CHANNEL_SERVERS = {
+    # channel_id: (display_name, category, quality, [server_dicts])
+    "win_sports_full_hd_": ("WIN Sports (Full HD)", "live", "FHD", [
+        {"url": "https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8", "name": "Win Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "cctv_5_full_hd_": ("CCTV 5 (Full HD)", "live", "FHD", [
+        {"url": "https://live12.szyac.com/live/35291799.m3u8", "name": "CCTV Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "elta_sports_fhd_": ("ELTA Sports (FHD)", "live", "FHD", [
+        {"url": "https://live12.szyac.com/live/22457616.m3u8", "name": "ELTA Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "macao_sports_fhd_": ("Macao Sports (FHD)", "live", "FHD", [
+        {"url": "https://live12.szyac.com/live/09139583.m3u8", "name": "Macao Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "dazn_full_hd_": ("DAZN (Full HD)", "featured", "FHD", [
+        {"url": "https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8", "name": "DAZN Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "d_sports": ("D Sports", "featured", "FHD", [
+        {"url": "https://1nyaler.streamhostingcdn.top/stream/106/index.m3u8", "name": "D Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "tudn": ("TUDN", "live", "FHD", [
+        {"url": "https://1nyaler.streamhostingcdn.top/stream/52/index.m3u8", "name": "TUDN Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "colatv": ("ColaTV", "live", "FHD", [
+        {"url": "https://live05.msdht.app/live/24561735.m3u8", "name": "ColaTV Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "trt_1": ("TRT 1", "live", "FHD", [
+        {"url": "https://tv-trt1.medya.trt.com.tr/master_1440.m3u8", "name": "TRT 1 Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "somoy_tv": ("Somoy TV", "featured", "HD", [
+        {"url": "https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8", "name": "Somoy TV Custom", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+}
+
+
+def inject_custom_channels(channels: list[dict]) -> list[dict]:
+    """Inject user-verified custom channel URLs as priority (first) servers."""
+    for cid, (name, category, quality, servers) in CUSTOM_CHANNEL_SERVERS.items():
+        existing = next((c for c in channels if c["id"] == cid), None)
+        if existing:
+            for srv in reversed(servers):
+                if srv["url"] not in [s["url"] for s in existing["servers"]]:
+                    existing["servers"].insert(0, srv)  # Insert as default
+        else:
+            channels.append({
+                "id": cid,
+                "name": name,
+                "category": category,
+                "logo": "",
+                "quality": quality,
+                "servers": list(servers),
+            })
+    # Re-sort: featured first, then by name
+    channels.sort(key=lambda c: (0 if c["category"] == "featured" else 1, c["name"]))
+    return channels
 
 
 async def fetch_and_parse_m3u() -> list[dict]:
@@ -477,6 +546,7 @@ async def fetch_and_parse_m3u() -> list[dict]:
                     valid_channels.append(chan)
 
         _cached_channels = apply_server_and_category_overrides(valid_channels)
+        _cached_channels = inject_custom_channels(_cached_channels)
         print(f"[M3U] Total: {len(all_channels)} → {len(_cached_channels)} working channels matched")
 
         # Save to disk cache
