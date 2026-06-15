@@ -2,6 +2,8 @@
 
 import { useRef } from "react";
 import { Channel } from "@/lib/api";
+import StarBorder from "./StarBorder";
+import { FiStar, FiRadio, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 interface ChannelGridProps {
   channels: Channel[];
@@ -24,7 +26,7 @@ export default function ChannelGrid({
         <>
           <div className="section-header">
             <h2 className="section-title featured-title">
-              <span className="title-icon">⭐</span> FIFA Live (Recommended)
+              <span className="title-icon"><FiStar /></span> FIFA Live (Recommended)
             </h2>
             <span className="channel-count">{featured.length} channels</span>
           </div>
@@ -41,7 +43,7 @@ export default function ChannelGrid({
         <>
           <div className="section-header" style={{ marginTop: 16 }}>
             <h2 className="section-title live-title">
-              <span className="title-icon">📡</span> Live Channels
+              <span className="title-icon"><FiRadio /></span> Live Channels
             </h2>
             <span className="channel-count">{live.length} channels</span>
           </div>
@@ -87,7 +89,7 @@ function ChannelCarousel({
         onClick={() => scroll("left")}
         aria-label="Scroll left"
       >
-        ‹
+        <FiChevronLeft />
       </button>
 
       <div className="channel-grid" ref={scrollRef}>
@@ -106,7 +108,7 @@ function ChannelCarousel({
         onClick={() => scroll("right")}
         aria-label="Scroll right"
       >
-        ›
+        <FiChevronRight />
       </button>
     </div>
   );
@@ -122,9 +124,13 @@ function ChannelCard({
   onClick: () => void;
 }) {
   return (
-    <button
+    <StarBorder
+      as="button"
       className={`channel-card ${isActive ? "active" : ""}`}
       onClick={onClick}
+      color={isActive ? "#d946ef" : "rgba(255, 255, 255, 0.25)"}
+      speed={isActive ? "3.5s" : "8s"}
+      thickness={isActive ? 2 : 1}
     >
       <div className="card-top">
         {channel.logo ? (
@@ -169,6 +175,6 @@ function ChannelCard({
       <div className="card-live-dot">
         <span className="live-pulse"></span>
       </div>
-    </button>
+    </StarBorder>
   );
 }

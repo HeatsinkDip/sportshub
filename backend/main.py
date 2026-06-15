@@ -14,19 +14,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 
 from m3u_parser import fetch_and_parse_m3u, get_cached_channels
-from fixtures_scraper import scrape_fifa_fixtures, get_cached_fixtures
+from fixtures_scraper import scrape_fifa_fixtures, get_cached_fixtures, fetch_openfootball_data
 
 
 # ── Background refresh task ──────────────────────────────────────────
 async def periodic_refresh():
-    """Refresh M3U playlist and fixtures every 10 minutes."""
+    """Refresh M3U playlist, openfootball data, and fixtures every 15 minutes."""
     while True:
         try:
             await fetch_and_parse_m3u()
+            await fetch_openfootball_data()
             await scrape_fifa_fixtures()
         except Exception as e:
             print(f"[Refresh] Error: {e}")
-        await asyncio.sleep(600)  # 10 minutes
+        await asyncio.sleep(900)  # 15 minutes
 
 
 # Create global HTTP client for stream proxying
@@ -50,9 +51,10 @@ async def lifespan(app: FastAPI):
 
     # Trigger async scraping in background to refresh the list without blocking server startup
     asyncio.create_task(fetch_and_parse_m3u())
+    asyncio.create_task(fetch_openfootball_data())
     asyncio.create_task(scrape_fifa_fixtures())
 
-    # Start periodic refresh every 10 minutes
+    # Start periodic refresh every 15 minutes
     refresh_task = asyncio.create_task(periodic_refresh())
     print("[Startup] Background tasks initialized successfully.")
 
@@ -111,13 +113,16 @@ async def get_channels():
 
 
 @app.get("/api/fixtures")
-async def get_fixtures():
-    """Return upcoming and past World Cup fixtures."""
-    fixtures = get_cached_fixtures()
-    if not any(fixtures.values()):
-        fixtures = await scrape_fifa_fixtures()
-
-    return fixtures
+async def get_fixtures(
+    date: str = Query(None, description="Format YYYY-MM-DD"),
+    tz_offset: int = Query(0, description="Browser getTimezoneOffset() in minutes")
+):
+    """Return upcoming and past fixtures, optionally filtered by date."""
+    if not date:
+        from datetime import date as dt
+        date = dt.today().isoformat()
+    from fixtures_scraper import fetch_sportmonks_fixtures_by_date
+    return await fetch_sportmonks_fixtures_by_date(date, tz_offset)
 
 
 @app.get("/api/refresh")

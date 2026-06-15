@@ -55,9 +55,14 @@ export async function fetchChannels(): Promise<Channel[]> {
   }
 }
 
-export async function fetchFixtures(): Promise<FixturesData> {
+export async function fetchFixtures(date?: string): Promise<FixturesData> {
   try {
-    const res = await fetch(`${API_BASE}/api/fixtures`);
+    const tzOffset = new Date().getTimezoneOffset(); // minutes behind UTC (e.g. -330 for IST)
+    const params = new URLSearchParams();
+    if (date) params.set("date", date);
+    params.set("tz_offset", String(tzOffset));
+    const url = `${API_BASE}/api/fixtures?${params.toString()}`;
+    const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.json();
   } catch (err) {

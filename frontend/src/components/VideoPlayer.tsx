@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Hls from "hls.js";
 import * as dashjs from "dashjs";
 import { Channel, Server, getProxyStreamUrl } from "@/lib/api";
+import Noise from "./Noise";
+import { FiRefreshCw, FiMaximize, FiMinimize, FiAlertCircle } from "react-icons/fi";
 
 interface VideoPlayerProps {
   channel: Channel | null;
@@ -36,7 +38,6 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [quality, setQuality] = useState("auto");
   const [retryCount, setRetryCount] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -111,6 +112,35 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
       if (isDash) {
         const player = dashjs.MediaPlayer().create();
 
+        // ── Speed optimizations: fast startup ──
+        player.updateSettings({
+          streaming: {
+            buffer: {
+              stableBufferTime: 8,
+              bufferTimeAtTopQuality: 12,
+              initialBufferLevel: 1,
+              bufferToKeep: 10,
+              bufferPruningInterval: 10,
+            },
+            delay: {
+              liveDelay: 4,
+            },
+            abr: {
+              autoSwitchBitrate: { video: true, audio: true },
+            },
+            retryAttempts: {
+              MPD: 3,
+              MediaSegment: 3,
+              InitializationSegment: 3,
+            },
+            retryIntervals: {
+              MPD: 1000,
+              MediaSegment: 1000,
+              InitializationSegment: 1000,
+            },
+          },
+        } as any);
+
         // ClearKey DRM configuration if keys exist
         if (server.license_key) {
           const keysObj: Record<string, string> = {};
@@ -173,20 +203,23 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
           debug: false,
           enableWorker: true,
           lowLatencyMode: false,              // Disabled: proxy adds latency, low-latency mode causes stalls
-          backBufferLength: 30,
-          maxBufferLength: 30,                // 30s buffer for proxy latency tolerance
-          maxMaxBufferLength: 60,             // Allow up to 60s to avoid rebuffering
+          backBufferLength: 15,
+          maxBufferLength: 15,                // 15s initial buffer — starts playback faster
+          maxMaxBufferLength: 45,             // Cap to prevent over-buffering
+          maxBufferHole: 0.5,                 // Tolerate small gaps to avoid stalls
           startFragPrefetch: true,
-          liveSyncDurationCount: 4,           // 4 segments behind live edge (tolerant)
-          liveMaxLatencyDurationCount: 10,    // Allow up to 10 segments latency before seeking
-          liveBackBufferLength: 30,
-          fragLoadingTimeOut: 20000,           // 20s timeout per fragment (proxy can be slow)
-          manifestLoadingTimeOut: 15000,       // 15s manifest timeout
-          levelLoadingTimeOut: 15000,
+          liveSyncDurationCount: 2,           // Only 2 segments behind live — faster startup
+          liveMaxLatencyDurationCount: 6,     // Seek if 6+ segments behind
+          liveBackBufferLength: 15,
+          fragLoadingTimeOut: 15000,           // 15s timeout per fragment
+          manifestLoadingTimeOut: 10000,       // 10s manifest timeout — fail fast
+          levelLoadingTimeOut: 10000,
           fragLoadingMaxRetry: 3,
           manifestLoadingMaxRetry: 3,
+          startLevel: -1,                     // Auto-select best starting quality
+          abrEwmaDefaultEstimate: 1000000,    // Assume 1Mbps initially — avoids slow start on HD
           xhrSetup: (xhr) => {
-            xhr.timeout = 20000;              // 20s XHR timeout for proxy
+            xhr.timeout = 15000;              // 15s XHR timeout
           },
         });
 
@@ -351,8 +384,15 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
           <span>— Select a Channel to Watch —</span>
         </div>
         <div className="video-wrapper placeholder-wrapper">
+          <Noise patternAlpha={18} />
           <div className="placeholder-content">
-            <div className="placeholder-icon">📺</div>
+            <div className="placeholder-logo-wrapper">
+              <img
+                src="/fifa_logo.png"
+                alt="FIFA World Cup 2026 Logo"
+                className="placeholder-fifa-logo"
+              />
+            </div>
             <h3>FIFA World Cup 2026™</h3>
             <p>Choose a channel below to start watching</p>
           </div>
@@ -384,10 +424,10 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
             </select>
           )}
           <button className="player-btn refresh-btn" onClick={handleRefresh} title="Refresh Stream">
-            ↻
+            <FiRefreshCw className="refresh-icon" />
           </button>
           <button className="player-btn" onClick={toggleFullscreen} title="Fullscreen">
-            {isFullscreen ? "⊡" : "⛶"}
+            {isFullscreen ? <FiMinimize /> : <FiMaximize />}
           </button>
         </div>
       </div>
@@ -413,7 +453,7 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
         {/* Error overlay */}
         {error && (
           <div className="player-overlay error-overlay">
-            <div className="error-icon">⚡</div>
+            <FiAlertCircle className="error-icon" />
             <p>{error}</p>
             <div className="error-actions">
               <button className="retry-btn" onClick={handleRetry}>

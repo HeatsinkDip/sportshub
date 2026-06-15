@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
+import { FiCalendar, FiChevronLeft, FiChevronRight, FiAward, FiMapPin } from "react-icons/fi";
 
 interface Team {
   name: string;
@@ -21,54 +22,185 @@ interface Fixture {
 }
 
 interface FixturesSidebarProps {
-  fixtures: { upcoming: Fixture[]; past: Fixture[]; live: Fixture[] };
+  upcomingFixtures: Fixture[];
+  pastFixtures: Fixture[];
+  liveFixtures: Fixture[];
   view?: "upcoming" | "past" | "all";
+  upcomingDate: string;
+  onSelectUpcomingDate: (date: string) => void;
+  completedDate: string;
+  onSelectCompletedDate: (date: string) => void;
 }
 
-export default function FixturesSidebar({ fixtures, view = "all" }: FixturesSidebarProps) {
+export default function FixturesSidebar({
+  upcomingFixtures,
+  pastFixtures,
+  liveFixtures,
+  view = "all",
+  upcomingDate,
+  onSelectUpcomingDate,
+  completedDate,
+  onSelectCompletedDate,
+}: FixturesSidebarProps) {
+  // Sort upcoming by time ascending (earliest first)
+  const sortedUpcoming = useMemo(() => {
+    return [...upcomingFixtures].sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+  }, [upcomingFixtures]);
+
+  // Sort past by time descending (most recent first)
+  const sortedPast = useMemo(() => {
+    return [...pastFixtures].sort((a, b) => (b.time || "").localeCompare(a.time || ""));
+  }, [pastFixtures]);
+
   return (
     <>
-      {/* LEFT: Upcoming */}
-      {(view === "all" || view === "upcoming") && (
-        <section className="fixtures-panel fixtures-sidebar-left">
-          <div className="fixtures-container">
-            {/* Live matches first if any */}
-            {fixtures.live.length > 0 && (
-              <div className="fixture-section">
-                <h2 className="fixture-heading live-heading">
-                  <span className="live-dot-heading"></span> Live Now
-                </h2>
-                <div className="fixture-list">
-                  {fixtures.live.map((m) => (
-                    <LiveCard key={m.id} match={m} />
-                  ))}
-                </div>
-              </div>
-            )}
+      {/* LEFT: Live & Completed Results */}
+      <section className="fixtures-panel fixtures-sidebar-left">
+        <div className="fixtures-container">
+          <CalendarBar selectedDate={completedDate} onSelectDate={onSelectCompletedDate} />
 
-            <h2 className="fixture-heading upcoming-heading">
-              <span className="heading-icon">📅</span> Upcoming Fixtures
+          {/* Live matches Section */}
+          <div className={`fixture-section live-section-desktop ${liveFixtures.length === 0 ? "live-section-empty" : ""}`}>
+            <h2 className="fixture-heading live-heading">
+              <span className="live-dot-heading"></span> Live Now
             </h2>
             <div className="fixture-list">
-              {fixtures.upcoming.length > 0 ? (
-                fixtures.upcoming.map((m) => (
-                  <UpcomingCard key={m.id} match={m} />
+              {liveFixtures.length > 0 ? (
+                liveFixtures.map((m) => (
+                  <LiveCard key={m.id} match={m} />
                 ))
               ) : (
-                <div className="no-fixtures">No upcoming fixtures</div>
+                <div className="no-fixtures">No matches live right now</div>
               )}
             </div>
           </div>
-        </section>
-      )}
 
-      {/* RIGHT: Past Results */}
-      {(view === "all" || view === "past") && (
-        <section className="fixtures-panel fixtures-sidebar-right">
-          <PastResults matches={fixtures.past} />
-        </section>
-      )}
+          {/* Completed matches Section */}
+          <div className="fixture-section completed-section-desktop">
+            <h2 className="fixture-heading past-heading">
+              <span className="heading-icon"><FiAward /></span> Completed Results
+            </h2>
+            <div className="fixture-list">
+              {sortedPast.length > 0 ? (
+                sortedPast.map((m) => (
+                  <PastCard key={m.id} match={m} />
+                ))
+              ) : (
+                <div className="no-fixtures">No completed matches for this date</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* RIGHT: Upcoming */}
+      <section className="fixtures-panel fixtures-sidebar-right">
+        <div className="fixtures-container">
+          <CalendarBar selectedDate={upcomingDate} onSelectDate={onSelectUpcomingDate} />
+
+          <div className="fixture-section">
+            <h2 className="fixture-heading upcoming-heading">
+              <span className="heading-icon">
+                <FiCalendar style={{ display: "inline-block", verticalAlign: "middle", marginTop: -2 }} />
+              </span>{" "}
+              Upcoming Matches
+            </h2>
+            <div className="fixture-list">
+              {sortedUpcoming.length > 0 ? (
+                sortedUpcoming.map((m) => (
+                  <UpcomingCard key={m.id} match={m} />
+                ))
+              ) : (
+                <div className="no-fixtures">No upcoming matches for this date</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
     </>
+  );
+}
+
+/* ── Calendar Bar Component ────────────────────────────────────────── */
+interface CalendarBarProps {
+  selectedDate: string;
+  onSelectDate: (date: string) => void;
+}
+
+function CalendarBar({ selectedDate, onSelectDate }: CalendarBarProps) {
+  const currentDate = new Date(selectedDate + "T12:00:00");
+
+  const dates = useMemo(() => {
+    const arr = [];
+    for (let i = -2; i <= 2; i++) {
+      const d = new Date(currentDate);
+      d.setDate(currentDate.getDate() + i);
+      arr.push(d);
+    }
+    return arr;
+  }, [selectedDate]);
+
+  const handlePrevDay = () => {
+    const prev = new Date(currentDate);
+    prev.setDate(currentDate.getDate() - 1);
+    onSelectDate(formatIsoDate(prev));
+  };
+
+  const handleNextDay = () => {
+    const next = new Date(currentDate);
+    next.setDate(currentDate.getDate() + 1);
+    onSelectDate(formatIsoDate(next));
+  };
+
+  const formatIsoDate = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  return (
+    <div className="calendar-bar">
+      <button className="cal-nav-btn" onClick={handlePrevDay} aria-label="Previous day">
+        <FiChevronLeft />
+      </button>
+
+      <div className="cal-dates-row">
+        {dates.map((d) => {
+          const iso = formatIsoDate(d);
+          const isActive = iso === selectedDate;
+          const isToday = iso === formatIsoDate(new Date());
+          const labelDay = d.toLocaleDateString("en-US", { weekday: "short" });
+          const labelNum = d.getDate();
+          return (
+            <button
+              key={iso}
+              className={`cal-date-btn ${isActive ? "active" : ""} ${isToday ? "today" : ""}`}
+              onClick={() => onSelectDate(iso)}
+            >
+              <span className="cal-day-name">{labelDay}</span>
+              <span className="cal-day-num">{labelNum}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <button className="cal-nav-btn" onClick={handleNextDay} aria-label="Next day">
+        <FiChevronRight />
+      </button>
+
+      <div className="cal-picker-wrapper">
+        <FiCalendar className="cal-picker-icon" />
+        <input
+          type="date"
+          className="cal-date-picker-input"
+          value={selectedDate}
+          onChange={(e) => {
+            if (e.target.value) onSelectDate(e.target.value);
+          }}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -93,7 +225,12 @@ function UpcomingCard({ match }: { match: Fixture }) {
           <span className="team-flag">{match.team2.flag}</span>
         </span>
       </div>
-      {match.venue && <div className="fixture-venue">📍 {match.venue}</div>}
+      {match.venue && (
+        <div className="fixture-venue">
+          <FiMapPin style={{ display: "inline-block", verticalAlign: "middle", marginRight: 4, marginTop: -2 }} />
+          {match.venue}
+        </div>
+      )}
     </div>
   );
 }
@@ -127,57 +264,6 @@ function LiveCard({ match }: { match: Fixture }) {
           <span className="team-name">{match.team2.name}</span>
           <span className="score-box live-score">{match.team2.score ?? 0}</span>
         </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Past Results with date filter ─────────────────────────────────── */
-function PastResults({ matches }: { matches: Fixture[] }) {
-  const [dateFilter, setDateFilter] = useState("all");
-
-  const uniqueDates = useMemo(() => {
-    const dates = [...new Set(matches.map((m) => m.date))].sort();
-    return dates;
-  }, [matches]);
-
-  const filtered = useMemo(() => {
-    if (dateFilter === "all") return matches;
-    return matches.filter((m) => m.date === dateFilter);
-  }, [matches, dateFilter]);
-
-  return (
-    <div className="fixtures-container">
-      <h2 className="fixture-heading past-heading">
-        <span className="heading-icon">🕐</span> Past Results
-      </h2>
-
-      {/* Date Filter */}
-      <div className="fixture-filter">
-        <label className="filter-label">Filter by Date</label>
-        <div className="select-wrapper">
-          <select
-            className="date-select"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-          >
-            <option value="all">All Matchdays</option>
-            {uniqueDates.map((d) => (
-              <option key={d} value={d}>
-                {formatDate(d)}
-              </option>
-            ))}
-          </select>
-          <span className="select-arrow">▾</span>
-        </div>
-      </div>
-
-      <div className="fixture-list">
-        {filtered.length > 0 ? (
-          filtered.map((m) => <PastCard key={m.id} match={m} />)
-        ) : (
-          <div className="no-fixtures">No fixtures found for this date.</div>
-        )}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
+import DotField from "@/components/DotField";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -47,7 +48,12 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="icon" href="/logo.png" />
       </head>
-      <body>{children}</body>
+      <body>
+        <div className="background-field-wrapper">
+          <DotField />
+        </div>
+        {children}
+      </body>
     </html>
   );
 }

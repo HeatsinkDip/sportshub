@@ -1,39 +1,18 @@
 "use client";
 
+import ScrollVelocity from "./ScrollVelocity";
+
 export default function Footer() {
   return (
     <footer className="site-footer">
-      {/* Disclaimer */}
-      <div className="disclaimer-bar">
-        <span className="disclaimer-icon">⚠️</span>
-        <span>
-          <strong>Disclaimer:</strong> This application does not host or stream
-          native channels. Data and streams are aggregated from publicly
-          available indices.
-        </span>
-      </div>
-
-      {/* Bottom Navigation Buttons */}
-      {/* <div className="footer-nav"> */}
-      <div className="footer-left">
-        <a href="#" className="footer-btn">
-          <span className="footer-badge">MENU</span>
-          <span>BACK TO MENU</span>
-        </a>
-        <a href="#" className="footer-btn">
-          <span className="footer-badge">RETURN</span>
-          <span>PREVIOUS SCREEN</span>
-        </a>
-      </div>
-      <div className="footer-right">
-        <a href="#" className="footer-btn">
-          <span className="footer-dot green"></span>
-          <span>LIVE FIXTURES</span>
-        </a>
-        <a href="#" className="footer-btn">
-          <span className="footer-dot yellow"></span>
-          <span>STATS TRACKER</span>
-        </a>
+      {/* Disclaimer scrolling velocity text */}
+      <div className="disclaimer-scroll-wrapper">
+        <ScrollVelocity
+          texts={["⚠️ Disclaimer: This app does not host or stream World Cup IPTV channels; all streams are sourced from publicly available third-party providers."]}
+          velocity={-20}
+          className="disclaimer-velocity-text"
+          numCopies={4}
+        />
       </div>
     </footer>
   );

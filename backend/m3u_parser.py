@@ -35,8 +35,7 @@ CHANNEL_WHITELIST = [
     ([["telemundo"]], "Telemundo", "live"),
     ([["m6", "direct"], ["m6"]], "M6 Direct", "live"),
     ([["sports", "18"]], "Sports 18 HD", "live"),
-    ([["fussball", "1"], ["fussball", "tv", "1"], ["fußball", "1"]], "Fussball TV 1", "featured"),
-    ([["fussball", "2"], ["fussball", "tv", "2"], ["fußball", "2"]], "Fussball TV 2", "featured"),
+    
     ([["tsn", "1"], ["tsn", "sports", "1"]], "TSN Sports 1", "live"),
     ([["tudn", "usa"], ["tudn"]], "TUDN", "live"),
     ([["gazi", "tv"], ["gtv"]], "Gazi TV HD", "live"),
@@ -61,7 +60,18 @@ CHANNEL_WHITELIST = [
     ([["zee", "bangla"]], "Zee Bangla", "live"),
     ([["cola", "tv"], ["colatv"]], "ColaTV", "live"),
     ([["trt", "1"]], "TRT 1", "live"),
+    ([["fussball", "1"], ["fussball", "tv", "1"], ["fußball", "1"]], "Fussball TV 1", "featured"),
+    ([["fussball", "2"], ["fussball", "tv", "2"], ["fußball", "2"]], "Fussball TV 2", "featured"),
 ]
+
+# Fallback / accurate online logos for channels
+CHANNEL_LOGOS = {
+    "cctv_5_full_hd_": "https://upload.wikimedia.org/wikipedia/commons/d/d3/CCTVNewLogo.svg",
+    "elta_sports_fhd_": "https://upload.wikimedia.org/wikipedia/commons/5/5b/ELTA_logo.svg",
+    "macao_sports_fhd_": "https://static.wikia.nocookie.net/logopedia/images/2/2c/TDMSport.png",
+    "colatv": "https://colatv.app/favicon.png",
+}
+
 
 
 def _normalize(text: str) -> str:
@@ -370,7 +380,7 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
         # Category: featured. Keep both working servers (zohanayaan.com and second), remove only dead 119.156.228.231.
         if cid == "ptv_sports":
             chan_copy["category"] = "featured"
-            filtered = [s for s in chan_copy["servers"] if "119.156.228.231" not in s["url"]]
+            filtered = [s for s in chan_copy["servers"] if "zohanayaan.com" not in s["url"]]
             s_zohan = [s for s in filtered if "zohanayaan.com" in s["url"]]
             s_others = [s for s in filtered if "zohanayaan.com" not in s["url"]]
             chan_copy["servers"] = s_zohan + s_others
@@ -552,6 +562,13 @@ async def fetch_and_parse_m3u() -> list[dict]:
 
         _cached_channels = apply_server_and_category_overrides(valid_channels)
         _cached_channels = inject_custom_channels(_cached_channels)
+        
+        # Populate missing logos with accurate online URLs
+        for chan in _cached_channels:
+            cid = chan.get("id")
+            if (not chan.get("logo") or chan.get("logo") == "") and cid in CHANNEL_LOGOS:
+                chan["logo"] = CHANNEL_LOGOS[cid]
+
         print(f"[M3U] Total: {len(all_channels)} → {len(_cached_channels)} working channels matched")
 
         # Save to disk cache

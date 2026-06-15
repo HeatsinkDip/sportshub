@@ -35,3 +35,8 @@ yarn-error.log*
 # OS files
 .DS_Store
 Thumbs.db
+
+# Project Scratch & Caches
+scratch/
+backend/channels_cache.json
+.gemini/
