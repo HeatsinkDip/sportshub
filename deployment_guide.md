@@ -21,7 +21,7 @@ We recommend using **Render** (free/paid tier) or **Railway** (paid tier).
    *   **Build Command**: `pip install -r requirements.txt`
    *   **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 5. Click **Create Web Service**.
-6. Once deployed, Render will provide a URL like `https://sportshub-backend.onrender.com`. Copy this URL for the frontend configuration.
+6. Once deployed, Render will provide a URL. Your actual deployed backend URL is: `https://sportshub-backend-ha1v.onrender.com`. Copy this URL for the frontend configuration.
 
 ### Deploying on Railway
 1. Sign up/Log in to [Railway](https://railway.app/).
@@ -46,7 +46,7 @@ Vercel is the native platform for Next.js and handles frontend deployment perfec
    *   **Root Directory**: `frontend` (very important: set this to the subfolder `frontend` where the Next.js files live)
 5. Expand the **Environment Variables** section and add:
    *   **Key**: `NEXT_PUBLIC_API_URL`
-   *   **Value**: *Your backend URL from Render/Railway* (e.g. `https://sportshub-backend.onrender.com`)
+   *   **Value**: `https://sportshub-backend-ha1v.onrender.com`
 6. Click **Deploy**.
 7. Once deployment is complete, Vercel will give you a public URL (e.g., `https://sportshub.vercel.app`).
 
