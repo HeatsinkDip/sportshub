@@ -237,6 +237,11 @@ async def fetch_and_parse_m3u() -> list[dict]:
         "https://lupael.github.io/IPTV/running.m3u",
         "https://lupael.github.io/IPTV/world.m3u",
         "https://github.com/abusaeeidx/Mrgify-BDIX-IPTV/raw/main/playlist.m3u",
+        "https://raw.githubusercontent.com/abusaeeidx/Yupptv-Playlist/refs/heads/main/playlist.m3u",
+        "https://github.com/abusaeeidx/BDxTV/blob/main/playlist_s.m3u",
+        "https://github.com/abusaeeidx/BDxTV/blob/main/channels_pl2.m3u",
+        "https://raw.githubusercontent.com/abusaeeidx/CricHd-playlists-Auto-Update-permanent/refs/heads/main/ALL.m3u",
+        "https://raw.githubusercontent.com/abusaeeidx/CricHd-playlists-Auto-Update-permanent/refs/heads/main/playlist.m3u",
     ]
 
     try:
