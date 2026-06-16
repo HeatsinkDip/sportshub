@@ -40,6 +40,7 @@ CHANNEL_WHITELIST = [
     ([["tudn", "usa"], ["tudn"]], "TUDN", "live"),
     ([["gazi", "tv"], ["gtv"]], "Gazi TV HD", "live"),
     ([["fox", "sports", "1"], ["fox", "sport"]], "FOX Sports 1", "live"),
+    ([["fox", "5"]], "Fox 5", "live"),
     ([["bioscope"]], "BIOSCOPE+", "live"),
     ([["caze", "tv"]], "CAZE TV", "live"),
     ([["universo"]], "Universo", "live"),
@@ -380,30 +381,36 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
         chan_copy = dict(chan)
         cid = chan_copy["id"]
         
+        # Dynamically rewrite raw MPEG-TS (.ts) streams to HLS (.m3u8) for Xtream Codes servers
+        for s in chan_copy["servers"]:
+            if s["url"].endswith(".ts") and ("rgkkw.live" in s["url"] or "starhub.pro" in s["url"] or "v3v3v.xyz" in s["url"]):
+                s["url"] = s["url"][:-3] + ".m3u8"
+        
         # 1. PTV Sports (ptv_sports)
-        # Category: featured. Keep both working servers (zohanayaan.com and second), remove only dead 119.156.228.231.
+        # Category: featured. Keep only verified working servers (180.94.28.28 and cdn5.zohanayaan.com).
         if cid == "ptv_sports":
             chan_copy["category"] = "featured"
-            filtered = [s for s in chan_copy["servers"] if "119.156.228.231" not in s["url"]]
-            s_zohan = [s for s in filtered if "zohanayaan.com" in s["url"]]
-            s_others = [s for s in filtered if "zohanayaan.com" not in s["url"]]
-            chan_copy["servers"] = s_zohan + s_others
+            chan_copy["servers"] = [
+                s for s in chan_copy["servers"]
+                if "cdn9.zohanayaan.com" not in s["url"]
+                and "cdn2.zohanayaan.com" not in s["url"]
+                and "119.156.228.231" not in s["url"]
+            ]
         
         # 2. Somoy TV (somoy_tv)
-        # Category: featured. Keep and prioritize working streams (bozztv.com, gpcdn.net, thebosstv.com).
+        # Category: featured. Keep only custom stream 1 (thebosstv.com) and remove others.
         elif cid == "somoy_tv":
             chan_copy["category"] = "featured"
-            priority = [s for s in chan_copy["servers"] if "bozztv.com" in s["url"] or "gpcdn.net" in s["url"] or "sm-monirul.top" in s["url"]]
-            others = [s for s in chan_copy["servers"] if "bozztv.com" not in s["url"] and "gpcdn.net" not in s["url"] and "sm-monirul.top" not in s["url"]]
-            chan_copy["servers"] = priority + others
+            chan_copy["servers"] = [s for s in chan_copy["servers"] if "thebosstv.com" in s["url"]][:1]
             
         # 3. beIN Sports 1 (bein_sports_1_full_hd_)
-        # Category: featured (Fifa live). Make server 2 (containing "het4444.ycn-redirect.com") default.
+        # Category: featured (Fifa live). Make custom direct stream default, then ycn-redirect, then others.
         elif cid == "bein_sports_1_full_hd_":
             chan_copy["category"] = "featured"
+            custom = [s for s in chan_copy["servers"] if "streamhostingcdn.top/stream/23" in s["url"]]
             target = [s for s in chan_copy["servers"] if "het4444.ycn-redirect.com" in s["url"]]
-            others = [s for s in chan_copy["servers"] if "het4444.ycn-redirect.com" not in s["url"]]
-            chan_copy["servers"] = target + others
+            others = [s for s in chan_copy["servers"] if "streamhostingcdn.top/stream/23" not in s["url"] and "het4444.ycn-redirect.com" not in s["url"]]
+            chan_copy["servers"] = custom + target + others
             
         # 4. Zee Bangla (zee_bangla)
         # Category: featured (Fifa live). Keep server containing ColorsHD only.
@@ -423,12 +430,10 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
             chan_copy["servers"] = [s for s in chan_copy["servers"] if "dfr80qz435crc.cloudfront.net" in s["url"]]
             
         # 7. T Sports HD (t_sports_hd)
-        # Category: featured. Keep working streams, prioritizing public non-BDIX streams.
+        # Category: featured. Keep only BDIX streams (/tsports/) as others are not working.
         elif cid == "t_sports_hd":
             chan_copy["category"] = "featured"
-            public_servers = [s for s in chan_copy["servers"] if "rgkkw.live" in s["url"] or "starhub.pro" in s["url"]]
-            bdix_servers = [s for s in chan_copy["servers"] if "/tsports/" in s["url"]]
-            chan_copy["servers"] = public_servers + bdix_servers
+            chan_copy["servers"] = [s for s in chan_copy["servers"] if "/tsports/" in s["url"]]
             
         # 8. D Sports (d_sports)
         # Category: featured. Remove otte servers. Custom URL will be made default in inject_custom_channels.
@@ -456,6 +461,12 @@ CUSTOM_CHANNEL_SERVERS = {
     # Set all custom channels to featured (Fifa Live section)
     "win_sports_full_hd_": ("WIN Sports (Full HD)", "featured", "FHD", [
         {"url": "http://74.91.26.218:82/live/win.m3u8", "name": "Win Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "bein_sports_1_full_hd_": ("beIN Sports 1 (Full HD)", "featured", "FHD", [
+        {"url": "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8", "name": "beIN Sports 1 Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "fox_5": ("Fox 5", "live", "HD", [
+        {"url": "http://84.17.50.102/fox/index.m3u8", "name": "Fox 5 Custom", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
     "cctv_5_full_hd_": ("CCTV 5 (Full HD)", "featured", "FHD", [
         {"url": "http://74.91.26.218:82/live/cctv5hd.m3u8", "name": "CCTV Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},

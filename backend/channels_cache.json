@@ -43,33 +43,6 @@
     "quality": "FHD",
     "servers": [
       {
-        "url": "https://live.egmdispatch.com/live/68492570_403605fecaeaf802530eb141c77715c6_autoChange.m3u8?auth_key=1781642952-0-0-c3b67cb5d5668c32af17e62a93dd19e0",
-        "name": "ColaTV - BFC Daugavpils vs Super Nova",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://live2.egmdispatch.com/live/68492572_0eb70a9abe98f8c87ad80e67003d2bc8_autoChange.m3u8?auth_key=1781643479-0-0-ffc0f58ab4c590a1d71ce916ab203dba",
-        "name": "ColaTV - Grobina vs Liepaja",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://live3.egmdispatch.com/live/67912726_872eeb858d7d3c8573be342cb73a23b5_autoChange.m3u8?auth_key=1781643479-0-0-dd4e5a40bd50311ff874cb3c296860a2",
-        "name": "ColaTV - CLB Dila Gori vs FC Spaeri",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
         "url": "https://live05.msdht.app/live/24561735.m3u8",
         "name": "ColaTV Custom",
         "quality": "FHD",
@@ -196,28 +169,19 @@
     "quality": "FHD",
     "servers": [
       {
-        "url": "https://cdn9.zohanayaan.com:1686/hls/ptvpk.m3u8?md5=nMnI4O3JdlIiiQQxRIAqtw&expires=1781617226",
-        "name": "PTV Sports",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://cdn9.zohanayaan.com:1686/hls/ptvpk.m3u8?md5=J-tQwK6U8hQbD89d1PdWGg&expires=1781632826",
-        "name": "PTV Sports",
-        "quality": "SD",
-        "referrer": "https://executeandship.com/",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
         "url": "http://180.94.28.28:8097/PTV-Sports/index.fmp4.m3u8?token=0afd64dfdff056a802054ceb369650609e3f7903-ce3f54a7704ae11d5cc2c64e6af9db86-1781451407-1781447807",
         "name": "PTV SPORTS",
         "quality": "SD",
         "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn5.zohanayaan.com:1686/hls/ptvpk.m3u8?md5=P00rqa3Zw0CG0gJRylypTQ&expires=1781636427",
+        "name": "PTV Sports",
+        "quality": "SD",
+        "referrer": "https://executeandship.com/",
         "user_agent": "",
         "license_type": "",
         "license_key": ""
@@ -232,44 +196,8 @@
     "quality": "FHD",
     "servers": [
       {
-        "url": "https://bozztv.com/rongo/rongo-somoy/index.m3u8",
-        "name": "Somoy News TV (1080p)",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/index.m3u8",
-        "name": "Somoy TV",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://sm-monirul.top/toffee/play/somoy_tv.m3u8",
-        "name": "Somoy TV",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
         "url": "https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8",
         "name": "Somoy TV",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "http://114.130.57.224:8080/Somoy-TV-3Mb/tracks-v1a1/mono.m3u8?token=SkQuhAXZxgBan1",
-        "name": "Somoy TV BDIX",
         "quality": "SD",
         "referrer": "",
         "user_agent": "",
@@ -285,33 +213,6 @@
     "logo": "https://i.imgur.com/2JzlorD.png",
     "quality": "HD",
     "servers": [
-      {
-        "url": "http://rgkkw.live/live/1Aoen7elp5/IgMJ60tmAa/130714.ts",
-        "name": "T Sports HD",
-        "quality": "HD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "http://rgkkw.live:80/live/1Aoen7elp5/IgMJ60tmAa/130714.ts",
-        "name": "T Sports",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "http://starhub.pro/live/farhat-3379/67897-913379/18452.ts",
-        "name": "T Sports HD",
-        "quality": "HD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
       {
         "url": "http://198.195.239.50:8095/tsports/index.m3u8",
         "name": "T Sports",
@@ -401,6 +302,15 @@
         "user_agent": "",
         "license_type": "",
         "license_key": ""
+      },
+      {
+        "url": "https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8",
+        "name": "Win Sports",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
       }
     ]
   },
@@ -430,6 +340,15 @@
     "quality": "SD",
     "servers": [
       {
+        "url": "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8",
+        "name": "BeIN Sports 1 Direct",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
         "url": "http://het4444.ycn-redirect.com/live/610303030/index.m3u8?t=XgTsAjb1QkrYQQnjbPWlsw&e=1781176238",
         "name": "BeIN Sports Max 1",
         "quality": "SD",
@@ -448,7 +367,7 @@
         "license_key": ""
       },
       {
-        "url": "http://starhub.pro/live/farhat-3379/67897-913379/744517.ts",
+        "url": "http://starhub.pro/live/farhat-3379/67897-913379/744517.m3u8",
         "name": "Bein Sports 1 Max Arabic",
         "quality": "SD",
         "referrer": "",
@@ -484,15 +403,6 @@
         "license_key": ""
       },
       {
-        "url": "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8",
-        "name": "BeIN Sports 1 Direct",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
         "url": "https://otte.live.fly.ww.aiv-cdn.net/syd-nitro/live/clients/dash/enc/ghwcl6hv68/out/v1/83536910d8034e9b9895a20fbe1c1687/cenc.mpd",
         "name": "BEIN SPORTS 1",
         "quality": "SD",
@@ -511,7 +421,7 @@
     "quality": "HD",
     "servers": [
       {
-        "url": "https://cdn9.zohanayaan.com:1686/hls/espnusa.m3u8?md5=3nt0gY-sGiSLN7wNilOfbw&expires=1781617232",
+        "url": "https://cdn4.zohanayaan.com:1686/hls/espnusa.m3u8?md5=zUwvsF3uOHFAVDmGgYM4PQ&expires=1781635258",
         "name": "ESPN 1",
         "quality": "SD",
         "referrer": "",
@@ -520,7 +430,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn9.zohanayaan.com:1686/hls/espn2.m3u8?md5=5gaNytvhbemyh8ySp01yaQ&expires=1781617232",
+        "url": "https://cdn7.zohanayaan.com:1686/hls/espn2.m3u8?md5=Ljsqq1bJqrMq5g_yhqbb0w&expires=1781635259",
         "name": "ESPN 2",
         "quality": "SD",
         "referrer": "",
@@ -529,7 +439,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn9.zohanayaan.com:1686/hls/espnusa.m3u8?md5=7E4Qr__EF5XdrKlwrCcbLQ&expires=1781632829",
+        "url": "https://cdn2.zohanayaan.com:1686/hls/espnusa.m3u8?md5=4rXJgEoj2E-QgEWsmIzFWw&expires=1781636441",
         "name": "ESPN 1",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -538,7 +448,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn6.zohanayaan.com:1686/hls/espn2.m3u8?md5=wwEzUrxOqwumPQql8_g8lQ&expires=1781632829",
+        "url": "https://cdn8.zohanayaan.com:1686/hls/espn2.m3u8?md5=WArBc7iIT0UvyFeIu2nptg&expires=1781636442",
         "name": "ESPN 2",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -646,7 +556,7 @@
         "license_key": ""
       },
       {
-        "url": "http://str2.v3v3v.xyz:2082/live/rokhsi25_951396/POm6KqnW/277428.ts",
+        "url": "http://str2.v3v3v.xyz:2082/live/rokhsi25_951396/POm6KqnW/277428.m3u8",
         "name": "Zee Bangla Sonar (FIFA BANGLA COMMENTARY)",
         "quality": "SD",
         "referrer": "",
@@ -667,6 +577,24 @@
         "url": "https://cors-proxy.cooks.fyi/http://190.11.225.124:5000/live/fs1_hd/playlist.m3u8",
         "name": "Fox Sports 1 (1280p)",
         "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "fox_5",
+    "name": "Fox 5",
+    "category": "live",
+    "logo": "",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "http://84.17.50.102/fox/index.m3u8",
+        "name": "Fox 5 Custom",
+        "quality": "HD",
         "referrer": "",
         "user_agent": "",
         "license_type": "",
@@ -763,7 +691,7 @@
     "quality": "SD",
     "servers": [
       {
-        "url": "https://cdn3.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=0P88Si0VVfpDGbWV_J4Stg&expires=1781617229",
+        "url": "https://cdn10.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=x5Ptytxw84nvcihMF8dLgQ&expires=1781635243",
         "name": "Sky Sport Nz 1",
         "quality": "SD",
         "referrer": "",
@@ -772,7 +700,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn10.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=CxzflL-tdtufkXaUrG3p7g&expires=1781617229",
+        "url": "https://cdn8.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=xZmM-h3GjwuVPXsMhVNPAQ&expires=1781635244",
         "name": "Sky Sport Nz 2",
         "quality": "SD",
         "referrer": "",
@@ -781,7 +709,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn7.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=JZCaKiiXWtiDsjmyDJxwUA&expires=1781617229",
+        "url": "https://cdn4.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=X47stKmlftQMweKJTeVh6Q&expires=1781635244",
         "name": "Sky Sport Nz 3",
         "quality": "SD",
         "referrer": "",
@@ -790,7 +718,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn9.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=tQoXg4j_tZi2wBEjCeAxIw&expires=1781617229",
+        "url": "https://cdn6.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=M7QPOo4-Kyu6xjgRaWdwIQ&expires=1781635246",
         "name": "Sky Sport Nz 4",
         "quality": "SD",
         "referrer": "",
@@ -799,7 +727,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn3.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=JaG-ASqCB3duFuPsxzglbg&expires=1781617229",
+        "url": "https://cdn10.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=IRFrPufSf3-mHiaL9GJ4mA&expires=1781635247",
         "name": "Sky Sport Nz 5",
         "quality": "SD",
         "referrer": "",
@@ -808,7 +736,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn3.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=TIhffyfXAk3t8g1rro5HBQ&expires=1781617229",
+        "url": "https://cdn10.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=v9RYArMmBAozsD4dkDi5BA&expires=1781635247",
         "name": "Sky Sport 6 Nz",
         "quality": "SD",
         "referrer": "",
@@ -817,7 +745,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn4.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=AApjBFNpCy3XNNoH0QePBg&expires=1781617229",
+        "url": "https://cdn6.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=rNtVpUOi2CkyBPkpvUGNiQ&expires=1781635248",
         "name": "Sky Sport Nz 7",
         "quality": "SD",
         "referrer": "",
@@ -826,7 +754,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn4.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=gK4fINsVhPdDGg57cqYBhw&expires=1781617230",
+        "url": "https://cdn1.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=T0eV_Xapo4SgKUXquJ9_oA&expires=1781635248",
         "name": "Sky Sport Nz 8",
         "quality": "SD",
         "referrer": "",
@@ -835,7 +763,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn9.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=IOULnjGvkZZ34aTrNWv12A&expires=1781617230",
+        "url": "https://cdn1.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=SblX_GXVhDJCWNXh2ujC2w&expires=1781635249",
         "name": "Sky Sport Nz 9",
         "quality": "SD",
         "referrer": "",
@@ -844,7 +772,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn5.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=unNHfjth4xK1Ldt2A_6_rA&expires=1781632827",
+        "url": "https://cdn6.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=frlOQyaFdjWo_lhkF2_OPQ&expires=1781636434",
         "name": "Sky Sport Nz 1",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -853,7 +781,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn3.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=dCX3edJt90IoXeSn1EeG6Q&expires=1781632827",
+        "url": "https://cdn6.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=aSDy6Qbu2yS52VC6rOXGLw&expires=1781636435",
         "name": "Sky Sport Nz 2",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -862,7 +790,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn2.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=p96OcR0xJzvVN-SsxrJ6-w&expires=1781632827",
+        "url": "https://cdn5.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=JKsv8THruFetdUo4Z398WA&expires=1781636436",
         "name": "Sky Sport Nz 3",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -871,7 +799,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn9.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=9_nTPvnyTKh9I-frYuuwMw&expires=1781632827",
+        "url": "https://cdn6.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=ImxzjfOexo3NZGA_PaTJPA&expires=1781636436",
         "name": "Sky Sport Nz 4",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -880,7 +808,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn1.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=78vGeSJfPKbdVTxZolUkhg&expires=1781632827",
+        "url": "https://cdn1.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=q57pVWeIQVvc-U0u6HeS2w&expires=1781636436",
         "name": "Sky Sport Nz 5",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -889,7 +817,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn8.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=vfafh7gtp4VqVmLMg7FfyA&expires=1781632827",
+        "url": "https://cdn6.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=leHbHNmvUknj9opabF3uoA&expires=1781636436",
         "name": "Sky Sport 6 Nz",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -898,7 +826,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn1.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=h9N2TnqqR0OD3zjgF5BpxA&expires=1781632827",
+        "url": "https://cdn10.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=yBmGwuXaWp17zVbU8c8YSg&expires=1781636436",
         "name": "Sky Sport Nz 7",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -907,7 +835,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn8.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=cxkx7FtIa81YGuvmH73c8g&expires=1781632828",
+        "url": "https://cdn5.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=OE_ZKkg8sHaIWY3tGMQHTQ&expires=1781636437",
         "name": "Sky Sport Nz 8",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -916,7 +844,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn3.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=be1eUDYLmENyD0ZGStRv2w&expires=1781632828",
+        "url": "https://cdn7.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=dEsfKZGRvRahV-fTPgorSQ&expires=1781636437",
         "name": "Sky Sport Nz 9",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
