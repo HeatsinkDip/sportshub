@@ -119,8 +119,11 @@ async def get_channels():
         from m3u_parser import load_channels_from_disk
         channels = load_channels_from_disk()
 
+    import json
+    payload = xor_hex_encrypt(json.dumps(channels))
+
     return {
-        "channels": channels,
+        "payload": payload,
         "total": len(channels),
         "last_updated": "live",
     }
@@ -164,12 +167,26 @@ def get_backend_base_url(request: Request) -> str:
         
     return f"{proto}://{host}"
 
+def xor_hex_encrypt(data: str, key: int = 0x5A) -> str:
+    return "".join(f"{ord(c) ^ key:02x}" for c in data)
+
+def xor_hex_decrypt(hex_str: str, key: int = 0x5A) -> str:
+    try:
+        chars = []
+        for i in range(0, len(hex_str), 2):
+            val = int(hex_str[i:i+2], 16)
+            chars.append(chr(val ^ key))
+        return "".join(chars)
+    except Exception:
+        return ""
+
 def decode_config(hex_config: str) -> dict:
     if hex_config == "empty":
         return {}
     try:
         import json
-        return json.loads(bytes.fromhex(hex_config).decode('utf-8'))
+        decrypted = xor_hex_decrypt(hex_config)
+        return json.loads(decrypted)
     except Exception:
         return {}
 
@@ -177,16 +194,13 @@ def encode_config(config: dict) -> str:
     if not config:
         return "empty"
     import json
-    return json.dumps(config).encode('utf-8').hex()
+    return xor_hex_encrypt(json.dumps(config))
 
 def decode_url(hex_url: str) -> str:
-    try:
-        return bytes.fromhex(hex_url).decode('utf-8')
-    except Exception:
-        return ""
+    return xor_hex_decrypt(hex_url)
 
 def encode_url(url: str) -> str:
-    return url.encode('utf-8').hex()
+    return xor_hex_encrypt(url)
 
 def _rewrite_mpd_manifest(content: str, manifest_url: str, referrer: str, user_agent: str, backend_base_url: str) -> str:
     """
@@ -266,10 +280,12 @@ async def proxy_stream(
         resp = await global_proxy_client.send(req, stream=True)
 
         if resp.status_code >= 400:
+            status_code = resp.status_code
+            content_type = resp.headers.get("content-type")
             body = await resp.aread()
             await resp.aclose()
             resp = None
-            return Response(content=body, status_code=resp.status_code, media_type=resp.headers.get("content-type"))
+            return Response(content=body, status_code=status_code, media_type=content_type)
 
         content_type = resp.headers.get("content-type", "").lower()
         is_m3u8 = (
@@ -285,12 +301,13 @@ async def proxy_stream(
         )
 
         if is_m3u8:
+            resp_url = str(resp.url)
             body_bytes = await resp.aread()
             await resp.aclose()
             resp = None
             body_text = body_bytes.decode("utf-8", errors="ignore")
             backend_base_url = get_backend_base_url(request)
-            body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent, backend_base_url)
+            body = _rewrite_manifest_urls(body_text, resp_url, referrer, user_agent, backend_base_url)
             return Response(
                 content=body,
                 media_type="application/vnd.apple.mpegurl",
@@ -302,12 +319,13 @@ async def proxy_stream(
                 },
             )
         elif is_mpd:
+            resp_url = str(resp.url)
             body_bytes = await resp.aread()
             await resp.aclose()
             resp = None
             body_text = body_bytes.decode("utf-8", errors="ignore")
             backend_base_url = get_backend_base_url(request)
-            body = _rewrite_mpd_manifest(body_text, str(resp.url), referrer, user_agent, backend_base_url)
+            body = _rewrite_mpd_manifest(body_text, resp_url, referrer, user_agent, backend_base_url)
             return Response(
                 content=body,
                 media_type="application/dash+xml",
@@ -320,11 +338,13 @@ async def proxy_stream(
             )
         else:
             # Segment/binary: Stream content chunk by chunk, omitting Content-Length to prevent mismatches
+            clean_path = urlparse(url).path.lower()
+            is_static_segment = clean_path.endswith((".ts", ".mp4", ".m4s", ".key", ".aac", ".vtt"))
             response_headers = {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers": "*",
                 "Access-Control-Allow-Methods": "*",
-                "Cache-Control": "public, max-age=86400" if url.endswith((".ts", ".mp4", ".m4s")) else "no-cache",
+                "Cache-Control": "public, max-age=86400" if is_static_segment else "no-cache",
             }
 
             stream_resp = resp
@@ -337,16 +357,34 @@ async def proxy_stream(
                 finally:
                     await stream_resp.aclose()
 
+            upstream_media_type = stream_resp.headers.get("content-type", "").lower()
+            if clean_path.endswith(".ts") or "trolltech" in upstream_media_type or "linguist" in upstream_media_type:
+                media_type = "video/mp2t"
+            elif clean_path.endswith(".mp4"):
+                media_type = "video/mp4"
+            elif clean_path.endswith(".m4s"):
+                media_type = "video/iso.segment"
+            elif clean_path.endswith(".aac"):
+                media_type = "audio/aac"
+            elif clean_path.endswith(".vtt"):
+                media_type = "text/vtt"
+            elif clean_path.endswith(".key"):
+                media_type = "application/octet-stream"
+            else:
+                media_type = stream_resp.headers.get("content-type", "video/mp2t")
+
             return StreamingResponse(
                 stream_content(),
                 status_code=stream_resp.status_code,
-                media_type=stream_resp.headers.get("content-type", "video/mp2t"),
+                media_type=media_type,
                 headers=response_headers,
             )
 
     except httpx.TimeoutException:
         return JSONResponse({"error": "Stream timeout"}, status_code=504)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JSONResponse({"error": str(e)}, status_code=502)
     finally:
         if resp is not None:
@@ -407,10 +445,12 @@ async def proxy_stream_path(
         resp = await global_proxy_client.send(req, stream=True)
 
         if resp.status_code >= 400:
+            status_code = resp.status_code
+            content_type = resp.headers.get("content-type")
             body = await resp.aread()
             await resp.aclose()
             resp = None
-            return Response(content=body, status_code=resp.status_code, media_type=resp.headers.get("content-type"))
+            return Response(content=body, status_code=status_code, media_type=content_type)
 
         content_type = resp.headers.get("content-type", "").lower()
         is_m3u8 = (
@@ -425,12 +465,13 @@ async def proxy_stream_path(
         )
 
         if is_m3u8:
+            resp_url = str(resp.url)
             body_bytes = await resp.aread()
             await resp.aclose()
             resp = None
             body_text = body_bytes.decode("utf-8", errors="ignore")
             backend_base_url = get_backend_base_url(request)
-            body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent, backend_base_url)
+            body = _rewrite_manifest_urls(body_text, resp_url, referrer, user_agent, backend_base_url)
             return Response(
                 content=body,
                 media_type="application/vnd.apple.mpegurl",
@@ -442,12 +483,13 @@ async def proxy_stream_path(
                 },
             )
         elif is_mpd:
+            resp_url = str(resp.url)
             body_bytes = await resp.aread()
             await resp.aclose()
             resp = None
             body_text = body_bytes.decode("utf-8", errors="ignore")
             backend_base_url = get_backend_base_url(request)
-            body = _rewrite_mpd_manifest(body_text, str(resp.url), referrer, user_agent, backend_base_url)
+            body = _rewrite_mpd_manifest(body_text, resp_url, referrer, user_agent, backend_base_url)
             return Response(
                 content=body,
                 media_type="application/dash+xml",
@@ -459,11 +501,13 @@ async def proxy_stream_path(
                 },
             )
         else:
+            clean_path = urlparse(url).path.lower()
+            is_static_segment = clean_path.endswith((".ts", ".mp4", ".m4s", ".key", ".aac", ".vtt"))
             response_headers = {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers": "*",
                 "Access-Control-Allow-Methods": "*",
-                "Cache-Control": "public, max-age=86400" if url.endswith((".ts", ".mp4", ".m4s")) else "no-cache",
+                "Cache-Control": "public, max-age=86400" if is_static_segment else "no-cache",
             }
 
             stream_resp = resp
@@ -476,16 +520,34 @@ async def proxy_stream_path(
                 finally:
                     await stream_resp.aclose()
 
+            upstream_media_type = stream_resp.headers.get("content-type", "").lower()
+            if clean_path.endswith(".ts") or "trolltech" in upstream_media_type or "linguist" in upstream_media_type:
+                media_type = "video/mp2t"
+            elif clean_path.endswith(".mp4"):
+                media_type = "video/mp4"
+            elif clean_path.endswith(".m4s"):
+                media_type = "video/iso.segment"
+            elif clean_path.endswith(".aac"):
+                media_type = "audio/aac"
+            elif clean_path.endswith(".vtt"):
+                media_type = "text/vtt"
+            elif clean_path.endswith(".key"):
+                media_type = "application/octet-stream"
+            else:
+                media_type = stream_resp.headers.get("content-type", "video/mp2t")
+
             return StreamingResponse(
                 stream_content(),
                 status_code=stream_resp.status_code,
-                media_type=stream_resp.headers.get("content-type", "video/mp2t"),
+                media_type=media_type,
                 headers=response_headers,
             )
 
     except httpx.TimeoutException:
         return JSONResponse({"error": "Stream timeout"}, status_code=504)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JSONResponse({"error": str(e)}, status_code=502)
     finally:
         if resp is not None:
@@ -517,11 +579,14 @@ def _rewrite_manifest_urls(manifest: str, base_url: str, referrer: str, user_age
                     if uri.startswith("/api/proxy-stream"):
                         return f'URI="{backend_base_url}{uri}"'
                     abs_url = urljoin(base_url, uri)
-                    proxy_url = f"{backend_base_url}/api/proxy-stream?url={quote(abs_url)}"
+                    config = {}
                     if referrer:
-                        proxy_url += f"&referrer={quote(referrer)}"
+                        config["referrer"] = referrer
                     if user_agent:
-                        proxy_url += f"&user_agent={quote(user_agent)}"
+                        config["user_agent"] = user_agent
+                    hex_config = encode_config(config)
+                    hex_url = encode_url(abs_url)
+                    proxy_url = f"{backend_base_url}/api/proxy-stream/c/{hex_config}/{hex_url}/"
                     return f'URI="{proxy_url}"'
 
                 stripped = re.sub(r'URI="([^"]*)"', replace_uri, stripped)
@@ -535,11 +600,14 @@ def _rewrite_manifest_urls(manifest: str, base_url: str, referrer: str, user_age
                 rewritten.append(f"{backend_base_url}{stripped}")
             else:
                 abs_url = urljoin(base_url, stripped)
-                proxy_url = f"{backend_base_url}/api/proxy-stream?url={quote(abs_url)}"
+                config = {}
                 if referrer:
-                    proxy_url += f"&referrer={quote(referrer)}"
+                    config["referrer"] = referrer
                 if user_agent:
-                    proxy_url += f"&user_agent={quote(user_agent)}"
+                    config["user_agent"] = user_agent
+                hex_config = encode_config(config)
+                hex_url = encode_url(abs_url)
+                proxy_url = f"{backend_base_url}/api/proxy-stream/c/{hex_config}/{hex_url}/"
                 rewritten.append(proxy_url)
 
     return '\n'.join(rewritten)

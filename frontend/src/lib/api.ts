@@ -94,11 +94,38 @@ export const FALLBACK_CHANNELS: Channel[] = [
   }
 ];
 
+export function xorHexEncrypt(data: string, key: number = 0x5A): string {
+  let result = "";
+  for (let i = 0; i < data.length; i++) {
+    const xored = data.charCodeAt(i) ^ key;
+    result += xored.toString(16).padStart(2, "0");
+  }
+  return result;
+}
+
+export function xorHexDecrypt(hexStr: string, key: number = 0x5A): string {
+  try {
+    let result = "";
+    for (let i = 0; i < hexStr.length; i += 2) {
+      const val = parseInt(hexStr.substring(i, i + 2), 16);
+      result += String.fromCharCode(val ^ key);
+    }
+    return result;
+  } catch (e) {
+    return "";
+  }
+}
+
 export async function fetchChannels(): Promise<Channel[]> {
   try {
     const res = await fetch(`${API_BASE}/api/channels`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+    if (data.payload) {
+      const decrypted = xorHexDecrypt(data.payload);
+      const channels = JSON.parse(decrypted);
+      return channels && channels.length > 0 ? channels : FALLBACK_CHANNELS;
+    }
     return data.channels && data.channels.length > 0 ? data.channels : FALLBACK_CHANNELS;
   } catch (err) {
     console.error("Failed to fetch channels, using fallback list:", err);
@@ -154,31 +181,16 @@ export function isBdixOrLocal(urlStr: string): boolean {
   }
 }
 
-function stringToHex(str: string): string {
-  return Array.from(new TextEncoder().encode(str))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
 export function getProxyStreamUrl(server: Server): string {
   if (isBdixOrLocal(server.url)) {
     return server.url;
   }
 
-  const isDash = server.url.includes(".mpd") || server.url.includes("mpd");
-
-  if (isDash) {
-    const config = {
-      referrer: server.referrer || "",
-      user_agent: server.user_agent || "",
-    };
-    const hexConfig = stringToHex(JSON.stringify(config));
-    const hexUrl = stringToHex(server.url);
-    return `${API_BASE}/api/proxy-stream/c/${hexConfig}/${hexUrl}/`;
-  }
-
-  const params = new URLSearchParams({ url: server.url });
-  if (server.referrer) params.set("referrer", server.referrer);
-  if (server.user_agent) params.set("user_agent", server.user_agent);
-  return `${API_BASE}/api/proxy-stream?${params.toString()}`;
+  const config = {
+    referrer: server.referrer || "",
+    user_agent: server.user_agent || "",
+  };
+  const hexConfig = xorHexEncrypt(JSON.stringify(config));
+  const hexUrl = xorHexEncrypt(server.url);
+  return `${API_BASE}/api/proxy-stream/c/${hexConfig}/${hexUrl}/`;
 }
