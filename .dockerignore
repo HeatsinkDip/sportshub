@@ -1,0 +1,16 @@
+# Ignore frontend source and build artifacts
+frontend/
+node_modules/
+
+# Ignore backend environments and caches
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/channels_cache.json
+
+# Ignore git and config
+.git/
+.gitignore
+README.md
+deployment_guide.md
