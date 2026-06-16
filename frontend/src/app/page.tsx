@@ -45,8 +45,24 @@ export default function HomePage() {
       setChannels(ch);
     }
     loadChannels();
-    const interval = setInterval(loadChannels, 300000);
-    return () => clearInterval(interval);
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadChannels();
+      }
+    }, 300000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadChannels();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   // Load upcoming/live fixtures dynamically for the selected upcoming date
@@ -61,8 +77,24 @@ export default function HomePage() {
       }
     }
     loadUpcoming();
-    const interval = setInterval(loadUpcoming, 120000);
-    return () => clearInterval(interval);
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadUpcoming();
+      }
+    }, 120000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadUpcoming();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [upcomingDate]);
 
   // Load completed fixtures dynamically for the selected completed date
@@ -76,8 +108,24 @@ export default function HomePage() {
       }
     }
     loadCompleted();
-    const interval = setInterval(loadCompleted, 120000);
-    return () => clearInterval(interval);
+
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadCompleted();
+      }
+    }, 120000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadCompleted();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [completedDate]);
 
   return (

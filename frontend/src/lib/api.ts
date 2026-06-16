@@ -111,43 +111,94 @@ export function xorHexDecrypt(hexStr: string, key: number = 0x5A): string {
       result += String.fromCharCode(val ^ key);
     }
     return result;
-  } catch (e) {
+  } catch {
     return "";
   }
 }
 
-export async function fetchChannels(): Promise<Channel[]> {
-  try {
-    const res = await fetch(`${API_BASE}/api/channels`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.payload) {
-      const decrypted = xorHexDecrypt(data.payload);
-      const channels = JSON.parse(decrypted);
-      return channels && channels.length > 0 ? channels : FALLBACK_CHANNELS;
-    }
-    return data.channels && data.channels.length > 0 ? data.channels : FALLBACK_CHANNELS;
-  } catch (err) {
-    console.error("Failed to fetch channels, using fallback list:", err);
-    return FALLBACK_CHANNELS;
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const apiCache = new Map<string, CacheEntry<unknown>>();
+const pendingPromises = new Map<string, Promise<unknown>>();
+
+async function fetchWithCacheCoalesce<T>(
+  url: string,
+  fetchFn: () => Promise<T>,
+  ttlMs: number
+): Promise<T> {
+  const now = Date.now();
+  const cached = apiCache.get(url);
+  if (cached && now - cached.timestamp < ttlMs) {
+    return cached.data as T;
   }
+
+  let promise = pendingPromises.get(url) as Promise<T> | undefined;
+  if (!promise) {
+    promise = fetchFn()
+      .then((data) => {
+        apiCache.set(url, { data, timestamp: Date.now() });
+        pendingPromises.delete(url);
+        return data;
+      })
+      .catch((err) => {
+        pendingPromises.delete(url);
+        throw err;
+      });
+    pendingPromises.set(url, promise as Promise<unknown>);
+  }
+  return promise;
+}
+
+export async function fetchChannels(): Promise<Channel[]> {
+  const url = `${API_BASE}/api/channels`;
+  return fetchWithCacheCoalesce(
+    url,
+    async () => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.payload) {
+          const decrypted = xorHexDecrypt(data.payload);
+          const channels = JSON.parse(decrypted);
+          return channels && channels.length > 0 ? channels : FALLBACK_CHANNELS;
+        }
+        return data.channels && data.channels.length > 0 ? data.channels : FALLBACK_CHANNELS;
+      } catch (err) {
+        console.error("Failed to fetch channels, using fallback list:", err);
+        return FALLBACK_CHANNELS;
+      }
+    },
+    30000 // 30 seconds client-side cache
+  );
 }
 
 export async function fetchFixtures(date?: string): Promise<FixturesData> {
-  try {
-    const tzOffset = new Date().getTimezoneOffset(); // minutes behind UTC (e.g. -330 for IST)
-    const params = new URLSearchParams();
-    if (date) params.set("date", date);
-    params.set("tz_offset", String(tzOffset));
-    const url = `${API_BASE}/api/fixtures?${params.toString()}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.error("Failed to fetch fixtures:", err);
-    return { upcoming: [], past: [], live: [] };
-  }
+  const tzOffset = new Date().getTimezoneOffset(); // minutes behind UTC (e.g. -330 for IST)
+  const params = new URLSearchParams();
+  if (date) params.set("date", date);
+  params.set("tz_offset", String(tzOffset));
+  const url = `${API_BASE}/api/fixtures?${params.toString()}`;
+
+  return fetchWithCacheCoalesce(
+    url,
+    async () => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.error("Failed to fetch fixtures:", err);
+        return { upcoming: [], past: [], live: [] };
+      }
+    },
+    10000 // 10 seconds client-side cache
+  );
 }
+
 
 export function isBdixOrLocal(urlStr: string): boolean {
   try {
@@ -175,7 +226,7 @@ export function isBdixOrLocal(urlStr: string): boolean {
     }
     
     return false;
-  } catch (e) {
+  } catch {
     const lower = urlStr.toLowerCase();
     return lower.startsWith("http://10.") || lower.startsWith("http://192.168.");
   }

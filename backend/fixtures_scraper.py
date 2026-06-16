@@ -10,8 +10,34 @@ import json
 import random
 import re
 from datetime import datetime, date, timedelta
+import asyncio
 # pyrefly: ignore [missing-import]
 from bs4 import BeautifulSoup
+
+# ── Shared HTTP client, locking, and cache ──
+_shared_client = None
+_openfootball_lock = asyncio.Lock()
+_api_cache = {}  # key: url, value: (timestamp, data)
+_api_locks = {}  # key: url, value: asyncio.Lock
+_final_fixtures_cache = {}  # key: (date_str, tz_offset), value: (timestamp, data)
+_final_fixtures_locks = {}  # key: (date_str, tz_offset), value: asyncio.Lock
+FINAL_FIXTURES_CACHE_TTL = 15.0  # 15 seconds cache for mapped fixture response
+
+
+def get_shared_client() -> httpx.AsyncClient:
+    global _shared_client
+    if _shared_client is None:
+        limits = httpx.Limits(max_keepalive_connections=50, max_connections=100)
+        _shared_client = httpx.AsyncClient(limits=limits, timeout=5.0)
+    return _shared_client
+
+async def close_shared_client():
+    global _shared_client
+    if _shared_client is not None:
+        await _shared_client.aclose()
+        _shared_client = None
+        print("[API] Shared HTTP client closed.")
+
 
 # ── Cache ────────────────────────────────────────────────────────────
 _fixtures_cache: dict = {"upcoming": [], "past": [], "live": []}
@@ -233,15 +259,21 @@ async def fetch_openfootball_data() -> tuple[list[dict], dict]:
     if now_time - _openfootball_timestamp < OPENFOOTBALL_TTL and _openfootball_cache:
         return _openfootball_cache, _openfootball_teams
         
-    try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
+    async with _openfootball_lock:
+        # Double check cache inside the lock
+        if now_time - _openfootball_timestamp < OPENFOOTBALL_TTL and _openfootball_cache:
+            return _openfootball_cache, _openfootball_teams
+            
+        try:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+            client = get_shared_client()
             # 1. Fetch teams
             teams_resp = await client.get(
                 "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.teams.json",
-                headers=headers
+                headers=headers,
+                timeout=5.0
             )
             if teams_resp.status_code == 200:
                 teams_data = teams_resp.json()
@@ -250,7 +282,8 @@ async def fetch_openfootball_data() -> tuple[list[dict], dict]:
             # 2. Fetch matches
             matches_resp = await client.get(
                 "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
-                headers=headers
+                headers=headers,
+                timeout=5.0
             )
             if matches_resp.status_code == 200:
                 matches_data = matches_resp.json()
@@ -300,10 +333,11 @@ async def fetch_openfootball_data() -> tuple[list[dict], dict]:
                 _openfootball_timestamp = now_time
                 print(f"[openfootball] Successfully parsed {len(parsed_matches)} matches.")
                 return _openfootball_cache, _openfootball_teams
-    except Exception as e:
-        print(f"[openfootball] Error fetching data: {e}")
-        
-    return _openfootball_cache, _openfootball_teams
+        except Exception as e:
+            print(f"[openfootball] Error fetching data: {e}")
+            
+        return _openfootball_cache, _openfootball_teams
+
 
 async def scrape_fifa_fixtures() -> dict:
     """
@@ -644,195 +678,252 @@ def _convert_utc_time_to_local(time_str: str, tz_offset: int) -> str:
 async def fetch_sportmonks_fixtures_by_date(date_str: str, tz_offset: int = 0) -> dict:
     import asyncio
     
-    # 1. Fetch openfootball matches
-    of_matches, of_teams = await fetch_openfootball_data()
-    
-    # 2. Fetch live/scheduled fixtures from APIs (for real-time overlay)
-    url_date = f"https://api.sportmonks.com/v3/football/fixtures/date/{date_str}?include=participants;scores&api_token={SPORTMONKS_TOKEN}"
-    url_inplay = f"https://api.sportmonks.com/v3/football/livescores/inplay?include=participants;scores;periods;events;league.country;round&api_token={SPORTMONKS_TOKEN}"
-    url_sched_9 = f"https://api.sportmonks.com/v3/football/schedules/teams/9?api_token={SPORTMONKS_TOKEN}"
-    url_sched_53 = f"https://api.sportmonks.com/v3/football/schedules/teams/53?api_token={SPORTMONKS_TOKEN}"
-    url_fd = f"https://api.football-data.org/v4/matches?dateFrom={date_str}&dateTo={date_str}"
-    
-    async def fetch_endpoint(url):
-        try:
-            async with httpx.AsyncClient(timeout=15.0) as client:
-                resp = await client.get(url)
-                if resp.status_code == 200:
-                    payload = resp.json()
-                    if "matches" in payload:
-                        return payload.get("matches", [])
-                    return payload.get("data", [])
-                else:
-                    print(f"[API] Non-200 status for {url.split('?')[0]}: {resp.status_code}")
-        except Exception as e:
-            print(f"[API] Error fetching {url.split('?')[0]}: {e}")
-        return []
+    # 0. Check final endpoint cache
+    cache_key = (date_str, tz_offset)
+    now_time = time.time()
+    if cache_key in _final_fixtures_cache:
+        ts, cached_val = _final_fixtures_cache[cache_key]
+        if now_time - ts < FINAL_FIXTURES_CACHE_TTL:
+            return cached_val
 
-    print(f"[API] Aggregating live data for date {date_str} (tz_offset={tz_offset}, Sportmonks & Football-Data)...")
-    
-    res_date, res_inplay, res_sched_9, res_sched_53, res_fd = await asyncio.gather(
-        fetch_endpoint(url_date),
-        fetch_endpoint(url_inplay),
-        fetch_endpoint(url_sched_9),
-        fetch_endpoint(url_sched_53),
-        fetch_endpoint(url_fd)
-    )
-    
-    # Process and build a map of live/completed API fixtures
-    sportmonks_raw = []
-    if res_date:
-        sportmonks_raw.extend(res_date)
-    if res_inplay:
-        sportmonks_raw.extend(res_inplay)
-    sportmonks_raw.extend(extract_fixtures_from_schedule(res_sched_9))
-    sportmonks_raw.extend(extract_fixtures_from_schedule(res_sched_53))
-    
-    api_matches = {}
-    for f in sportmonks_raw:
-        if not f or not isinstance(f, dict) or "id" not in f:
-            continue
-        try:
-            mapped = map_sportmonks_fixture(f)
-            if mapped.get("status") in ["live", "completed"]:
-                match_key = get_match_key(mapped["team1"]["name"], mapped["team2"]["name"])
-                api_matches[match_key] = mapped
-        except Exception:
-            continue
+    # Request coalescing for this specific cache_key
+    if cache_key not in _final_fixtures_locks:
+        _final_fixtures_locks[cache_key] = asyncio.Lock()
+        
+    async with _final_fixtures_locks[cache_key]:
+        # Double check cache inside lock
+        if cache_key in _final_fixtures_cache:
+            ts, cached_val = _final_fixtures_cache[cache_key]
+            if time.time() - ts < FINAL_FIXTURES_CACHE_TTL:
+                return cached_val
+
+        # 1. Fetch openfootball matches
+        of_matches, of_teams = await fetch_openfootball_data()
+        
+        # 2. Fetch live/scheduled fixtures from APIs (for real-time overlay)
+        url_date = f"https://api.sportmonks.com/v3/football/fixtures/date/{date_str}?include=participants;scores&api_token={SPORTMONKS_TOKEN}"
+        url_inplay = f"https://api.sportmonks.com/v3/football/livescores/inplay?include=participants;scores;periods;events;league.country;round&api_token={SPORTMONKS_TOKEN}"
+        url_sched_9 = f"https://api.sportmonks.com/v3/football/schedules/teams/9?api_token={SPORTMONKS_TOKEN}"
+        url_sched_53 = f"https://api.sportmonks.com/v3/football/schedules/teams/53?api_token={SPORTMONKS_TOKEN}"
+        url_fd = f"https://api.football-data.org/v4/matches?dateFrom={date_str}&dateTo={date_str}"
+        
+        async def fetch_endpoint(url):
+            now_time = time.time()
             
-    if res_fd:
-        for f in res_fd:
+            # 1. Check cache first
+            if url in _api_cache:
+                ts, cached_data = _api_cache[url]
+                # TTL: 900 seconds (15 mins) for schedules, 60 seconds for live/inplay/date endpoints
+                ttl = 900 if "schedules" in url else 60
+                if now_time - ts < ttl:
+                    return cached_data
+    
+            # 2. Request Coalescing (Single-Flight)
+            if url not in _api_locks:
+                _api_locks[url] = asyncio.Lock()
+                
+            async with _api_locks[url]:
+                # Double check cache inside the lock
+                if url in _api_cache:
+                    ts, cached_data = _api_cache[url]
+                    ttl = 900 if "schedules" in url else 60
+                    if now_time - ts < ttl:
+                        return cached_data
+                
+                try:
+                    client = get_shared_client()
+                    resp = await client.get(url, timeout=2.0)
+                    if resp.status_code == 200:
+                        payload = resp.json()
+                        data = payload.get("matches", []) if "matches" in payload else payload.get("data", [])
+                        _api_cache[url] = (time.time(), data)
+                        return data
+                    else:
+                        print(f"[API] Non-200 status for {url.split('?')[0]}: {resp.status_code}")
+                        # Update cache timestamp for rate-limit protection but preserve old data if present
+                        if url in _api_cache:
+                            _api_cache[url] = (time.time(), _api_cache[url][1])
+                        else:
+                            _api_cache[url] = (time.time(), [])
+                except Exception as e:
+                    print(f"[API] Error fetching {url.split('?')[0]}: {e}")
+                    # Update cache timestamp for rate-limit protection but preserve old data if present
+                    if url in _api_cache:
+                        _api_cache[url] = (time.time(), _api_cache[url][1])
+                    else:
+                        _api_cache[url] = (time.time(), [])
+                    
+                # Fallback to stale cached data if available on error/timeout
+                if url in _api_cache:
+                    return _api_cache[url][1]
+                    
+                return []
+    
+        print(f"[API] Aggregating live data for date {date_str} (tz_offset={tz_offset}, Sportmonks & Football-Data)...")
+        
+        res_date, res_inplay, res_sched_9, res_sched_53, res_fd = await asyncio.gather(
+            fetch_endpoint(url_date),
+            fetch_endpoint(url_inplay),
+            fetch_endpoint(url_sched_9),
+            fetch_endpoint(url_sched_53),
+            fetch_endpoint(url_fd)
+        )
+        
+        # Process and build a map of live/completed API fixtures
+        sportmonks_raw = []
+        if res_date:
+            sportmonks_raw.extend(res_date)
+        if res_inplay:
+            sportmonks_raw.extend(res_inplay)
+        sportmonks_raw.extend(extract_fixtures_from_schedule(res_sched_9))
+        sportmonks_raw.extend(extract_fixtures_from_schedule(res_sched_53))
+        
+        api_matches = {}
+        for f in sportmonks_raw:
             if not f or not isinstance(f, dict) or "id" not in f:
                 continue
             try:
-                mapped = map_footballdata_fixture(f)
+                mapped = map_sportmonks_fixture(f)
                 if mapped.get("status") in ["live", "completed"]:
                     match_key = get_match_key(mapped["team1"]["name"], mapped["team2"]["name"])
                     api_matches[match_key] = mapped
             except Exception:
                 continue
                 
-    # 3. Categorize openfootball matches based on requested date (using local date)
-    fixtures = {"upcoming": [], "past": [], "live": []}
-    now_utc = datetime.utcnow()
-    
-    # Calculate current local date for live today checking
-    now_local = datetime.utcnow() - timedelta(minutes=tz_offset)
-    current_local_date = now_local.strftime("%Y-%m-%d")
-    
-    matches_to_process = []
-    if of_matches:
-        # Deep copy
-        for m in of_matches:
-            matches_to_process.append({
-                "id": m["id"],
-                "group": m["group"],
-                "utc_date": m["utc_date"],
-                "utc_time": m["utc_time"],
-                "team1": dict(m["team1"]),
-                "team2": dict(m["team2"]),
-                "venue": m["venue"],
-                "score_t1": m["score_t1"],
-                "score_t2": m["score_t2"]
-            })
-    
-    if not matches_to_process:
-        print("[API] openfootball data not available, using offline fallback")
-        for match in ALL_MATCHES:
-            t1_name = match["team1"]["name"]
-            t2_name = match["team2"]["name"]
-            
-            parsed = {
-                "id": match["id"],
-                "group": match["group"].upper(),
-                "utc_date": match["date"],
-                "utc_time": match["time"],
-                "team1": {
-                    "name": t1_name,
-                    "code": match["team1"]["code"],
-                    "flag": match["team1"]["flag"],
-                },
-                "team2": {
-                    "name": t2_name,
-                    "code": match["team2"]["code"],
-                    "flag": match["team2"]["flag"],
-                },
-                "venue": match.get("venue", ""),
-                "score_t1": match["team1"].get("score"),
-                "score_t2": match["team2"].get("score")
-            }
-            matches_to_process.append(parsed)
-            
-    for match in matches_to_process:
-        # Determine local date and time
-        local_date, local_time = utc_to_local(match["utc_date"], match["utc_time"], tz_offset)
+        if res_fd:
+            for f in res_fd:
+                if not f or not isinstance(f, dict) or "id" not in f:
+                    continue
+                try:
+                    mapped = map_footballdata_fixture(f)
+                    if mapped.get("status") in ["live", "completed"]:
+                        match_key = get_match_key(mapped["team1"]["name"], mapped["team2"]["name"])
+                        api_matches[match_key] = mapped
+                except Exception:
+                    continue
+                    
+        # 3. Categorize openfootball matches based on requested date (using local date)
+        fixtures = {"upcoming": [], "past": [], "live": []}
+        now_utc = datetime.utcnow()
         
-        match_key = get_match_key(match["team1"]["name"], match["team2"]["name"])
+        # Calculate current local date for live today checking
+        now_local = datetime.utcnow() - timedelta(minutes=tz_offset)
+        current_local_date = now_local.strftime("%Y-%m-%d")
         
-        # Parse match UTC datetime
-        if match["utc_time"] == "TBD":
-            match_dt = None
-        else:
-            try:
-                match_dt = datetime.fromisoformat(f"{match['utc_date']}T{match['utc_time']}:00")
-            except Exception:
+        matches_to_process = []
+        if of_matches:
+            # Deep copy
+            for m in of_matches:
+                matches_to_process.append({
+                    "id": m["id"],
+                    "group": m["group"],
+                    "utc_date": m["utc_date"],
+                    "utc_time": m["utc_time"],
+                    "team1": dict(m["team1"]),
+                    "team2": dict(m["team2"]),
+                    "venue": m["venue"],
+                    "score_t1": m["score_t1"],
+                    "score_t2": m["score_t2"]
+                })
+        
+        if not matches_to_process:
+            print("[API] openfootball data not available, using offline fallback")
+            for match in ALL_MATCHES:
+                t1_name = match["team1"]["name"]
+                t2_name = match["team2"]["name"]
+                
+                parsed = {
+                    "id": match["id"],
+                    "group": match["group"].upper(),
+                    "utc_date": match["date"],
+                    "utc_time": match["time"],
+                    "team1": {
+                        "name": t1_name,
+                        "code": match["team1"]["code"],
+                        "flag": match["team1"]["flag"],
+                    },
+                    "team2": {
+                        "name": t2_name,
+                        "code": match["team2"]["code"],
+                        "flag": match["team2"]["flag"],
+                    },
+                    "venue": match.get("venue", ""),
+                    "score_t1": match["team1"].get("score"),
+                    "score_t2": match["team2"].get("score")
+                }
+                matches_to_process.append(parsed)
+                
+        for match in matches_to_process:
+            # Determine local date and time
+            local_date, local_time = utc_to_local(match["utc_date"], match["utc_time"], tz_offset)
+            
+            match_key = get_match_key(match["team1"]["name"], match["team2"]["name"])
+            
+            # Parse match UTC datetime
+            if match["utc_time"] == "TBD":
                 match_dt = None
-                
-        m = {
-            "id": match["id"],
-            "group": match["group"],
-            "date": local_date,
-            "time": local_time,
-            "venue": match["venue"],
-            "team1": dict(match["team1"]),
-            "team2": dict(match["team2"]),
-        }
-        
-        # Determine status & scores
-        status = "upcoming"
-        t1_score = None
-        t2_score = None
-        
-        if match_key in api_matches:
-            api_match = api_matches[match_key]
-            status = api_match["status"]
-            t1_score = api_match["team1"].get("score")
-            t2_score = api_match["team2"].get("score")
-        elif match["score_t1"] is not None and match["score_t2"] is not None:
-            status = "completed"
-            t1_score = match["score_t1"]
-            t2_score = match["score_t2"]
-        elif match_dt and match_dt <= now_utc < match_dt + timedelta(hours=2):
-            status = "live"
-            elapsed_minutes = int((now_utc - match_dt).total_seconds() / 60)
-            s1, s2 = get_live_score(match["id"], elapsed_minutes)
-            t1_score = s1
-            t2_score = s2
-        elif match_dt and now_utc >= match_dt + timedelta(hours=2):
-            status = "completed"
-            s1, s2 = get_completed_score(match["id"], None, None)
-            t1_score = s1
-            t2_score = s2
-        else:
-            status = "upcoming"
-            
-        m["status"] = status
-        if status in ["live", "completed"]:
-            m["team1"]["score"] = t1_score if t1_score is not None else 0
-            m["team2"]["score"] = t2_score if t2_score is not None else 0
-            
-        is_same_date = (local_date == date_str)
-        is_live_today = (status == "live" and date_str == current_local_date)
-        
-        if is_same_date or is_live_today:
-            if status == "completed":
-                fixtures["past"].append(m)
-            elif status == "live":
-                fixtures["live"].append(m)
             else:
-                fixtures["upcoming"].append(m)
+                try:
+                    match_dt = datetime.fromisoformat(f"{match['utc_date']}T{match['utc_time']}:00")
+                except Exception:
+                    match_dt = None
+                    
+            m = {
+                "id": match["id"],
+                "group": match["group"],
+                "date": local_date,
+                "time": local_time,
+                "venue": match["venue"],
+                "team1": dict(match["team1"]),
+                "team2": dict(match["team2"]),
+            }
+            
+            # Determine status & scores
+            status = "upcoming"
+            t1_score = None
+            t2_score = None
+            
+            if match_key in api_matches:
+                api_match = api_matches[match_key]
+                status = api_match["status"]
+                t1_score = api_match["team1"].get("score")
+                t2_score = api_match["team2"].get("score")
+            elif match["score_t1"] is not None and match["score_t2"] is not None:
+                status = "completed"
+                t1_score = match["score_t1"]
+                t2_score = match["score_t2"]
+            elif match_dt and match_dt <= now_utc < match_dt + timedelta(hours=2):
+                status = "live"
+                elapsed_minutes = int((now_utc - match_dt).total_seconds() / 60)
+                s1, s2 = get_live_score(match["id"], elapsed_minutes)
+                t1_score = s1
+                t2_score = s2
+            elif match_dt and now_utc >= match_dt + timedelta(hours=2):
+                status = "completed"
+                s1, s2 = get_completed_score(match["id"], None, None)
+                t1_score = s1
+                t2_score = s2
+            else:
+                status = "upcoming"
                 
-    return fixtures
+            m["status"] = status
+            if status in ["live", "completed"]:
+                m["team1"]["score"] = t1_score if t1_score is not None else 0
+                m["team2"]["score"] = t2_score if t2_score is not None else 0
+                
+            is_same_date = (local_date == date_str)
+            is_live_today = (status == "live" and date_str == current_local_date)
+            
+            if is_same_date or is_live_today:
+                if status == "completed":
+                    fixtures["past"].append(m)
+                elif status == "live":
+                    fixtures["live"].append(m)
+                else:
+                    fixtures["upcoming"].append(m)
+                    
+        _final_fixtures_cache[cache_key] = (time.time(), fixtures)
+        return fixtures
 
 def get_fallback_fixtures_for_date(date_str: str) -> dict:
     return get_dynamic_fallback_fixtures(date_str)

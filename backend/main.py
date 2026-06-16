@@ -85,6 +85,13 @@ async def lifespan(app: FastAPI):
     if global_proxy_client:
         await global_proxy_client.aclose()
 
+    try:
+        from fixtures_scraper import close_shared_client
+        await close_shared_client()
+    except Exception as e:
+        print(f"[Shutdown] Error closing shared client: {e}")
+
+
 
 # ── FastAPI App ──────────────────────────────────────────────────────
 app = FastAPI(
