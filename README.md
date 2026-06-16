@@ -38,6 +38,112 @@ A premium, timezone-aware, high-performance web dashboard for live streaming the
 
 ---
 
+## 📐 System Architecture
+
+The following diagram outlines the system topology, showing the communication layout between the Client Browser, the CDN Edge Cache, the FastAPI server, and the external data feeds.
+
+```mermaid
+graph TD
+    subgraph Client ["Client Browser (Next.js Frontend)"]
+        UI["React UI (page.tsx)"]
+        API["Client API Client (api.ts)"]
+        Player["Video Player (HLS.js / Dash.js)"]
+        UI --> API
+        UI --> Player
+    end
+
+    subgraph CDN ["CDN Caching Layer"]
+        CF["Cloudflare Edge Cache"]
+    end
+
+    subgraph Backend ["FastAPI Backend Server"]
+        Main["FastAPI App (main.py)"]
+        Scraper["Fixtures Scraper (fixtures_scraper.py)"]
+        M3U["M3U Parser (m3u_parser.py)"]
+        
+        Main --> Scraper
+        Main --> M3U
+    end
+
+    subgraph External ["External Data & Media Sources"]
+        OF["openfootball JSON (GitHub)"]
+        SM["Sportmonks API"]
+        FD["Football-Data API"]
+        Streams["IPTV Stream Providers (HLS/DASH)"]
+    end
+
+    %% Requests from Client
+    API -->|1. Coalesced/Cached Requests| Main
+    Player -->|2. Stream Proxy Request| CF
+    CF -->|3. Cache Miss| Main
+    
+    %% Backend fetches
+    Scraper -->|Fetch matches| OF
+    Scraper -->|Overlay scores| SM
+    Scraper -->|Overlay scores| FD
+    Main -->|Proxy Manifests & Segments| Streams
+```
+
+---
+
+## 🔄 Request Coalescing & Caching Sequence
+
+To handle massive concurrent traffic and prevent API rate-limits, caching and request coalescing (single-flight locking) are implemented at multiple levels of the request cycle:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant UI as React UI (Page.tsx)
+    participant ClientAPI as Client API (api.ts)
+    participant Cloudflare as Cloudflare CDN
+    participant FastAPI as FastAPI Backend (main.py)
+    participant Scraper as Scraper Cache & Locks
+    participant External as External APIs (Sportmonks)
+
+    rect rgb(25, 30, 40)
+        Note over UI, ClientAPI: Frontend Deduplication
+        UI->>ClientAPI: fetchFixtures("2026-06-16") [Upcoming Effect]
+        UI->>ClientAPI: fetchFixtures("2026-06-16") [Completed Effect]
+        Note over ClientAPI: Coalesces duplicate requests<br/>for the same date
+        ClientAPI->>FastAPI: HTTP GET /api/fixtures?date=2026-06-16 (1 request)
+    end
+
+    rect rgb(35, 45, 55)
+        Note over FastAPI, External: Backend Caching & Single-Flight Locks
+        FastAPI->>Scraper: Get fixtures for date
+        alt Cache Hit (TTL < 15s)
+            Scraper-->>FastAPI: Return cached JSON immediately
+        else Cache Miss
+            Scraper->>Scraper: Acquire lock for (date, tz_offset)
+            Scraper->>External: Parallel Async HTTPX Requests
+            External-->>Scraper: Return raw data
+            Scraper->>Scraper: Parse & categorize fixtures
+            Scraper->>Scraper: Save to final response cache
+            Scraper-->>FastAPI: Return populated fixtures JSON
+        end
+        FastAPI-->>ClientAPI: HTTP 200 JSON Response
+    end
+
+    ClientAPI-->>UI: Return to Upcoming Effect
+    ClientAPI-->>UI: Return to Completed Effect
+
+    rect rgb(45, 55, 65)
+        Note over UI, Cloudflare: Stream Segment Caching
+        UI->>Cloudflare: GET /api/proxy-stream/c/.../segment_1.ts
+        alt Cloudflare Cache Hit
+            Cloudflare-->>UI: Serve segment instantly from Edge
+        else Cache Miss
+            Cloudflare->>FastAPI: Forward GET segment_1.ts
+            FastAPI->>External: Stream from remote stream host
+            External-->>FastAPI: Raw chunk data
+            FastAPI-->>Cloudflare: Stream segment back (cache-control: public)
+            Cloudflare-->>UI: Deliver segment and save to Cache
+        end
+    end
+```
+
+---
+
 ## ⚙️ Getting Started
 
 ### 1. Backend Setup (FastAPI)
