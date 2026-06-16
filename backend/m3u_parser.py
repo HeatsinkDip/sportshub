@@ -269,7 +269,7 @@ async def fetch_single_m3u(client: httpx.AsyncClient, url: str) -> list[dict]:
     try:
         resp = await client.get(raw_url, timeout=15.0)
         resp.raise_for_status()
-        parsed = parse_m3u(resp.text)
+        parsed = await asyncio.to_thread(parse_m3u, resp.text)
         print(f"[M3U] Parsed {len(parsed)} channels from {url.split('/')[-1]}")
         return parsed
     except Exception as e:
@@ -297,7 +297,11 @@ async def is_server_working(client: httpx.AsyncClient, server: dict) -> bool:
             "streamhostingcdn.top",
             "szyac.com",
             "msdht.app",
-            "medya.trt.com.tr"
+            "medya.trt.com.tr",
+            "egmdispatch.com",
+            "cltvlv.com",
+            "74.91.26.218",
+            "198.204.240.250"
         ]
         if any(kw in url for kw in user_verified_keywords):
             return True
@@ -386,16 +390,12 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
             chan_copy["servers"] = s_zohan + s_others
         
         # 2. Somoy TV (somoy_tv)
-        # Category: featured. Remove bozztv, toffee, and gpcdn.net. Prioritize thebosstv.com first.
+        # Category: featured. Keep and prioritize working streams (bozztv.com, gpcdn.net, thebosstv.com).
         elif cid == "somoy_tv":
             chan_copy["category"] = "featured"
-            filtered_servers = [
-                s for s in chan_copy["servers"] 
-                if "bozztv.com" not in s["url"] and "toffee/play/somoy_tv" not in s["url"] and "gpcdn.net" not in s["url"]
-            ]
-            s_top = [s for s in filtered_servers if "thebosstv.com" in s["url"]]
-            s_others = [s for s in filtered_servers if "thebosstv.com" not in s["url"]]
-            chan_copy["servers"] = s_top + s_others
+            priority = [s for s in chan_copy["servers"] if "bozztv.com" in s["url"] or "gpcdn.net" in s["url"] or "sm-monirul.top" in s["url"]]
+            others = [s for s in chan_copy["servers"] if "bozztv.com" not in s["url"] and "gpcdn.net" not in s["url"] and "sm-monirul.top" not in s["url"]]
+            chan_copy["servers"] = priority + others
             
         # 3. beIN Sports 1 (bein_sports_1_full_hd_)
         # Category: featured (Fifa live). Make server 2 (containing "het4444.ycn-redirect.com") default.
@@ -423,12 +423,12 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
             chan_copy["servers"] = [s for s in chan_copy["servers"] if "dfr80qz435crc.cloudfront.net" in s["url"]]
             
         # 7. T Sports HD (t_sports_hd)
-        # Category: featured. Keep only index.m3u8 and tracks-v1a1/mono.m3u8 working servers.
+        # Category: featured. Keep working streams, prioritizing public non-BDIX streams.
         elif cid == "t_sports_hd":
             chan_copy["category"] = "featured"
-            s1 = [s for s in chan_copy["servers"] if "/tsports/index.m3u8" in s["url"]]
-            s2 = [s for s in chan_copy["servers"] if "/tsports/tracks-v1a1/mono.m3u8" in s["url"]]
-            chan_copy["servers"] = s1 + s2
+            public_servers = [s for s in chan_copy["servers"] if "rgkkw.live" in s["url"] or "starhub.pro" in s["url"]]
+            bdix_servers = [s for s in chan_copy["servers"] if "/tsports/" in s["url"]]
+            chan_copy["servers"] = public_servers + bdix_servers
             
         # 8. D Sports (d_sports)
         # Category: featured. Remove otte servers. Custom URL will be made default in inject_custom_channels.
@@ -455,16 +455,16 @@ CUSTOM_CHANNEL_SERVERS = {
     # channel_id: (display_name, category, quality, [server_dicts])
     # Set all custom channels to featured (Fifa Live section)
     "win_sports_full_hd_": ("WIN Sports (Full HD)", "featured", "FHD", [
-        {"url": "https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8", "name": "Win Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "http://74.91.26.218:82/live/win.m3u8", "name": "Win Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
     "cctv_5_full_hd_": ("CCTV 5 (Full HD)", "featured", "FHD", [
-        {"url": "https://live12.szyac.com/live/35291799.m3u8", "name": "CCTV Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "http://74.91.26.218:82/live/cctv5hd.m3u8", "name": "CCTV Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
     "elta_sports_fhd_": ("ELTA Sports (FHD)", "featured", "FHD", [
-        {"url": "https://live12.szyac.com/live/22457616.m3u8", "name": "ELTA Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "http://74.91.26.218:82/live/elta_sports2.m3u8", "name": "ELTA Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
     "macao_sports_fhd_": ("Macao Sports (FHD)", "featured", "FHD", [
-        {"url": "https://live12.szyac.com/live/09139583.m3u8", "name": "Macao Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "http://74.91.26.218:82/live/macaohd.m3u8", "name": "Macao Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
     "dazn_full_hd_": ("DAZN (Full HD)", "featured", "FHD", [
         {"url": "https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8", "name": "DAZN Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
@@ -484,6 +484,27 @@ CUSTOM_CHANNEL_SERVERS = {
     "somoy_tv": ("Somoy TV", "featured", "HD", [
         {"url": "https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8", "name": "Somoy TV Custom", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
+}
+
+# ── Backup mirror servers for auto-healing when stream URLs go offline ──
+MIRROR_SERVERS = {
+    "cctv_5_full_hd_": [
+        ("CCTV 5 Mirror 1", "http://74.91.26.218:82/live/cctv5hd.m3u8"),
+        ("CCTV 5 Mirror 2", "http://198.204.240.250:82/live/cctv5hd.m3u8")
+    ],
+    "macao_sports_fhd_": [
+        ("Macao Sports Mirror 1", "http://74.91.26.218:82/live/macaohd.m3u8"),
+        ("Macao Sports Mirror 2", "http://198.204.240.250:82/live/macaohd.m3u8")
+    ],
+    "elta_sports_fhd_": [
+        ("ELTA Sports 2 Mirror 1", "http://74.91.26.218:82/live/elta_sports2.m3u8"),
+        ("ELTA Sports 3 Mirror 1", "http://74.91.26.218:82/live/elta_sports3.m3u8"),
+        ("ELTA Sports 2 Mirror 2", "http://198.204.240.250:82/live/elta_sports2.m3u8")
+    ],
+    "win_sports_full_hd_": [
+        ("Win Sports Mirror 1", "http://74.91.26.218:82/live/win.m3u8"),
+        ("Win Sports Mirror 2", "http://198.204.240.250:82/live/win.m3u8")
+    ]
 }
 
 
@@ -512,6 +533,38 @@ def inject_custom_channels(channels: list[dict]) -> list[dict]:
     # Re-sort: featured first, then by name
     channels.sort(key=lambda c: (0 if c["category"] == "featured" else 1, c["name"]))
     return channels
+
+
+async def fetch_live_colatv_servers(client: httpx.AsyncClient) -> list[dict]:
+    """Fetch live match stream URLs from ColaTV API."""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "Origin": "https://colatv.app",
+        "Referer": "https://colatv.app/"
+    }
+    servers = []
+    try:
+        r = await client.get("https://api.cltvlv.com/api/matches", headers=headers, timeout=8.0)
+        if r.status_code == 200:
+            data = r.json()
+            matches_dict = data.get("data", {})
+            for match_key, match_info in matches_dict.items():
+                video_url = match_info.get("videoUrl")
+                if video_url:
+                    home = match_info.get("homeTeamName", "Home")
+                    away = match_info.get("awayTeamName", "Away")
+                    servers.append({
+                        "url": video_url,
+                        "name": f"ColaTV - {home} vs {away}",
+                        "quality": "FHD",
+                        "referrer": "",
+                        "user_agent": "",
+                        "license_type": "",
+                        "license_key": ""
+                    })
+    except Exception as e:
+        print(f"[ColaTV API] Error: {e}")
+    return servers
 
 
 async def fetch_and_parse_m3u() -> list[dict]:
@@ -545,15 +598,36 @@ async def fetch_and_parse_m3u() -> list[dict]:
             for parsed in results:
                 all_channels.extend(parsed)
 
-        filtered = filter_worldcup_channels(all_channels)
+        filtered = await asyncio.to_thread(filter_worldcup_channels, all_channels)
+        
+        # 1. Inject custom channels first so they can be validated and auto-healed in parallel
+        channels_to_validate = inject_custom_channels(filtered)
+
         print(f"[M3U] Validating stream servers in parallel...")
 
         # Parallel validation of matched stream servers
         valid_channels = []
         async with httpx.AsyncClient(follow_redirects=True) as check_client:
+            # 2. Dynamically fetch latest ColaTV streams from API inside the active client context
+            colatv_api_servers = await fetch_live_colatv_servers(check_client)
+            if colatv_api_servers:
+                colatv_chan = next((c for c in channels_to_validate if c["id"] == "colatv"), None)
+                if colatv_chan:
+                    colatv_chan["servers"] = colatv_api_servers + colatv_chan["servers"]
+                else:
+                    channels_to_validate.append({
+                        "id": "colatv",
+                        "name": "ColaTV",
+                        "category": "featured",
+                        "logo": "",
+                        "quality": "FHD",
+                        "servers": colatv_api_servers
+                    })
+
+            # Flatten all servers into a single list of checks to perform them concurrently
             # Flatten all servers into a single list of checks to perform them concurrently
             server_checks = []
-            for chan_idx, chan in enumerate(filtered):
+            for chan_idx, chan in enumerate(channels_to_validate):
                 for srv_idx, srv in enumerate(chan["servers"]):
                     server_checks.append((chan_idx, srv_idx, srv))
 
@@ -568,19 +642,38 @@ async def fetch_and_parse_m3u() -> list[dict]:
                 status_results = await asyncio.gather(*tasks)
 
                 # Group working servers back by channel
-                working_servers_by_chan = {i: [] for i in range(len(filtered))}
+                working_servers_by_chan = {i: [] for i in range(len(channels_to_validate))}
                 for (chan_idx, srv_idx, srv), ok in zip(server_checks, status_results):
                     if ok:
                         working_servers_by_chan[chan_idx].append(srv)
 
-                for chan_idx, chan in enumerate(filtered):
+                for chan_idx, chan in enumerate(channels_to_validate):
                     working_servers = working_servers_by_chan[chan_idx]
+                    cid = chan["id"]
+                    
+                    # Auto-Healing: If mirror channel is down, check backup mirrors!
+                    if not working_servers and cid in MIRROR_SERVERS:
+                        print(f"[Auto-Healing] Channel '{chan['name']}' has 0 working streams. Probing backup mirrors...")
+                        for m_name, m_url in MIRROR_SERVERS[cid]:
+                            mirror_srv = {
+                                "url": m_url,
+                                "name": m_name,
+                                "quality": chan.get("quality", "FHD"),
+                                "referrer": "",
+                                "user_agent": "",
+                                "license_type": "",
+                                "license_key": ""
+                            }
+                            if await is_server_working(check_client, mirror_srv):
+                                print(f"[Auto-Healing] Found working mirror for '{chan['name']}': {m_url}")
+                                working_servers.append(mirror_srv)
+                                break
+                                
                     if working_servers:
                         chan["servers"] = working_servers
                         valid_channels.append(chan)
 
         _cached_channels = apply_server_and_category_overrides(valid_channels)
-        _cached_channels = inject_custom_channels(_cached_channels)
         
         # Populate missing logos with accurate online URLs
         for chan in _cached_channels:

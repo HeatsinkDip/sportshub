@@ -47,7 +47,7 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
   const activeServerRef = useRef<number>(0);
   const retryCountRef = useRef<number>(0);
   const nativeCleanupRef = useRef<(() => void) | null>(null);
-  const loadStreamRef = useRef<(server: Server) => void>(() => {});
+  const loadStreamRef = useRef<(server: Server) => void>(() => { });
 
   useEffect(() => {
     channelRef.current = channel;
@@ -65,7 +65,7 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
   const handleFailover = useCallback(() => {
     const currentChannel = channelRef.current;
     const currentServerIndex = activeServerRef.current;
-    
+
     if (currentChannel && currentServerIndex < currentChannel.servers.length - 1) {
       const nextIndex = currentServerIndex + 1;
       console.log(`Server ${currentServerIndex + 1} failed. Trying Server ${nextIndex + 1}...`);
@@ -231,7 +231,7 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
           videoRef.current
             ?.play()
             .then(() => setIsPlaying(true))
-            .catch(() => {});
+            .catch(() => { });
         });
 
         hls.on(Hls.Events.ERROR, (_event, data) => {
@@ -260,12 +260,12 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
         // Safari native HLS (e.g. iOS Safari)
         const video = videoRef.current;
         video.src = streamUrl;
-        
+
         const handleLoadedMetadata = () => {
           setIsLoading(false);
           video.play()
             .then(() => setIsPlaying(true))
-            .catch(() => {});
+            .catch(() => { });
         };
 
         const handleNativeError = () => {
@@ -480,7 +480,17 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
             Server {activeServer + 1}/{channel.servers.length}
           </span>
         </span>
-        <span className="stream-source">iptv-org · public stream</span>
+        <a
+          href="https://dipayon.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="stream-source"
+          style={{ cursor: "pointer", transition: "color 0.2s" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent-pink)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+        >
+          Develop by Dipayon
+        </a>
       </div>
     </div>
   );

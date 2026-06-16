@@ -86,7 +86,7 @@ export default function FixturesSidebar({
                   <PastCard key={m.id} match={m} />
                 ))
               ) : (
-                <div className="no-fixtures">No completed matches for this date</div>
+                <div className="no-fixtures">No Completed Matches for this date</div>
               )}
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function FixturesSidebar({
                   <UpcomingCard key={m.id} match={m} />
                 ))
               ) : (
-                <div className="no-fixtures">No upcoming matches for this date</div>
+                <div className="no-fixtures">No upcoming matches for Today</div>
               )}
             </div>
           </div>
@@ -247,18 +247,16 @@ function LiveCard({ match }: { match: Fixture }) {
       </div>
       <div className="fixture-score-row">
         <div
-          className={`fixture-team-score ${
-            (match.team1.score ?? 0) > (match.team2.score ?? 0) ? "winner" : ""
-          }`}
+          className={`fixture-team-score ${(match.team1.score ?? 0) > (match.team2.score ?? 0) ? "winner" : ""
+            }`}
         >
           <span className="team-flag">{match.team1.flag}</span>
           <span className="team-name">{match.team1.name}</span>
           <span className="score-box live-score">{match.team1.score ?? 0}</span>
         </div>
         <div
-          className={`fixture-team-score ${
-            (match.team2.score ?? 0) > (match.team1.score ?? 0) ? "winner" : ""
-          }`}
+          className={`fixture-team-score ${(match.team2.score ?? 0) > (match.team1.score ?? 0) ? "winner" : ""
+            }`}
         >
           <span className="team-flag">{match.team2.flag}</span>
           <span className="team-name">{match.team2.name}</span>
@@ -279,18 +277,16 @@ function PastCard({ match }: { match: Fixture }) {
       </div>
       <div className="fixture-score-row">
         <div
-          className={`fixture-team-score ${
-            (match.team1.score ?? 0) > (match.team2.score ?? 0) ? "winner" : ""
-          }`}
+          className={`fixture-team-score ${(match.team1.score ?? 0) > (match.team2.score ?? 0) ? "winner" : ""
+            }`}
         >
           <span className="team-flag">{match.team1.flag}</span>
           <span className="team-name">{match.team1.name}</span>
           <span className="score-box">{match.team1.score ?? 0}</span>
         </div>
         <div
-          className={`fixture-team-score ${
-            (match.team2.score ?? 0) > (match.team1.score ?? 0) ? "winner" : ""
-          }`}
+          className={`fixture-team-score ${(match.team2.score ?? 0) > (match.team1.score ?? 0) ? "winner" : ""
+            }`}
         >
           <span className="team-flag">{match.team2.flag}</span>
           <span className="team-name">{match.team2.name}</span>

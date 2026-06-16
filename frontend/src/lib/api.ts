@@ -205,6 +205,15 @@ export function isBdixOrLocal(urlStr: string): boolean {
     const url = new URL(urlStr);
     const host = url.hostname.toLowerCase();
     
+    // Check BDIX keywords in domain/URL
+    if (
+      host.includes("bdix") ||
+      urlStr.toLowerCase().includes("bdix") ||
+      urlStr.toLowerCase().includes("/tsports/")
+    ) {
+      return true;
+    }
+
     // Check for loopback and local ranges
     if (
       host === "localhost" ||
@@ -215,12 +224,24 @@ export function isBdixOrLocal(urlStr: string): boolean {
       return true;
     }
     
-    // Check 172.16.x.x to 172.31.x.x
+    // Check common BDIX and private IP ranges
     const parts = host.split(".");
     if (parts.length === 4) {
       const first = parseInt(parts[0], 10);
       const second = parseInt(parts[1], 10);
+      
+      // Local private range 172.16.x.x to 172.31.x.x
       if (first === 172 && second >= 16 && second <= 31) {
+        return true;
+      }
+      
+      // Known public BDIX IP prefixes
+      if (
+        (first === 198 && second === 195) || // e.g. 198.195.239.50 (T Sports)
+        (first === 180 && second === 94) ||  // e.g. 180.94.28.28 (PTV Sports)
+        (first === 114 && second === 130) || // e.g. 114.130.57.224 (Somoy TV)
+        (first === 119 && second === 156)    // e.g. 119.156.228.231 (PTV Sports fallback)
+      ) {
         return true;
       }
     }
@@ -228,7 +249,12 @@ export function isBdixOrLocal(urlStr: string): boolean {
     return false;
   } catch {
     const lower = urlStr.toLowerCase();
-    return lower.startsWith("http://10.") || lower.startsWith("http://192.168.");
+    return (
+      lower.startsWith("http://10.") ||
+      lower.startsWith("http://192.168.") ||
+      lower.includes("bdix") ||
+      lower.includes("/tsports/")
+    );
   }
 }
 
