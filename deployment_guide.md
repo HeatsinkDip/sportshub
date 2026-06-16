@@ -32,6 +32,20 @@ We recommend using **Render** (free/paid tier) or **Railway** (paid tier).
    *   **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 5. Railway will automatically build and deploy the app, exposing a public URL.
 
+### Deploying on Northflank
+1. Sign up/Log in to [Northflank](https://northflank.com/).
+2. Click **Create New** -> **Combined Service** (or **Deployment**).
+3. Select your GitHub repository and branch.
+4. Under **Build Settings**:
+   *   **Build Type**: Select `Dockerfile`.
+   *   **Dockerfile Path**: Set to `backend/Dockerfile` (relative to the repository root).
+   *   **Build Context**: Set to `backend` (so it runs inside the backend folder context).
+5. Under **Networking & Ports**:
+   *   Add a public port mapping. Set the container port to `8000` (the default container port exposed in the Dockerfile).
+   *   Enable **Public HTTPS** routing.
+   *   Northflank will assign a random external port and automatically inject it into the container as the `$PORT` environment variable, which uvicorn listens to.
+6. Click **Create Service**. Once the build succeeds, copy the public HTTPS domain provided by Northflank to use as your backup API URL.
+
 ---
 
 ## 2. Deploying the Frontend (Next.js) on Vercel
