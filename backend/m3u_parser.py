@@ -380,7 +380,7 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
         # Category: featured. Keep both working servers (zohanayaan.com and second), remove only dead 119.156.228.231.
         if cid == "ptv_sports":
             chan_copy["category"] = "featured"
-            filtered = [s for s in chan_copy["servers"] if "zohanayaan.com" not in s["url"]]
+            filtered = [s for s in chan_copy["servers"] if "119.156.228.231" not in s["url"]]
             s_zohan = [s for s in filtered if "zohanayaan.com" in s["url"]]
             s_others = [s for s in filtered if "zohanayaan.com" not in s["url"]]
             chan_copy["servers"] = s_zohan + s_others
@@ -551,14 +551,33 @@ async def fetch_and_parse_m3u() -> list[dict]:
         # Parallel validation of matched stream servers
         valid_channels = []
         async with httpx.AsyncClient(follow_redirects=True) as check_client:
-            for chan in filtered:
-                tasks = [is_server_working(check_client, s) for s in chan["servers"]]
+            # Flatten all servers into a single list of checks to perform them concurrently
+            server_checks = []
+            for chan_idx, chan in enumerate(filtered):
+                for srv_idx, srv in enumerate(chan["servers"]):
+                    server_checks.append((chan_idx, srv_idx, srv))
+
+            if server_checks:
+                sem = asyncio.Semaphore(25)  # Limit concurrency to 25 to avoid socket exhaustion
+
+                async def check_srv(srv):
+                    async with sem:
+                        return await is_server_working(check_client, srv)
+
+                tasks = [check_srv(srv) for _, _, srv in server_checks]
                 status_results = await asyncio.gather(*tasks)
-                
-                working_servers = [s for s, ok in zip(chan["servers"], status_results) if ok]
-                if working_servers:
-                    chan["servers"] = working_servers
-                    valid_channels.append(chan)
+
+                # Group working servers back by channel
+                working_servers_by_chan = {i: [] for i in range(len(filtered))}
+                for (chan_idx, srv_idx, srv), ok in zip(server_checks, status_results):
+                    if ok:
+                        working_servers_by_chan[chan_idx].append(srv)
+
+                for chan_idx, chan in enumerate(filtered):
+                    working_servers = working_servers_by_chan[chan_idx]
+                    if working_servers:
+                        chan["servers"] = working_servers
+                        valid_channels.append(chan)
 
         _cached_channels = apply_server_and_category_overrides(valid_channels)
         _cached_channels = inject_custom_channels(_cached_channels)

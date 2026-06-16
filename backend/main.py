@@ -34,6 +34,10 @@ async def periodic_refresh():
 global_proxy_client = None
 
 
+# Strong references to running background tasks to prevent Python GC from cleaning them up:
+background_tasks = set()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup: load disk cache, initialize client, start background tasks."""
@@ -50,18 +54,28 @@ async def lifespan(app: FastAPI):
         print(f"[Startup] Cache load error: {e}")
 
     # Trigger async scraping in background to refresh the list without blocking server startup
-    asyncio.create_task(fetch_and_parse_m3u())
-    asyncio.create_task(fetch_openfootball_data())
-    asyncio.create_task(scrape_fifa_fixtures())
+    t1 = asyncio.create_task(fetch_and_parse_m3u())
+    t2 = asyncio.create_task(fetch_openfootball_data())
+    t3 = asyncio.create_task(scrape_fifa_fixtures())
+    background_tasks.add(t1)
+    background_tasks.add(t2)
+    background_tasks.add(t3)
+    t1.add_done_callback(background_tasks.discard)
+    t2.add_done_callback(background_tasks.discard)
+    t3.add_done_callback(background_tasks.discard)
 
     # Start periodic refresh every 15 minutes
     refresh_task = asyncio.create_task(periodic_refresh())
+    background_tasks.add(refresh_task)
+    refresh_task.add_done_callback(background_tasks.discard)
     print("[Startup] Background tasks initialized successfully.")
 
     yield
 
     # Cleanup
-    refresh_task.cancel()
+    for task in list(background_tasks):
+        task.cancel()
+    
     try:
         await refresh_task
     except asyncio.CancelledError:
@@ -246,6 +260,7 @@ async def proxy_stream(
     if not global_proxy_client:
         global_proxy_client = httpx.AsyncClient(timeout=30.0, follow_redirects=True)
 
+    resp = None
     try:
         req = global_proxy_client.build_request("GET", url, headers=headers)
         resp = await global_proxy_client.send(req, stream=True)
@@ -253,6 +268,7 @@ async def proxy_stream(
         if resp.status_code >= 400:
             body = await resp.aread()
             await resp.aclose()
+            resp = None
             return Response(content=body, status_code=resp.status_code, media_type=resp.headers.get("content-type"))
 
         content_type = resp.headers.get("content-type", "").lower()
@@ -271,6 +287,7 @@ async def proxy_stream(
         if is_m3u8:
             body_bytes = await resp.aread()
             await resp.aclose()
+            resp = None
             body_text = body_bytes.decode("utf-8", errors="ignore")
             backend_base_url = get_backend_base_url(request)
             body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent, backend_base_url)
@@ -287,6 +304,7 @@ async def proxy_stream(
         elif is_mpd:
             body_bytes = await resp.aread()
             await resp.aclose()
+            resp = None
             body_text = body_bytes.decode("utf-8", errors="ignore")
             backend_base_url = get_backend_base_url(request)
             body = _rewrite_mpd_manifest(body_text, str(resp.url), referrer, user_agent, backend_base_url)
@@ -309,17 +327,20 @@ async def proxy_stream(
                 "Cache-Control": "public, max-age=86400" if url.endswith((".ts", ".mp4", ".m4s")) else "no-cache",
             }
 
+            stream_resp = resp
+            resp = None
+
             async def stream_content():
                 try:
-                    async for chunk in resp.aiter_bytes(chunk_size=32768):
+                    async for chunk in stream_resp.aiter_bytes(chunk_size=32768):
                         yield chunk
                 finally:
-                    await resp.aclose()
+                    await stream_resp.aclose()
 
             return StreamingResponse(
                 stream_content(),
-                status_code=resp.status_code,
-                media_type=resp.headers.get("content-type", "video/mp2t"),
+                status_code=stream_resp.status_code,
+                media_type=stream_resp.headers.get("content-type", "video/mp2t"),
                 headers=response_headers,
             )
 
@@ -327,6 +348,12 @@ async def proxy_stream(
         return JSONResponse({"error": "Stream timeout"}, status_code=504)
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=502)
+    finally:
+        if resp is not None:
+            try:
+                await resp.aclose()
+            except Exception:
+                pass
 
 
 @app.get("/api/proxy-stream/c/{hex_config}/{hex_url}/{relative_path:path}")
@@ -374,6 +401,7 @@ async def proxy_stream_path(
     if not global_proxy_client:
         global_proxy_client = httpx.AsyncClient(timeout=30.0, follow_redirects=True)
 
+    resp = None
     try:
         req = global_proxy_client.build_request("GET", url, headers=headers)
         resp = await global_proxy_client.send(req, stream=True)
@@ -381,6 +409,7 @@ async def proxy_stream_path(
         if resp.status_code >= 400:
             body = await resp.aread()
             await resp.aclose()
+            resp = None
             return Response(content=body, status_code=resp.status_code, media_type=resp.headers.get("content-type"))
 
         content_type = resp.headers.get("content-type", "").lower()
@@ -398,6 +427,7 @@ async def proxy_stream_path(
         if is_m3u8:
             body_bytes = await resp.aread()
             await resp.aclose()
+            resp = None
             body_text = body_bytes.decode("utf-8", errors="ignore")
             backend_base_url = get_backend_base_url(request)
             body = _rewrite_manifest_urls(body_text, str(resp.url), referrer, user_agent, backend_base_url)
@@ -414,6 +444,7 @@ async def proxy_stream_path(
         elif is_mpd:
             body_bytes = await resp.aread()
             await resp.aclose()
+            resp = None
             body_text = body_bytes.decode("utf-8", errors="ignore")
             backend_base_url = get_backend_base_url(request)
             body = _rewrite_mpd_manifest(body_text, str(resp.url), referrer, user_agent, backend_base_url)
@@ -435,17 +466,20 @@ async def proxy_stream_path(
                 "Cache-Control": "public, max-age=86400" if url.endswith((".ts", ".mp4", ".m4s")) else "no-cache",
             }
 
+            stream_resp = resp
+            resp = None
+
             async def stream_content():
                 try:
-                    async for chunk in resp.aiter_bytes(chunk_size=32768):
+                    async for chunk in stream_resp.aiter_bytes(chunk_size=32768):
                         yield chunk
                 finally:
-                    await resp.aclose()
+                    await stream_resp.aclose()
 
             return StreamingResponse(
                 stream_content(),
-                status_code=resp.status_code,
-                media_type=resp.headers.get("content-type", "video/mp2t"),
+                status_code=stream_resp.status_code,
+                media_type=stream_resp.headers.get("content-type", "video/mp2t"),
                 headers=response_headers,
             )
 
@@ -453,6 +487,12 @@ async def proxy_stream_path(
         return JSONResponse({"error": "Stream timeout"}, status_code=504)
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=502)
+    finally:
+        if resp is not None:
+            try:
+                await resp.aclose()
+            except Exception:
+                pass
 
 
 def _rewrite_manifest_urls(manifest: str, base_url: str, referrer: str, user_agent: str, backend_base_url: str) -> str:
