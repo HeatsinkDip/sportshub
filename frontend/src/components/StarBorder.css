@@ -1,25 +1,25 @@
 .star-border-container {
   display: inline-block;
   position: relative;
-  border-radius: 20px;
+  border-radius: 10px;
   overflow: hidden;
 }
 
 .border-gradient-bottom {
   position: absolute;
-  width: 300%;
-  height: 50%;
+  width: 310%;
+  height: 60%;
   opacity: 0.7;
   bottom: -12px;
   right: -250%;
-  border-radius: 50%;
+  border-radius: 40%;
   animation: star-movement-bottom linear infinite alternate;
   z-index: 0;
 }
 
 .border-gradient-top {
   position: absolute;
-  opacity: 0.7;
+  opacity: 0.9;
   width: 300%;
   height: 50%;
   top: -12px;
@@ -46,6 +46,7 @@
     transform: translate(0%, 0%);
     opacity: 1;
   }
+
   100% {
     transform: translate(-100%, 0%);
     opacity: 0;
@@ -57,6 +58,7 @@
     transform: translate(0%, 0%);
     opacity: 1;
   }
+
   100% {
     transform: translate(100%, 0%);
     opacity: 0;

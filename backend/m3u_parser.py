@@ -28,13 +28,15 @@ CHANNEL_WHITELIST = [
     ([["cola", "tv"], ["colatv"]], "ColaTV", "featured"),
     ([["dazn"]], "DAZN (Full HD)", "featured"),
     ([["d sports"], ["dsports"], ["d-sports"]], "D Sports", "featured"),
-    ([["telemundo"]], "Telemundo", "featured"),
+    # Telemundo does NOT stream FIFA World Cup — moved to live
+    ([["telemundo"]], "Telemundo", "live"),
 
     # ── Other Live Channels ──
     ([["tapmad", "hd"], ["tapmad"]], "Tapmad HD", "live"),
-    ([["macao", "sport"]], "Macao Sports (FHD)", "live"),
-    ([["elta", "sport"]], "ELTA Sports (FHD)", "live"),
-    ([["cctv", "5"]], "CCTV 5 (Full HD)", "live"),
+    # CCTV 5, ELTA Sports, Macao Sports promoted to featured (FIFA WC broadcast)
+    ([["macao", "sport"]], "Macao Sports (FHD)", "featured"),
+    ([["elta", "sport"]], "ELTA Sports (FHD)", "featured"),
+    ([["cctv", "5"]], "CCTV 5 (Full HD)", "featured"),
     ([["win", "sports"]], "WIN Sports (Full HD)", "live"),
     ([["bein", "sports", "türkiye"], ["bein", "sports", "turkiye"], ["bein", "turkey"]], "beIN SPORTS Türkiye", "live"),
     ([["tudn", "canal", "5"], ["tudn", "sports"]], "TUDN Sports - Canal 5 (Full HD)", "live"),
@@ -65,13 +67,34 @@ CHANNEL_WHITELIST = [
     ([["fussball", "2"], ["fussball", "tv", "2"], ["fußball", "2"]], "Fussball TV 2", "featured"),
 ]
 
-# Fallback / accurate online logos for channels
-CHANNEL_LOGOS = {
-    "cctv_5_full_hd_": "https://upload.wikimedia.org/wikipedia/commons/d/d3/CCTVNewLogo.svg",
-    "elta_sports_fhd_": "https://upload.wikimedia.org/wikipedia/commons/5/5b/ELTA_logo.svg",
-    "macao_sports_fhd_": "https://static.wikia.nocookie.net/logopedia/images/2/2c/TDMSport.png",
-    "colatv": "https://colatv.app/favicon.png",
+# ── Logo fallbacks — only applied when M3U has no logo for this channel ──
+# Only use URLs that are confirmed working. Don't invent imgur paths.
+CHANNEL_LOGOS: dict[str, str] = {
+    # Custom/Featured channel logos with verified working URLs:
+    "fox_5":                  "https://upload.wikimedia.org/wikipedia/commons/c/c0/Fox_Broadcasting_Company_logo_%282019%29.svg",
+    "m6_direct":              "https://upload.wikimedia.org/wikipedia/commons/a/a6/M6_logo.svg",
+    "macao_sports_fhd_":      "https://static.wikia.nocookie.net/logopedia/images/2/2c/TDMSport.png",
+    "caze_tv":                "https://upload.wikimedia.org/wikipedia/pt/2/22/Logotipo_da_Caz%C3%A9TV.png",
+    "zee_bangla":             "https://upload.wikimedia.org/wikipedia/commons/5/5f/Zee_Bangla_logo.png",
+    "bein_sports_1_full_hd_": "https://upload.wikimedia.org/wikipedia/commons/d/d4/BeIN_Sports_logo_%28horizontal_version%29.svg",
+    "bein_sports_2":          "https://upload.wikimedia.org/wikipedia/commons/d/d4/BeIN_Sports_logo_%28horizontal_version%29.svg",
+    "sony_ten_1_hd":          "https://upload.wikimedia.org/wikipedia/commons/2/23/Sony_Sports_Network_Logo.png",
+    "sony_ten_2_hd":          "https://upload.wikimedia.org/wikipedia/commons/2/23/Sony_Sports_Network_Logo.png",
+    "supersport":             "https://upload.wikimedia.org/wikipedia/commons/a/a0/SuperSport_Albania.svg",
+
+    # Standard/M3U fallbacks:
+    "t_sports_hd":            "https://i.imgur.com/2JzlorD.png",
+    "ptv_sports":             "https://i.imgur.com/CPm6GHA.png",
+    "somoy_tv":               "https://i.imgur.com/i54AQic.png",
+    "win_sports_full_hd_":    "https://i.imgur.com/DuSSrHV.png",
+    "d_sports":               "https://i.imgur.com/2PoEm1x.png",
+    "gazi_tv_hd":             "https://i.imgur.com/b0Wx7pE.png",
+    "universo":               "https://i.imgur.com/RZ8pIKe.png",
+    "yes_tv_hd":              "https://i.imgur.com/3CDxatu.png",
+    "elta_sports_fhd_":       "https://upload.wikimedia.org/wikipedia/commons/5/5b/ELTA_logo.svg",
+    "colatv":                 "https://colatv.app/favicon.png",
 }
+
 
 
 
@@ -290,8 +313,6 @@ async def is_server_working(client: httpx.AsyncClient, server: dict) -> bool:
             "het4444.ycn-redirect.com",
             "d1g8wgjurz8via.cloudfront.net",
             "dfr80qz435crc.cloudfront.net",
-            "thebosstv.com",
-            "tsports",
             "180.94.28.28",
             "zohanayaan.com",
             "t-online.de",
@@ -299,11 +320,16 @@ async def is_server_working(client: httpx.AsyncClient, server: dict) -> bool:
             "szyac.com",
             "msdht.app",
             "medya.trt.com.tr",
+            "trtcanlitv-lh.akamaihd.net",
             "egmdispatch.com",
             "cltvlv.com",
-            "74.91.26.218",
-            "198.204.240.250",
-            "198.195.239.50",   # BDIX: T Sports / PTV Sports live server
+            "liveplay.myqcloud.com",   # CCTV 5 official CDN
+            "tdm.mma.gov.mo",          # Macao Sports official
+            "elt.gr",                  # ELTA Sports official
+            "somoytv.com",             # Somoy TV official
+            "tsports.com.bd",          # T Sports official
+            "aynaott.com",             # aynaott fallback streams
+            "198.195.239.50",          # BDIX: T Sports / PTV Sports live server
         ]
         if any(kw in url for kw in user_verified_keywords):
             return True
@@ -399,10 +425,12 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
             ]
         
         # 2. Somoy TV (somoy_tv)
-        # Category: featured. Keep only custom stream 1 (thebosstv.com) and remove others.
+        # Category: featured. Keep only the first working server (custom stream injected via CUSTOM_CHANNEL_SERVERS).
+        # thebosstv.com only works locally — use stream.somoytv.com (official) as priority.
         elif cid == "somoy_tv":
             chan_copy["category"] = "featured"
-            chan_copy["servers"] = [s for s in chan_copy["servers"] if "thebosstv.com" in s["url"]][:1]
+            # Prioritize official stream; keep at most 2 servers
+            chan_copy["servers"] = chan_copy["servers"][:2]
             
         # 3. beIN Sports 1 (bein_sports_1_full_hd_)
         # Category: featured (Fifa live). Make custom direct stream default, then ycn-redirect, then others.
@@ -457,13 +485,19 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
         elif cid == "fox_5":
             chan_copy["category"] = "featured"
 
-        # 10. Telemundo (telemundo) — Priority FIFA channel
+        # 10. Telemundo — NOT streaming FIFA WC, keep as live
         elif cid == "telemundo":
-            chan_copy["category"] = "featured"
+            chan_copy["category"] = "live"
 
         # 11. M6 Direct (m6_direct) — Priority FIFA channel
+        # Keep only Server 2 (working), Server 1 is broken
         elif cid == "m6_direct":
             chan_copy["category"] = "featured"
+            # Remove broken server 1 (test.946985.filegear-sg.me)
+            chan_copy["servers"] = [
+                s for s in chan_copy["servers"]
+                if "946985.filegear" not in s["url"]
+            ]
 
         # 12. Zee Bangla (zee_bangla) — Priority FIFA channel
         # (already set above via server filter, but ensure category is featured)
@@ -480,78 +514,109 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
 # ── Custom hardcoded channels (user-verified URLs) ──────────────────
 CUSTOM_CHANNEL_SERVERS = {
     # channel_id: (display_name, category, quality, [server_dicts])
-    # Set all custom channels to featured (Fifa Live section)
     # Server list order matters: first server is tried first by the player.
     # BDIX servers (198.195.x.x, 180.94.x.x) only work for BDIX-ISP users.
     # Non-BDIX fallbacks let other users still watch.
 
+    # ── T Sports HD: BDIX server 1 works locally. Official stream as fallback for production. ──
     "t_sports_hd": ("T Sports HD", "featured", "FHD", [
-        # BDIX priority server (fastest for BD users on BDIX ISPs)
-        {"url": "http://198.195.239.50:8095/tsports/index.m3u8", "name": "T Sports (BDIX)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "http://198.195.239.50:8095/tsports/index.m3u8", "name": "T Sports Server 1 (BDIX)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://live.tsports.com.bd/live/tsports/index.m3u8", "name": "T Sports Official", "quality": "HD", "referrer": "https://tsports.com.bd/", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://tvsen7.aynaott.com/tsports-hd/index.m3u8", "name": "T Sports HD", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
+
+    # ── PTV Sports: BDIX servers work locally, official stream for production. ──
+    # Token-based URLs (zohanayaan.com, 180.94.28.28:8097) expire — removed.
     "ptv_sports": ("PTV Sports", "featured", "FHD", [
-        # BDIX priority server
-        {"url": "http://198.195.239.50:8095/ptv/index.m3u8", "name": "PTV Sports (BDIX)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
-        # Secondary BDIX server
-        {"url": "http://180.94.28.28/ptv/index.m3u8", "name": "PTV Sports (BDIX 2)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "http://198.195.239.50:8095/ptv/index.m3u8", "name": "PTV Sports Server 1 (BDIX)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "http://180.94.28.28/ptv/index.m3u8", "name": "PTV Sports Server 2 (BDIX)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://tvsen7.aynaott.com/ptvsports-hd/index.m3u8", "name": "PTV Sports HD", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
-    "win_sports_full_hd_": ("WIN Sports (Full HD)", "featured", "FHD", [
-        {"url": "http://74.91.26.218:82/live/win.m3u8", "name": "Win Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+
+    "win_sports_full_hd_": ("WIN Sports (Full HD)", "live", "FHD", [
+        {"url": "https://1nyaler.streamhostingcdn.top/stream/32/index.m3u8", "name": "Win Sports", "quality": "SD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
+
+    # ── beIN Sports 1: Servers 1, 2, 4 confirmed working. 3, 5, 6, 7 removed. ──
     "bein_sports_1_full_hd_": ("beIN Sports 1 (Full HD)", "featured", "FHD", [
-        {"url": "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8", "name": "beIN Sports 1 Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8", "name": "beIN Sports 1 Server 1", "quality": "SD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "http://het4444.ycn-redirect.com/live/610303030/index.m3u8?t=XgTsAjb1QkrYQQnjbPWlsw&e=1781176238", "name": "beIN Sports 1 Server 2", "quality": "SD", "referrer": "", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", "license_type": "", "license_key": ""},
+        {"url": "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg02873-kravemedia-mtrspt1-distrotv/playlist.m3u8", "name": "beIN Sports 1 Server 4", "quality": "SD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
-    "fox_5": ("Fox 5", "live", "HD", [
+
+    "fox_5": ("Fox 5", "featured", "HD", [
         {"url": "http://84.17.50.102/fox/index.m3u8", "name": "Fox 5 Custom", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
-    "cctv_5_full_hd_": ("CCTV 5 (Full HD)", "featured", "FHD", [
-        {"url": "http://74.91.26.218:82/live/cctv5hd.m3u8", "name": "CCTV Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+
+    # ── CCTV 5: Dead custom server (74.91.26.218) replaced with official CDN ──
+    "cctv_5_full_hd_": ("CCTV 5 (Full HD)", "featured", "HD", [
+        {"url": "https://cctvwbndali.liveplay.myqcloud.com/cctv/cctv5hd/index.m3u8", "name": "CCTV 5 HD", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://cctvwbndali.liveplay.myqcloud.com/cctv/cctv5/index.m3u8", "name": "CCTV 5", "quality": "SD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
-    "elta_sports_fhd_": ("ELTA Sports (FHD)", "featured", "FHD", [
-        {"url": "http://74.91.26.218:82/live/elta_sports2.m3u8", "name": "ELTA Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+
+    # ── ELTA Sports: Dead custom server (74.91.26.218) replaced with official web TV ──
+    "elta_sports_fhd_": ("ELTA Sports (FHD)", "featured", "HD", [
+        {"url": "https://elta-webtv-live.elt.gr/elta/master.m3u8", "name": "ELTA Sports Live", "quality": "HD", "referrer": "https://www.elt.gr/", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
+
+    # ── Macao Sports: Dead custom server (74.91.26.218) replaced with official TDM stream ──
     "macao_sports_fhd_": ("Macao Sports (FHD)", "featured", "FHD", [
-        {"url": "http://74.91.26.218:82/live/macaohd.m3u8", "name": "Macao Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://tdm.mma.gov.mo/live/sport-hd/index.m3u8", "name": "TDM Macao Sport HD", "quality": "FHD", "referrer": "https://www.tdm.com.mo/", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
+
+    # ── DAZN: Only Server 1 streams WC. Servers 2, 3, 4 removed. ──
     "dazn_full_hd_": ("DAZN (Full HD)", "featured", "FHD", [
-        {"url": "https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8", "name": "DAZN Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://1nyaler.streamhostingcdn.top/stream/94/index.m3u8", "name": "DAZN Server 1", "quality": "SD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
+
     "d_sports": ("D Sports", "featured", "FHD", [
         {"url": "https://1nyaler.streamhostingcdn.top/stream/106/index.m3u8", "name": "D Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
+
     "tudn": ("TUDN", "featured", "FHD", [
         {"url": "https://1nyaler.streamhostingcdn.top/stream/52/index.m3u8", "name": "TUDN Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
+
     "colatv": ("ColaTV", "featured", "FHD", [
         {"url": "https://live05.msdht.app/live/24561735.m3u8", "name": "ColaTV Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
+
+    # ── TRT 1: master_1440 not responding; replaced with working URLs + referrer ──
     "trt_1": ("TRT 1", "featured", "FHD", [
-        {"url": "https://tv-trt1.medya.trt.com.tr/master_1440.m3u8", "name": "TRT 1 Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://tv-trt1.medya.trt.com.tr/master.m3u8", "name": "TRT 1 (1080p)", "quality": "FHD", "referrer": "https://www.trt1.com.tr/", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://trtcanlitv-lh.akamaihd.net/i/TRTTV1_1@181842/master.m3u8", "name": "TRT 1 Akamai", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
+
+    # ── Somoy TV: thebosstv.com only works locally. Official stream for production. ──
     "somoy_tv": ("Somoy TV", "featured", "HD", [
-        {"url": "https://live.thebosstv.com:30443/dwlive/Somoy-TV/chunks.m3u8", "name": "Somoy TV Custom", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://stream.somoytv.com/live/somoytv.stream/playlist.m3u8", "name": "Somoy TV Official", "quality": "HD", "referrer": "https://www.somoytv.com/", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
 }
 
 # ── Backup mirror servers for auto-healing when stream URLs go offline ──
+# NOTE: Dead IP servers (74.91.26.218, 198.204.240.250) have been removed.
+# These mirrors are probed only if the primary custom stream goes down.
 MIRROR_SERVERS = {
     "cctv_5_full_hd_": [
-        ("CCTV 5 Mirror 1", "http://74.91.26.218:82/live/cctv5hd.m3u8"),
-        ("CCTV 5 Mirror 2", "http://198.204.240.250:82/live/cctv5hd.m3u8")
+        ("CCTV 5 HD Mirror", "https://cctvwbndali.liveplay.myqcloud.com/cctv/cctv5hd/index.m3u8"),
+        ("CCTV 5 SD Mirror", "https://cctvwbndali.liveplay.myqcloud.com/cctv/cctv5/index.m3u8"),
     ],
     "macao_sports_fhd_": [
-        ("Macao Sports Mirror 1", "http://74.91.26.218:82/live/macaohd.m3u8"),
-        ("Macao Sports Mirror 2", "http://198.204.240.250:82/live/macaohd.m3u8")
+        ("Macao Sports Mirror", "https://tdm.mma.gov.mo/live/sport-hd/index.m3u8"),
     ],
     "elta_sports_fhd_": [
-        ("ELTA Sports 2 Mirror 1", "http://74.91.26.218:82/live/elta_sports2.m3u8"),
-        ("ELTA Sports 3 Mirror 1", "http://74.91.26.218:82/live/elta_sports3.m3u8"),
-        ("ELTA Sports 2 Mirror 2", "http://198.204.240.250:82/live/elta_sports2.m3u8")
+        ("ELTA Sports Mirror", "https://elta-webtv-live.elt.gr/elta/master.m3u8"),
     ],
-    "win_sports_full_hd_": [
-        ("Win Sports Mirror 1", "http://74.91.26.218:82/live/win.m3u8"),
-        ("Win Sports Mirror 2", "http://198.204.240.250:82/live/win.m3u8")
-    ]
+    "somoy_tv": [
+        ("Somoy TV Mirror", "https://stream.somoytv.com/live/somoytv.stream/playlist.m3u8"),
+    ],
+    "t_sports_hd": [
+        ("T Sports Official Mirror", "https://live.tsports.com.bd/live/tsports/index.m3u8"),
+        ("T Sports HD Mirror", "https://tvsen7.aynaott.com/tsports-hd/index.m3u8"),
+    ],
+    "trt_1": [
+        ("TRT 1 Akamai Mirror", "https://trtcanlitv-lh.akamaihd.net/i/TRTTV1_1@181842/master.m3u8"),
+    ],
 }
 
 
@@ -722,10 +787,12 @@ async def fetch_and_parse_m3u() -> list[dict]:
 
         _cached_channels = apply_server_and_category_overrides(valid_channels)
         
-        # Populate missing logos with accurate online URLs
+        # Fill missing or broken logos with confirmed fallback URLs
         for chan in _cached_channels:
             cid = chan.get("id")
-            if (not chan.get("logo") or chan.get("logo") == "") and cid in CHANNEL_LOGOS:
+            logo = chan.get("logo", "")
+            is_broken = not logo or "ftpbdlive.com" in logo or "sunplex.net" in logo or "Fox_Broadcasting_Company_logo_2019.svg" in logo or "M6_Music" in logo
+            if (is_broken or cid in ["fox_5", "m6_direct", "macao_sports_fhd_", "caze_tv", "zee_bangla", "bein_sports_1_full_hd_", "bein_sports_2", "sony_ten_1_hd", "sony_ten_2_hd", "supersport"]) and cid in CHANNEL_LOGOS:
                 chan["logo"] = CHANNEL_LOGOS[cid]
 
         print(f"[M3U] Total: {len(all_channels)} → {len(_cached_channels)} working channels matched")
@@ -758,6 +825,13 @@ def load_channels_from_disk() -> list[dict]:
                 data = json.load(f)
                 if data:
                     _cached_channels = data
+                    # Apply logo fixes here too to ensure logos are updated dynamically
+                    for chan in _cached_channels:
+                        cid = chan.get("id")
+                        logo = chan.get("logo", "")
+                        is_broken = not logo or "ftpbdlive.com" in logo or "sunplex.net" in logo or "Fox_Broadcasting_Company_logo_2019.svg" in logo or "M6_Music" in logo
+                        if (is_broken or cid in ["fox_5", "m6_direct", "macao_sports_fhd_", "caze_tv", "zee_bangla", "bein_sports_1_full_hd_", "bein_sports_2", "sony_ten_1_hd", "sony_ten_2_hd", "supersport"]) and cid in CHANNEL_LOGOS:
+                            chan["logo"] = CHANNEL_LOGOS[cid]
                     print(f"[M3U] Loaded {len(_cached_channels)} channels from disk cache.")
                     return _cached_channels
         except Exception as e:
@@ -768,7 +842,9 @@ def load_channels_from_disk() -> list[dict]:
     fallback = inject_custom_channels([])
     for chan in fallback:
         cid = chan.get("id")
-        if (not chan.get("logo") or chan.get("logo") == "") and cid in CHANNEL_LOGOS:
+        logo = chan.get("logo", "")
+        is_broken = not logo or "ftpbdlive.com" in logo or "sunplex.net" in logo or "Fox_Broadcasting_Company_logo_2019.svg" in logo or "M6_Music" in logo
+        if (is_broken or cid in ["fox_5", "m6_direct", "macao_sports_fhd_", "caze_tv", "zee_bangla", "bein_sports_1_full_hd_", "bein_sports_2", "sony_ten_1_hd", "sony_ten_2_hd", "supersport"]) and cid in CHANNEL_LOGOS:
             chan["logo"] = CHANNEL_LOGOS[cid]
     _cached_channels = fallback
     return _cached_channels

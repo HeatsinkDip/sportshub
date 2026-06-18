@@ -134,20 +134,24 @@ function ChannelCard({
     >
       <div className="card-top">
         {channel.logo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={channel.logo}
-            alt={channel.name}
-            className="channel-logo"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-              const parent = (e.target as HTMLImageElement).parentElement;
-              if (parent) {
-                const fallback = parent.querySelector(".logo-fallback") as HTMLElement;
-                if (fallback) fallback.style.display = "flex";
-              }
-            }}
-          />
+          <div className="logo-pill">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={channel.logo}
+              alt={channel.name}
+              className="channel-logo"
+              onError={(e) => {
+                const img = e.target as HTMLImageElement;
+                img.style.display = "none";
+                const pill = img.parentElement as HTMLElement | null;
+                if (pill) {
+                  pill.style.background = "transparent";
+                  const fb = pill.parentElement?.querySelector(".logo-fallback") as HTMLElement | null;
+                  if (fb) fb.style.display = "flex";
+                }
+              }}
+            />
+          </div>
         ) : null}
         <div
           className="logo-fallback"
@@ -156,6 +160,7 @@ function ChannelCard({
           {channel.name.charAt(0)}
         </div>
       </div>
+
 
       <div className="card-bottom">
         <span className="channel-card-name">{channel.name}</span>

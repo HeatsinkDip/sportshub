@@ -16,7 +16,7 @@ export const StarBorder = <T extends React.ElementType = "button">({
   as,
   className = "",
   color = "white",
-  speed = "6s",
+  speed = "20s",
   thickness = 1,
   children,
   ...rest

@@ -101,25 +101,17 @@ ALL_MATCHES = [
 ]
 
 def get_live_score(match_id: int, elapsed_minutes: int) -> tuple[int, int]:
-    """Deterministically simulate live scores growing as match progresses."""
-    rng = random.Random(match_id)
-    num_home_goals = rng.randint(0, 4)
-    num_away_goals = rng.randint(0, 4)
-    
-    home_goal_times = sorted([rng.randint(1, 90) for _ in range(num_home_goals)])
-    away_goal_times = sorted([rng.randint(1, 90) for _ in range(num_away_goals)])
-    
-    current_home_score = sum(1 for t in home_goal_times if t <= elapsed_minutes)
-    current_away_score = sum(1 for t in away_goal_times if t <= elapsed_minutes)
-    
-    return current_home_score, current_away_score
+    """Return 0-0 for live matches — real scores come from Sportmonks/Football-Data APIs.
+    We never simulate fake scores; inaccurate scores are worse than showing 0-0."""
+    return 0, 0
 
 def get_completed_score(match_id: int, original_team1_score: int | None, original_team2_score: int | None) -> tuple[int, int]:
-    """Return original hardcoded score if exists, or generate a deterministic completed score."""
+    """Return original hardcoded score if exists, or 0-0 as a safe unknown default.
+    Random score simulation is disabled — fake scores are misleading."""
     if original_team1_score is not None and original_team2_score is not None:
         return original_team1_score, original_team2_score
-    rng = random.Random(match_id)
-    return rng.randint(0, 4), rng.randint(0, 4)
+    # Return 0-0 for matches where we don't have a real score recorded
+    return 0, 0
 
 def get_dynamic_fallback_fixtures(date_str: str) -> dict:
     """Dynamically partition and build fixtures for a specific date relative to now."""
@@ -150,10 +142,8 @@ def get_dynamic_fallback_fixtures(date_str: str) -> dict:
             fixtures["upcoming"].append(m)
         elif match_dt <= now < match_dt + timedelta(hours=2):
             m["status"] = "live"
-            elapsed_minutes = int((now - match_dt).total_seconds() / 60)
-            s1, s2 = get_live_score(m["id"], elapsed_minutes)
-            m["team1"]["score"] = s1
-            m["team2"]["score"] = s2
+            m["team1"]["score"] = 0
+            m["team2"]["score"] = 0
             fixtures["live"].append(m)
         else:
             m["status"] = "completed"
@@ -189,10 +179,8 @@ def _build_fixtures() -> dict:
             fixtures["upcoming"].append(m)
         elif match_dt <= now < match_dt + timedelta(hours=2):
             m["status"] = "live"
-            elapsed_minutes = int((now - match_dt).total_seconds() / 60)
-            s1, s2 = get_live_score(m["id"], elapsed_minutes)
-            m["team1"]["score"] = s1
-            m["team2"]["score"] = s2
+            m["team1"]["score"] = 0
+            m["team2"]["score"] = 0
             fixtures["live"].append(m)
         else:
             m["status"] = "completed"
@@ -212,10 +200,105 @@ _openfootball_teams = {}
 _openfootball_timestamp = 0
 OPENFOOTBALL_TTL = 900  # 15 minutes
 
+# Build a list of all official team names from the local schedule for fuzzy mapping
+ALL_TEAMS = set()
+for match in ALL_MATCHES:
+    ALL_TEAMS.add(match["team1"]["name"])
+    ALL_TEAMS.add(match["team2"]["name"])
+
+def normalize_team_name(name: str) -> str:
+    if not name:
+        return ""
+    name = name.lower().strip()
+    
+    # Remove accents/diacritics
+    import unicodedata
+    name = "".join(
+        c for c in unicodedata.normalize('NFD', name)
+        if unicodedata.category(c) != 'Mn'
+    )
+    
+    # Clean up common prefixes, suffixes, and punctuation
+    name = re.sub(r'\b(fc|cf|sc|fk|f\.c\.|c\.f\.|club|association|national|team)\b', '', name)
+    name = re.sub(r'[^a-z0-9\s&]', ' ', name) # keep letters, numbers, spaces, and ampersand
+    name = ' '.join(name.split())
+    
+    # Specific common mappings to align names between APIs and openfootball/local fixtures
+    mappings = {
+        "bosnia & herz": "bosnia",
+        "bosnia & herzegovina": "bosnia",
+        "bosnia and herzegovina": "bosnia",
+        "bosnia herzegovina": "bosnia",
+        "bosnia": "bosnia",
+        "bosnia & herz.": "bosnia",
+        
+        "cote d'ivoire": "ivory coast",
+        "cote divoire": "ivory coast",
+        "ivory coast": "ivory coast",
+        
+        "curacao": "curacao",
+        
+        "cape verde": "cabo verde",
+        "cabo verde": "cabo verde",
+        
+        "democratic republic of the congo": "dr congo",
+        "congo dr": "dr congo",
+        "dr congo": "dr congo",
+        
+        "czech republic": "czechia",
+        "czechia": "czechia",
+        
+        "united states": "usa",
+        "united states of america": "usa",
+        "usa": "usa",
+        
+        "korea republic": "south korea",
+        "republic of korea": "south korea",
+        "korea": "south korea",
+        "south korea": "south korea",
+        
+        "saudi arabia": "saudi arabia",
+        "new zealand": "new zealand",
+        "south africa": "south africa",
+    }
+    
+    if name in mappings:
+        return mappings[name]
+        
+    return name
+
+def find_best_team_match(api_team_name: str) -> str:
+    """Find the matching local team name for an external API team name."""
+    if not api_team_name:
+        return ""
+        
+    # 1. Try normalized mapping
+    norm_api = normalize_team_name(api_team_name)
+    for local_team in ALL_TEAMS:
+        if normalize_team_name(local_team) == norm_api:
+            return local_team
+            
+    # 2. Check for substring match (e.g. "Bosnia and Herzegovina" contains "Bosnia")
+    for local_team in ALL_TEAMS:
+        norm_local = normalize_team_name(local_team)
+        if norm_local in norm_api or norm_api in norm_local:
+            return local_team
+            
+    # 3. Try fuzzy match with difflib
+    import difflib
+    local_normalized_map = {normalize_team_name(t): t for t in ALL_TEAMS}
+    matches = difflib.get_close_matches(norm_api, list(local_normalized_map.keys()), n=1, cutoff=0.55)
+    if matches:
+        return local_normalized_map[matches[0]]
+        
+    return api_team_name
+
 def get_match_key(team1: str, team2: str) -> str:
     """Normalize and sort team names to build a unique match key."""
-    t1 = team1.lower().strip()
-    t2 = team2.lower().strip()
+    t1_local = find_best_team_match(team1)
+    t2_local = find_best_team_match(team2)
+    t1 = t1_local.lower().strip()
+    t2 = t2_local.lower().strip()
     return "-".join(sorted([t1, t2]))
 
 def parse_time_to_utc(date_str: str, time_str: str) -> tuple[str, str]:
@@ -381,17 +464,19 @@ async def scrape_fifa_fixtures() -> dict:
             status = "upcoming"
             t1_score = None
             t2_score = None
-            
-            if match["score_t1"] is not None and match["score_t2"] is not None:
+
+            # Priority 1: If match is currently within its live window, mark as live.
+            # The real-time score (0-0) is shown; API overlays will update it.
+            if match_dt and match_dt <= now_utc < match_dt + timedelta(hours=2):
+                status = "live"
+                t1_score = 0
+                t2_score = 0
+            # Priority 2: openfootball has a confirmed final score → completed
+            elif match["score_t1"] is not None and match["score_t2"] is not None:
                 status = "completed"
                 t1_score = match["score_t1"]
                 t2_score = match["score_t2"]
-            elif match_dt and match_dt <= now_utc < match_dt + timedelta(hours=2):
-                status = "live"
-                elapsed_minutes = int((now_utc - match_dt).total_seconds() / 60)
-                s1, s2 = get_live_score(match["id"], elapsed_minutes)
-                t1_score = s1
-                t2_score = s2
+            # Priority 3: Past the 2-hour window → completed (score unknown = 0-0)
             elif match_dt and now_utc >= match_dt + timedelta(hours=2):
                 status = "completed"
                 s1, s2 = get_completed_score(match["id"], None, None)
@@ -882,22 +967,25 @@ async def fetch_sportmonks_fixtures_by_date(date_str: str, tz_offset: int = 0) -
             status = "upcoming"
             t1_score = None
             t2_score = None
-            
+
+            # Priority 1: Real-time API data (Sportmonks / Football-Data) — most accurate
             if match_key in api_matches:
                 api_match = api_matches[match_key]
                 status = api_match["status"]
                 t1_score = api_match["team1"].get("score")
                 t2_score = api_match["team2"].get("score")
+            # Priority 2: Match is in its live window → show as live with 0-0
+            # Real score comes from API above; we never simulate fake goals.
+            elif match_dt and match_dt <= now_utc < match_dt + timedelta(hours=2):
+                status = "live"
+                t1_score = 0
+                t2_score = 0
+            # Priority 3: openfootball has a confirmed final score → completed
             elif match["score_t1"] is not None and match["score_t2"] is not None:
                 status = "completed"
                 t1_score = match["score_t1"]
                 t2_score = match["score_t2"]
-            elif match_dt and match_dt <= now_utc < match_dt + timedelta(hours=2):
-                status = "live"
-                elapsed_minutes = int((now_utc - match_dt).total_seconds() / 60)
-                s1, s2 = get_live_score(match["id"], elapsed_minutes)
-                t1_score = s1
-                t2_score = s2
+            # Priority 4: Past 2-hour window → completed (score from hardcoded data or 0-0)
             elif match_dt and now_utc >= match_dt + timedelta(hours=2):
                 status = "completed"
                 s1, s2 = get_completed_score(match["id"], None, None)

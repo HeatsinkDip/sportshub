@@ -439,7 +439,7 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
     loadStream(channel.servers[activeServer]);
   };
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
 
@@ -458,7 +458,41 @@ export default function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
     } else if ((video as any).msRequestFullscreen) {
       (video as any).msRequestFullscreen();
     }
-  };
+  }, []);
+
+  // Keyboard shortcut listener: 'f' to toggle fullscreen, 'f' or 'Escape' to exit
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore key events if the user is typing in form controls or editable elements
+      const activeEl = document.activeElement;
+      if (
+        activeEl &&
+        (activeEl.tagName === "INPUT" ||
+         activeEl.tagName === "TEXTAREA" ||
+         activeEl.tagName === "SELECT" ||
+         activeEl.getAttribute("contenteditable") === "true")
+      ) {
+        return;
+      }
+
+      if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        toggleFullscreen();
+      } else if (e.key === "Escape") {
+        if (document.fullscreenElement) {
+          e.preventDefault();
+          document.exitFullscreen().catch((err) => {
+            console.error("[VideoPlayer] Error exiting fullscreen:", err);
+          });
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [toggleFullscreen]);
 
   useEffect(() => {
     const handleFsChange = () => {
