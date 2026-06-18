@@ -172,7 +172,7 @@ export async function fetchChannels(): Promise<Channel[]> {
         return FALLBACK_CHANNELS;
       }
     },
-    30000 // 30 seconds client-side cache
+    30 * 60 * 1000 // 30 minutes client-side cache — channels only refresh every 15 min server-side
   );
 }
 
@@ -195,7 +195,7 @@ export async function fetchFixtures(date?: string): Promise<FixturesData> {
         return { upcoming: [], past: [], live: [] };
       }
     },
-    10000 // 10 seconds client-side cache
+    60000 // 60 seconds client-side cache
   );
 }
 

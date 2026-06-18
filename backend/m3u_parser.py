@@ -15,34 +15,37 @@ from typing import Optional
 # Each: (search_patterns, display_name, category)
 # search_patterns is a list of alternative keyword-lists — channel matches if ANY pattern matches
 CHANNEL_WHITELIST = [
-    # ── FIFA Live (Recommended / Featured) ──
-    ([["d sports"], ["dsports"], ["d-sports"]], "D Sports", "featured"),
+    # ── FIFA Live — Top 13 Priority Channels (always featured) ──
     ([["t sports", "hd"], ["t-sports"], ["tsports"]], "T Sports HD", "featured"),
-    ([["somoy", "tv"]], "Somoy TV", "featured"),
     ([["ptv", "sports"]], "PTV Sports", "featured"),
+    ([["fox", "5"]], "Fox 5", "featured"),
+    ([["trt", "1"]], "TRT 1", "featured"),
+    ([["bein", "sports", "1"], ["bein", "sport", "1"]], "beIN Sports 1 (Full HD)", "featured"),
+    ([["somoy", "tv"]], "Somoy TV", "featured"),
+    ([["m6", "direct"], ["m6"]], "M6 Direct", "featured"),
+    ([["zee", "bangla"]], "Zee Bangla", "featured"),
+    ([["caze", "tv"]], "CAZE TV", "featured"),
+    ([["cola", "tv"], ["colatv"]], "ColaTV", "featured"),
+    ([["dazn"]], "DAZN (Full HD)", "featured"),
+    ([["d sports"], ["dsports"], ["d-sports"]], "D Sports", "featured"),
+    ([["telemundo"]], "Telemundo", "featured"),
 
-    # ── Live Channels ──
+    # ── Other Live Channels ──
     ([["tapmad", "hd"], ["tapmad"]], "Tapmad HD", "live"),
     ([["macao", "sport"]], "Macao Sports (FHD)", "live"),
-    ([["bein", "sports", "1"], ["bein", "sport", "1"]], "beIN Sports 1 (Full HD)", "live"),
     ([["elta", "sport"]], "ELTA Sports (FHD)", "live"),
     ([["cctv", "5"]], "CCTV 5 (Full HD)", "live"),
     ([["win", "sports"]], "WIN Sports (Full HD)", "live"),
     ([["bein", "sports", "türkiye"], ["bein", "sports", "turkiye"], ["bein", "turkey"]], "beIN SPORTS Türkiye", "live"),
-    ([["dazn"]], "DAZN (Full HD)", "live"),
     ([["tudn", "canal", "5"], ["tudn", "sports"]], "TUDN Sports - Canal 5 (Full HD)", "live"),
     ([["tv", "azteca", "7"], ["azteca", "7"], ["tv", "azteca"]], "TV Azteca", "live"),
-    ([["telemundo"]], "Telemundo", "live"),
-    ([["m6", "direct"], ["m6"]], "M6 Direct", "live"),
     ([["sports", "18"]], "Sports 18 HD", "live"),
     
     ([["tsn", "1"], ["tsn", "sports", "1"]], "TSN Sports 1", "live"),
     ([["tudn", "usa"], ["tudn"]], "TUDN", "live"),
     ([["gazi", "tv"], ["gtv"]], "Gazi TV HD", "live"),
     ([["fox", "sports", "1"], ["fox", "sport"]], "FOX Sports 1", "live"),
-    ([["fox", "5"]], "Fox 5", "live"),
     ([["bioscope"]], "BIOSCOPE+", "live"),
-    ([["caze", "tv"]], "CAZE TV", "live"),
     ([["universo"]], "Universo", "live"),
     ([["bein", "sport", "2"], ["bein", "2"]], "beIN Sports 2", "live"),
     ([["tipik"]], "TIPIK FR", "live"),
@@ -58,9 +61,6 @@ CHANNEL_WHITELIST = [
     ([["sony", "ten", "3"]], "Sony TEN 3", "live"),
     ([["sony", "six"]], "Sony SIX", "live"),
     ([["skynet", "sport"]], "Skynet Sports HD", "live"),
-    ([["zee", "bangla"]], "Zee Bangla", "live"),
-    ([["cola", "tv"], ["colatv"]], "ColaTV", "live"),
-    ([["trt", "1"]], "TRT 1", "live"),
     ([["fussball", "1"], ["fussball", "tv", "1"], ["fußball", "1"]], "Fussball TV 1", "featured"),
     ([["fussball", "2"], ["fussball", "tv", "2"], ["fußball", "2"]], "Fussball TV 2", "featured"),
 ]
@@ -302,7 +302,8 @@ async def is_server_working(client: httpx.AsyncClient, server: dict) -> bool:
             "egmdispatch.com",
             "cltvlv.com",
             "74.91.26.218",
-            "198.204.240.250"
+            "198.204.240.250",
+            "198.195.239.50",   # BDIX: T Sports / PTV Sports live server
         ]
         if any(kw in url for kw in user_verified_keywords):
             return True
@@ -430,10 +431,15 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
             chan_copy["servers"] = [s for s in chan_copy["servers"] if "dfr80qz435crc.cloudfront.net" in s["url"]]
             
         # 7. T Sports HD (t_sports_hd)
-        # Category: featured. Keep only BDIX streams (/tsports/) as others are not working.
+        # Category: featured.
+        # Priority: BDIX streams first (/tsports/ path or 198.195.239.50), then non-BDIX fallbacks.
+        # NOTE: BDIX streams only work for users on BDIX-connected ISPs (BD local peering).
+        #       Non-BDIX users will fall through to the next available server automatically.
         elif cid == "t_sports_hd":
             chan_copy["category"] = "featured"
-            chan_copy["servers"] = [s for s in chan_copy["servers"] if "/tsports/" in s["url"]]
+            bdix_servers = [s for s in chan_copy["servers"] if "/tsports/" in s["url"] or "198.195.239.50" in s["url"]]
+            other_servers = [s for s in chan_copy["servers"] if "/tsports/" not in s["url"] and "198.195.239.50" not in s["url"]]
+            chan_copy["servers"] = bdix_servers + other_servers
             
         # 8. D Sports (d_sports)
         # Category: featured. Remove otte servers. Custom URL will be made default in inject_custom_channels.
@@ -447,6 +453,22 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
         elif cid in ["fussball_tv_1", "fussball_tv_2"]:
             chan_copy["category"] = "featured"
 
+        # 9. Fox 5 (fox_5) — Priority FIFA channel
+        elif cid == "fox_5":
+            chan_copy["category"] = "featured"
+
+        # 10. Telemundo (telemundo) — Priority FIFA channel
+        elif cid == "telemundo":
+            chan_copy["category"] = "featured"
+
+        # 11. M6 Direct (m6_direct) — Priority FIFA channel
+        elif cid == "m6_direct":
+            chan_copy["category"] = "featured"
+
+        # 12. Zee Bangla (zee_bangla) — Priority FIFA channel
+        # (already set above via server filter, but ensure category is featured)
+        # elif handled above already
+
         if chan_copy["servers"]:
             modified_channels.append(chan_copy)
             
@@ -459,6 +481,20 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
 CUSTOM_CHANNEL_SERVERS = {
     # channel_id: (display_name, category, quality, [server_dicts])
     # Set all custom channels to featured (Fifa Live section)
+    # Server list order matters: first server is tried first by the player.
+    # BDIX servers (198.195.x.x, 180.94.x.x) only work for BDIX-ISP users.
+    # Non-BDIX fallbacks let other users still watch.
+
+    "t_sports_hd": ("T Sports HD", "featured", "FHD", [
+        # BDIX priority server (fastest for BD users on BDIX ISPs)
+        {"url": "http://198.195.239.50:8095/tsports/index.m3u8", "name": "T Sports (BDIX)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
+    "ptv_sports": ("PTV Sports", "featured", "FHD", [
+        # BDIX priority server
+        {"url": "http://198.195.239.50:8095/ptv/index.m3u8", "name": "PTV Sports (BDIX)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        # Secondary BDIX server
+        {"url": "http://180.94.28.28/ptv/index.m3u8", "name": "PTV Sports (BDIX 2)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+    ]),
     "win_sports_full_hd_": ("WIN Sports (Full HD)", "featured", "FHD", [
         {"url": "http://74.91.26.218:82/live/win.m3u8", "name": "Win Sports Custom", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),

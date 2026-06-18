@@ -46,7 +46,15 @@ export default function RootLayout({
         <meta name="theme-color" content="#0d0312" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        {/* Google AdSense verification meta tag */}
+        <meta name="google-adsense-account" content="ca-pub-9012667878288069" />
         <link rel="icon" href="/logo.png" />
+        {/* Google AdSense script — loads ad units across the site */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9012667878288069"
+          crossOrigin="anonymous"
+        />
       </head>
       <body>
         <div className="background-field-wrapper">

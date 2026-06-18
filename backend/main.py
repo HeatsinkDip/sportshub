@@ -44,7 +44,11 @@ async def lifespan(app: FastAPI):
     print("[Startup] Initializing global HTTP client and cache...")
     global global_proxy_client
     limits = httpx.Limits(max_keepalive_connections=150, max_connections=300)
-    global_proxy_client = httpx.AsyncClient(limits=limits, timeout=45.0, follow_redirects=True)
+    global_proxy_client = httpx.AsyncClient(
+        limits=limits,
+        timeout=httpx.Timeout(timeout=45.0, connect=5.0, read=30.0, write=10.0),
+        follow_redirects=True,
+    )
 
     # Load from disk cache instantly (takes ~10ms)
     try:
@@ -129,11 +133,16 @@ async def get_channels():
     import json
     payload = xor_hex_encrypt(json.dumps(channels))
 
-    return {
-        "payload": payload,
-        "total": len(channels),
-        "last_updated": "live",
-    }
+    return JSONResponse(
+        content={
+            "payload": payload,
+            "total": len(channels),
+            "last_updated": "live",
+        },
+        headers={
+            "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+        },
+    )
 
 
 @app.get("/api/fixtures")
@@ -146,7 +155,13 @@ async def get_fixtures(
         from datetime import date as dt
         date = dt.today().isoformat()
     from fixtures_scraper import fetch_sportmonks_fixtures_by_date
-    return await fetch_sportmonks_fixtures_by_date(date, tz_offset)
+    result = await fetch_sportmonks_fixtures_by_date(date, tz_offset)
+    return JSONResponse(
+        content=result,
+        headers={
+            "Cache-Control": "public, max-age=60, stale-while-revalidate=30",
+        },
+    )
 
 
 @app.get("/api/refresh")
@@ -271,6 +286,8 @@ async def proxy_stream(
         "User-Agent": user_agent or "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
         "Accept": "*/*",
         "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "identity",  # Disable compression — video is already compressed
+        "Connection": "keep-alive",
     }
 
     if referrer:
@@ -352,14 +369,23 @@ async def proxy_stream(
                 "Access-Control-Allow-Headers": "*",
                 "Access-Control-Allow-Methods": "*",
                 "Cache-Control": "public, max-age=86400" if is_static_segment else "no-cache",
+                "X-Accel-Buffering": "no",   # Disable nginx proxy buffering for live streams
             }
 
             stream_resp = resp
             resp = None
 
+            # Pass-through Content-Length from upstream when available.
+            # This avoids chunked transfer encoding overhead and lets clients
+            # show download progress / seek correctly for static segments.
+            upstream_content_length = stream_resp.headers.get("content-length")
+            if upstream_content_length and is_static_segment:
+                response_headers["Content-Length"] = upstream_content_length
+
             async def stream_content():
                 try:
-                    async for chunk in stream_resp.aiter_bytes(chunk_size=32768):
+                    # 256KB chunks — 8x larger than before, reduces Python async loop overhead
+                    async for chunk in stream_resp.aiter_bytes(chunk_size=262144):
                         yield chunk
                 finally:
                     await stream_resp.aclose()
@@ -437,6 +463,8 @@ async def proxy_stream_path(
         "User-Agent": user_agent or "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
         "Accept": "*/*",
         "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "identity",  # Disable compression — video is already compressed
+        "Connection": "keep-alive",
     }
     if referrer:
         headers["Referer"] = referrer
@@ -515,14 +543,21 @@ async def proxy_stream_path(
                 "Access-Control-Allow-Headers": "*",
                 "Access-Control-Allow-Methods": "*",
                 "Cache-Control": "public, max-age=86400" if is_static_segment else "no-cache",
+                "X-Accel-Buffering": "no",   # Disable nginx proxy buffering for live streams
             }
 
             stream_resp = resp
             resp = None
 
+            # Pass-through Content-Length from upstream when available.
+            upstream_content_length = stream_resp.headers.get("content-length")
+            if upstream_content_length and is_static_segment:
+                response_headers["Content-Length"] = upstream_content_length
+
             async def stream_content():
                 try:
-                    async for chunk in stream_resp.aiter_bytes(chunk_size=32768):
+                    # 256KB chunks — 8x larger than before, reduces Python async loop overhead
+                    async for chunk in stream_resp.aiter_bytes(chunk_size=262144):
                         yield chunk
                 finally:
                     await stream_resp.aclose()

@@ -34,7 +34,7 @@ export default function Header() {
         </div>
         <div className="header-center">
           <div className="digital-clock">
-            <span className="clock-label">LOCAL</span>
+            <span className="clock-label">LOCAL TIME</span>
             <span className="clock-time">{time}</span>
           </div>
         </div>

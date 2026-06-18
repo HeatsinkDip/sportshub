@@ -68,15 +68,6 @@
         "user_agent": "",
         "license_type": "",
         "license_key": ""
-      },
-      {
-        "url": "https://cors-proxy.cooks.fyi/http://147.135.114.221:8001/play/a00m/index.m3u8",
-        "name": "DSports Uruguay",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
       }
     ]
   },
@@ -144,6 +135,51 @@
     ]
   },
   {
+    "id": "fox_5",
+    "name": "Fox 5",
+    "category": "featured",
+    "logo": "",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "http://84.17.50.102/fox/index.m3u8",
+        "name": "Fox 5 Custom",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "m6_direct",
+    "name": "M6 Direct",
+    "category": "featured",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/c/c9/M6_Music_%282012%29.png",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "https://test.946985.filegear-sg.me/proxy/803c517b325bfafc",
+        "name": "M6 Music",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_q2hyb21h/index-hd720.m3u8",
+        "name": "M6 SD (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
     "id": "macao_sports_fhd_",
     "name": "Macao Sports (FHD)",
     "category": "featured",
@@ -169,6 +205,33 @@
     "quality": "FHD",
     "servers": [
       {
+        "url": "http://198.195.239.50:8095/ptv/index.m3u8",
+        "name": "PTV Sports (BDIX)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://180.94.28.28/ptv/index.m3u8",
+        "name": "PTV Sports (BDIX 2)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn3.zohanayaan.com:1686/hls/ptvpk.m3u8?md5=ffi8cYKyfoqmNLA1eqcwnA&expires=1781808986",
+        "name": "PTV Sports",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
         "url": "http://180.94.28.28:8097/PTV-Sports/index.fmp4.m3u8?token=0afd64dfdff056a802054ceb369650609e3f7903-ce3f54a7704ae11d5cc2c64e6af9db86-1781451407-1781447807",
         "name": "PTV SPORTS",
         "quality": "SD",
@@ -178,7 +241,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn5.zohanayaan.com:1686/hls/ptvpk.m3u8?md5=P00rqa3Zw0CG0gJRylypTQ&expires=1781636427",
+        "url": "https://cdn4.zohanayaan.com:1686/hls/ptvpk.m3u8?md5=TWEO4OevGZChEcjx38GKWw&expires=1781811618",
         "name": "PTV Sports",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -223,8 +286,26 @@
         "license_key": ""
       },
       {
-        "url": "http://198.195.239.50:8095/tsports/tracks-v1a1/mono.m3u8",
-        "name": "T Sports BDIX",
+        "url": "https://tvsen7.aynaott.com/tsports-hd/index.m3u8",
+        "name": "T Sports (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://rgkkw.live:80/live/1Aoen7elp5/IgMJ60tmAa/130714.m3u8",
+        "name": "T Sports HD",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://tvsen7.aynaott.com/tsports-hd/tracks-v1a1/mono.ts.m3u8",
+        "name": "T SPORTS",
         "quality": "SD",
         "referrer": "",
         "user_agent": "",
@@ -275,10 +356,136 @@
         "user_agent": "",
         "license_type": "",
         "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "telemundo",
+    "name": "Telemundo",
+    "category": "featured",
+    "logo": "https://images.fubo.tv/channel-config-ui/station-logos/on-white/telemundo_al_dia_1000x1500_2x3_logo_300dpi_vertical_full_color_logo_xumo-3-copy.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist.m3u8",
+        "name": "NBCU Telemundo Florida (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
       },
       {
-        "url": "https://streaming.alwaysdata.net/tudn.php",
-        "name": "TUDN (1080p)",
+        "url": "https://nbcu-telemundonortheast-firetv.amagi.tv/playlist.m3u8",
+        "name": "NBCU Telemundo North East (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://nbcu-telemundotexas-firetv.amagi.tv/playlist.m3u8",
+        "name": "NBCU Telemundo Texas (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://nbcu-telemundowest-firetv.amagi.tv/playlist.m3u8",
+        "name": "NBCU Telemundo West (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://xumo-drct-ch835-ekq0p.fast.nbcuni.com/live/master.m3u8",
+        "name": "Telemundo Accion (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://d1rqgw5gocwo9i.cloudfront.net/manifest/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod_default_xumo-nbcu-stitched/10a44c37-f976-4d2b-ab23-8637a7a094ca/3.m3u8",
+        "name": "Telemundo Al Dia",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://d1kq7q3vteqjb.cloudfront.net/master.m3u8",
+        "name": "Telemundo Al Día (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://content.uplynk.com/channel/b6a96ed39d694ae1b738faa98cf7dd3f.m3u8",
+        "name": "Telemundo Corpus Christi (720p)",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://138.121.15.230:9002/TELEMUNDO/index.m3u8",
+        "name": "Telemundo Internacional (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://xumo-xumoent-ch827-uj0ch.fast.nbcuni.com/live/master.m3u8",
+        "name": "Telemundo Noticias Ahora (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://amg00884-nbcuniversal-nbctelemundoflorida-xumo-atn0m.amagi.tv/playlist.m3u8",
+        "name": "Telemundo Noticias Florida (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://amg00884-nbcuniversal-nbctelemundonortheast-xumo-ok3ha.amagi.tv/playlist.m3u8",
+        "name": "Telemundo Noticias Noreste (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://xumo-drct-ch836-57aiq.fast.nbcuni.com/live/master.m3u8",
+        "name": "Telemundo Romance (1080p)",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://nbculocallive.akamaized.net/hls/live/2037499/puertorico/stream1/master.m3u8",
+        "name": "WKAQ-DT1 (Telemundo PR) (1080p)",
         "quality": "FHD",
         "referrer": "",
         "user_agent": "",
@@ -367,15 +574,6 @@
         "license_key": ""
       },
       {
-        "url": "http://starhub.pro/live/farhat-3379/67897-913379/744517.m3u8",
-        "name": "Bein Sports 1 Max Arabic",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
         "url": "https://cdn-uw2-prod.tsv2.amagi.tv/linear/amg02873-kravemedia-mtrspt1-distrotv/playlist.m3u8",
         "name": "Bein Sports 1",
         "quality": "SD",
@@ -421,7 +619,7 @@
     "quality": "HD",
     "servers": [
       {
-        "url": "https://cdn4.zohanayaan.com:1686/hls/espnusa.m3u8?md5=zUwvsF3uOHFAVDmGgYM4PQ&expires=1781635258",
+        "url": "https://cdn3.zohanayaan.com:1686/hls/espnusa.m3u8?md5=n3vK_qhkpuP92xCqZEepNg&expires=1781808991",
         "name": "ESPN 1",
         "quality": "SD",
         "referrer": "",
@@ -430,7 +628,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn7.zohanayaan.com:1686/hls/espn2.m3u8?md5=Ljsqq1bJqrMq5g_yhqbb0w&expires=1781635259",
+        "url": "https://cdn5.zohanayaan.com:1686/hls/espn2.m3u8?md5=sQvGcTrw9S7cZ51ExZBOVQ&expires=1781808992",
         "name": "ESPN 2",
         "quality": "SD",
         "referrer": "",
@@ -439,7 +637,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn2.zohanayaan.com:1686/hls/espnusa.m3u8?md5=4rXJgEoj2E-QgEWsmIzFWw&expires=1781636441",
+        "url": "https://cdn5.zohanayaan.com:1686/hls/espnusa.m3u8?md5=YDiOWXngRY-JTxwPzpFmSg&expires=1781811622",
         "name": "ESPN 1",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -448,7 +646,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn8.zohanayaan.com:1686/hls/espn2.m3u8?md5=WArBc7iIT0UvyFeIu2nptg&expires=1781636442",
+        "url": "https://cdn5.zohanayaan.com:1686/hls/espn2.m3u8?md5=RpulnBfkJ3HXfXdajP7lhA&expires=1781811622",
         "name": "ESPN 2",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -554,15 +752,6 @@
         "user_agent": "",
         "license_type": "",
         "license_key": ""
-      },
-      {
-        "url": "http://str2.v3v3v.xyz:2082/live/rokhsi25_951396/POm6KqnW/277428.m3u8",
-        "name": "Zee Bangla Sonar (FIFA BANGLA COMMENTARY)",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
       }
     ]
   },
@@ -577,24 +766,6 @@
         "url": "https://cors-proxy.cooks.fyi/http://190.11.225.124:5000/live/fs1_hd/playlist.m3u8",
         "name": "Fox Sports 1 (1280p)",
         "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      }
-    ]
-  },
-  {
-    "id": "fox_5",
-    "name": "Fox 5",
-    "category": "live",
-    "logo": "",
-    "quality": "HD",
-    "servers": [
-      {
-        "url": "http://84.17.50.102/fox/index.m3u8",
-        "name": "Fox 5 Custom",
-        "quality": "HD",
         "referrer": "",
         "user_agent": "",
         "license_type": "",
@@ -628,15 +799,6 @@
         "license_key": ""
       },
       {
-        "url": "http://pro.reott8k.xyz/play/live.php?extension=m3u8&mac=00:1A:79:7B:BB:36&stream=1548700",
-        "name": "GTV (576p)",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
         "url": "https://livestream.telvue.com/nashuanh3/f7b44cfafd5c52223d5498196c8a2e7b.sdp/playlist.m3u8",
         "name": "Nashua GTV Channel 16 Nashua NH (720p)",
         "quality": "HD",
@@ -657,33 +819,6 @@
     ]
   },
   {
-    "id": "m6_direct",
-    "name": "M6 Direct",
-    "category": "live",
-    "logo": "https://upload.wikimedia.org/wikipedia/en/c/c9/M6_Music_%282012%29.png",
-    "quality": "HD",
-    "servers": [
-      {
-        "url": "https://test.946985.filegear-sg.me/proxy/803c517b325bfafc",
-        "name": "M6 Music",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_q2hyb21h/index-hd720.m3u8",
-        "name": "M6 SD (720p)",
-        "quality": "HD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      }
-    ]
-  },
-  {
     "id": "sky_sports",
     "name": "Sky Sports",
     "category": "live",
@@ -691,7 +826,7 @@
     "quality": "SD",
     "servers": [
       {
-        "url": "https://cdn10.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=x5Ptytxw84nvcihMF8dLgQ&expires=1781635243",
+        "url": "https://cdn1.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=HP39CrCm8_ZNIT4NG7Kh6Q&expires=1781808988",
         "name": "Sky Sport Nz 1",
         "quality": "SD",
         "referrer": "",
@@ -700,7 +835,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn8.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=xZmM-h3GjwuVPXsMhVNPAQ&expires=1781635244",
+        "url": "https://cdn10.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=QG-AqQPOZlJpVMymbRkUaA&expires=1781808988",
         "name": "Sky Sport Nz 2",
         "quality": "SD",
         "referrer": "",
@@ -709,7 +844,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn4.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=X47stKmlftQMweKJTeVh6Q&expires=1781635244",
+        "url": "https://cdn4.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=tvZq2mVnbMvxmCIgdyU1Qg&expires=1781808989",
         "name": "Sky Sport Nz 3",
         "quality": "SD",
         "referrer": "",
@@ -718,7 +853,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn6.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=M7QPOo4-Kyu6xjgRaWdwIQ&expires=1781635246",
+        "url": "https://cdn10.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=s6SMa9CaxpgYfHQX5Nzphg&expires=1781808989",
         "name": "Sky Sport Nz 4",
         "quality": "SD",
         "referrer": "",
@@ -727,7 +862,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn10.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=IRFrPufSf3-mHiaL9GJ4mA&expires=1781635247",
+        "url": "https://cdn2.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=9I1RjvmHdoYjkUoYoMxRIQ&expires=1781808989",
         "name": "Sky Sport Nz 5",
         "quality": "SD",
         "referrer": "",
@@ -736,7 +871,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn10.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=v9RYArMmBAozsD4dkDi5BA&expires=1781635247",
+        "url": "https://cdn9.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=dTc9n-ezLug3O4uXv87HcQ&expires=1781808989",
         "name": "Sky Sport 6 Nz",
         "quality": "SD",
         "referrer": "",
@@ -745,7 +880,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn6.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=rNtVpUOi2CkyBPkpvUGNiQ&expires=1781635248",
+        "url": "https://cdn7.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=12Xop4TdMGC-VbFe_4q5hQ&expires=1781808989",
         "name": "Sky Sport Nz 7",
         "quality": "SD",
         "referrer": "",
@@ -754,7 +889,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn1.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=T0eV_Xapo4SgKUXquJ9_oA&expires=1781635248",
+        "url": "https://cdn1.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=cPrbN9zcMJZH5iLIVqvZ3Q&expires=1781808989",
         "name": "Sky Sport Nz 8",
         "quality": "SD",
         "referrer": "",
@@ -763,7 +898,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn1.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=SblX_GXVhDJCWNXh2ujC2w&expires=1781635249",
+        "url": "https://cdn9.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=9jShE5ehY2P-zGLRMtgjNg&expires=1781808990",
         "name": "Sky Sport Nz 9",
         "quality": "SD",
         "referrer": "",
@@ -772,7 +907,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn6.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=frlOQyaFdjWo_lhkF2_OPQ&expires=1781636434",
+        "url": "https://cdn9.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=crL7Zgxamwi2gIDhfIWiwg&expires=1781811619",
         "name": "Sky Sport Nz 1",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -781,7 +916,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn6.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=aSDy6Qbu2yS52VC6rOXGLw&expires=1781636435",
+        "url": "https://cdn10.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=ijHZgDu34ZaSmS_DAmc1Sg&expires=1781811620",
         "name": "Sky Sport Nz 2",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -790,7 +925,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn5.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=JKsv8THruFetdUo4Z398WA&expires=1781636436",
+        "url": "https://cdn7.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=iEL6agTAjkpNW-XGklXB1w&expires=1781811620",
         "name": "Sky Sport Nz 3",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -799,7 +934,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn6.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=ImxzjfOexo3NZGA_PaTJPA&expires=1781636436",
+        "url": "https://cdn9.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=iL8qTCAuZMIKvMAAkb1mWw&expires=1781811620",
         "name": "Sky Sport Nz 4",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -808,7 +943,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn1.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=q57pVWeIQVvc-U0u6HeS2w&expires=1781636436",
+        "url": "https://cdn7.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=tQv3M8XhEHw7-fwwKJ8zsg&expires=1781811620",
         "name": "Sky Sport Nz 5",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -817,7 +952,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn6.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=leHbHNmvUknj9opabF3uoA&expires=1781636436",
+        "url": "https://cdn1.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=c6VjR912F7gXwR82weJZyQ&expires=1781811620",
         "name": "Sky Sport 6 Nz",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -826,7 +961,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn10.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=yBmGwuXaWp17zVbU8c8YSg&expires=1781636436",
+        "url": "https://cdn5.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=RiZufd0A4cnkSfTOhltYPw&expires=1781811620",
         "name": "Sky Sport Nz 7",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -835,7 +970,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn5.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=OE_ZKkg8sHaIWY3tGMQHTQ&expires=1781636437",
+        "url": "https://cdn9.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=Cs1eZLwZsMmwWiN8WDWcuQ&expires=1781811620",
         "name": "Sky Sport Nz 8",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -844,7 +979,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn7.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=dEsfKZGRvRahV-fTPgorSQ&expires=1781636437",
+        "url": "https://cdn6.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=-je9WRLr_X0ZYqMMMXgKaw&expires=1781811621",
         "name": "Sky Sport Nz 9",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -869,15 +1004,6 @@
         "user_agent": "",
         "license_type": "",
         "license_key": ""
-      },
-      {
-        "url": "https://sm-monirul.top/toffee/play/sony_sports_1_hd.m3u8",
-        "name": "SONY SPORTS TEN 1 HD",
-        "quality": "HD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
       }
     ]
   },
@@ -892,15 +1018,6 @@
         "url": "http://180.94.28.28:8097/Sony-Ten-2/index.fmp4.m3u8?token=b2bae9ceb9bed26804c18b151788e2c37c295d17-e3ce7e6b9c2d6d901d13ac7b36b24fa6-1781451425-1781447825",
         "name": "SONY TEN 2",
         "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://sm-monirul.top/toffee/play/sony_sports_2_hd.m3u8",
-        "name": "SONY SPORTS TEN 2 HD",
-        "quality": "HD",
         "referrer": "",
         "user_agent": "",
         "license_type": "",
@@ -937,150 +1054,6 @@
         "url": "http://180.94.28.28:8097/SUPERSPORT-CRICKET/index.fmp4.m3u8?token=4231c4fa9b8872a5da68d7245aff99853c6b3e95-7634050a04435b1c189a5bde3d1849db-1781451440-1781447840",
         "name": "SUPERSPORT CRICKET",
         "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      }
-    ]
-  },
-  {
-    "id": "tsn_sports_1",
-    "name": "TSN Sports 1",
-    "category": "live",
-    "logo": "https://static.wikia.nocookie.net/logopedia/images/3/30/TSN1_HD.svg",
-    "quality": "SD",
-    "servers": [
-      {
-        "url": "http://stalker.hakunamata.workers.dev/play/258/index.m3u8",
-        "name": "TSN 1",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      }
-    ]
-  },
-  {
-    "id": "telemundo",
-    "name": "Telemundo",
-    "category": "live",
-    "logo": "https://images.fubo.tv/channel-config-ui/station-logos/on-white/telemundo_al_dia_1000x1500_2x3_logo_300dpi_vertical_full_color_logo_xumo-3-copy.png",
-    "quality": "FHD",
-    "servers": [
-      {
-        "url": "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist.m3u8",
-        "name": "NBCU Telemundo Florida (1080p)",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://nbcu-telemundonortheast-firetv.amagi.tv/playlist.m3u8",
-        "name": "NBCU Telemundo North East (1080p)",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://nbcu-telemundotexas-firetv.amagi.tv/playlist.m3u8",
-        "name": "NBCU Telemundo Texas (1080p)",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://nbcu-telemundowest-firetv.amagi.tv/playlist.m3u8",
-        "name": "NBCU Telemundo West (1080p)",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://xumo-drct-ch835-ekq0p.fast.nbcuni.com/live/master.m3u8",
-        "name": "Telemundo Accion (1080p)",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://d1rqgw5gocwo9i.cloudfront.net/manifest/3fec3e5cac39a52b2132f9c66c83dae043dc17d4/prod_default_xumo-nbcu-stitched/10a44c37-f976-4d2b-ab23-8637a7a094ca/3.m3u8",
-        "name": "Telemundo Al Dia",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://d1kq7q3vteqjb.cloudfront.net/master.m3u8",
-        "name": "Telemundo Al Día (720p)",
-        "quality": "HD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://content.uplynk.com/channel/b6a96ed39d694ae1b738faa98cf7dd3f.m3u8",
-        "name": "Telemundo Corpus Christi (720p)",
-        "quality": "HD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://xumo-xumoent-ch827-uj0ch.fast.nbcuni.com/live/master.m3u8",
-        "name": "Telemundo Noticias Ahora (1080p)",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://amg00884-nbcuniversal-nbctelemundoflorida-xumo-atn0m.amagi.tv/playlist.m3u8",
-        "name": "Telemundo Noticias Florida (1080p)",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://amg00884-nbcuniversal-nbctelemundonortheast-xumo-ok3ha.amagi.tv/playlist.m3u8",
-        "name": "Telemundo Noticias Noreste (1080p)",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://xumo-drct-ch836-57aiq.fast.nbcuni.com/live/master.m3u8",
-        "name": "Telemundo Romance (1080p)",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://nbculocallive.akamaized.net/hls/live/2037499/puertorico/stream1/master.m3u8",
-        "name": "WKAQ-DT1 (Telemundo PR) (1080p)",
-        "quality": "FHD",
         "referrer": "",
         "user_agent": "",
         "license_type": "",
