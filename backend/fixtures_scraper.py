@@ -680,6 +680,7 @@ def get_cached_fixtures() -> dict:
 
 # ── Sportmonks API Integration ─────────────────────────────────────────
 SPORTMONKS_TOKEN = "ZNgg3qu759L4OqrjwQhnSLs9f7pN7o6MBnGIJKhvDdaVSeVcGE9mBXBLavWs"
+FOOTBALL_DATA_TOKEN = "b8b2f482e2954b9787cb5a77b0a3e57a"
 
 def get_flag_by_country(country_id: int) -> str:
     country_flags = {
@@ -817,7 +818,10 @@ async def fetch_sportmonks_fixtures_by_date(date_str: str, tz_offset: int = 0) -
                 
                 try:
                     client = get_shared_client()
-                    resp = await client.get(url, timeout=2.0)
+                    headers = {}
+                    if "api.football-data.org" in url:
+                        headers["X-Auth-Token"] = FOOTBALL_DATA_TOKEN
+                    resp = await client.get(url, headers=headers, timeout=2.0)
                     if resp.status_code == 200:
                         payload = resp.json()
                         data = payload.get("matches", []) if "matches" in payload else payload.get("data", [])

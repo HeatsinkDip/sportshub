@@ -34,9 +34,9 @@ CHANNEL_WHITELIST = [
     # ── Other Live Channels ──
     ([["tapmad", "hd"], ["tapmad"]], "Tapmad HD", "live"),
     # CCTV 5, ELTA Sports, Macao Sports promoted to featured (FIFA WC broadcast)
-    ([["macao", "sport"]], "Macao Sports (FHD)", "featured"),
-    ([["elta", "sport"]], "ELTA Sports (FHD)", "featured"),
-    ([["cctv", "5"]], "CCTV 5 (Full HD)", "featured"),
+    ([["macao", "sport"]], "Macao Sports (FHD)", "live"),
+    ([["elta", "sport"]], "ELTA Sports (FHD)", "live"),
+    ([["cctv", "5"]], "CCTV 5 (Full HD)", "live"),
     ([["win", "sports"]], "WIN Sports (Full HD)", "live"),
     ([["bein", "sports", "türkiye"], ["bein", "sports", "turkiye"], ["bein", "turkey"]], "beIN SPORTS Türkiye", "live"),
     ([["tudn", "canal", "5"], ["tudn", "sports"]], "TUDN Sports - Canal 5 (Full HD)", "live"),
@@ -414,15 +414,41 @@ def apply_server_and_category_overrides(channels: list[dict]) -> list[dict]:
                 s["url"] = s["url"][:-3] + ".m3u8"
         
         # 1. PTV Sports (ptv_sports)
-        # Category: featured. Keep only verified working servers (180.94.28.28 and cdn5.zohanayaan.com).
+        # Category: featured. Keep only verified working servers and sort them as requested.
         if cid == "ptv_sports":
             chan_copy["category"] = "featured"
-            chan_copy["servers"] = [
+            servers = [
                 s for s in chan_copy["servers"]
                 if "cdn9.zohanayaan.com" not in s["url"]
                 and "cdn2.zohanayaan.com" not in s["url"]
                 and "119.156.228.231" not in s["url"]
             ]
+            
+            # Find specific servers to reorder:
+            # - s5 (Server 5): contains "180.94.28.28:8097" or "PTV-Sports"
+            # - s6 (Server 6): contains "zohanayaan.com"
+            # - s1 (Server 1): contains "198.195.239.50:8095" or "/ptv/"
+            s5 = next((s for s in servers if "180.94.28.28:8097" in s["url"] or "PTV-Sports" in s["url"]), None)
+            s6 = next((s for s in servers if "zohanayaan.com" in s["url"]), None)
+            s1 = next((s for s in servers if "198.195.239.50:8095" in s["url"] or "/ptv/" in s["url"]), None)
+            
+            ordered = []
+            if s5:
+                ordered.append(s5)
+            if s6:
+                ordered.append(s6)
+            if s1:
+                ordered.append(s1)
+                
+            placed = {id(s) for s in ordered}
+            for s in servers:
+                if id(s) not in placed:
+                    ordered.append(s)
+                    
+            for idx, s in enumerate(ordered):
+                s["name"] = f"PTV Sports Server {idx + 1}"
+                
+            chan_copy["servers"] = ordered
         
         # 2. Somoy TV (somoy_tv)
         # Category: featured. Keep only the first working server (custom stream injected via CUSTOM_CHANNEL_SERVERS).
@@ -518,9 +544,10 @@ CUSTOM_CHANNEL_SERVERS = {
     # BDIX servers (198.195.x.x, 180.94.x.x) only work for BDIX-ISP users.
     # Non-BDIX fallbacks let other users still watch.
 
-    # ── T Sports HD: BDIX server 1 works locally. Official stream as fallback for production. ──
+    # ── T Sports HD: BDIX servers work locally. Official stream as fallback for production. ──
     "t_sports_hd": ("T Sports HD", "featured", "FHD", [
         {"url": "http://198.195.239.50:8095/tsports/index.m3u8", "name": "T Sports Server 1 (BDIX)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "http://198.195.239.50:8095/tsports/tracks-v1a1/mono.m3u8", "name": "T Sports Server 2 (Direct BDIX)", "quality": "FHD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
         {"url": "https://live.tsports.com.bd/live/tsports/index.m3u8", "name": "T Sports Official", "quality": "HD", "referrer": "https://tsports.com.bd/", "user_agent": "", "license_type": "", "license_key": ""},
         {"url": "https://tvsen7.aynaott.com/tsports-hd/index.m3u8", "name": "T Sports HD", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
@@ -549,18 +576,18 @@ CUSTOM_CHANNEL_SERVERS = {
     ]),
 
     # ── CCTV 5: Dead custom server (74.91.26.218) replaced with official CDN ──
-    "cctv_5_full_hd_": ("CCTV 5 (Full HD)", "featured", "HD", [
+    "cctv_5_full_hd_": ("CCTV 5 (Full HD)", "live", "HD", [
         {"url": "https://cctvwbndali.liveplay.myqcloud.com/cctv/cctv5hd/index.m3u8", "name": "CCTV 5 HD", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
         {"url": "https://cctvwbndali.liveplay.myqcloud.com/cctv/cctv5/index.m3u8", "name": "CCTV 5", "quality": "SD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
 
     # ── ELTA Sports: Dead custom server (74.91.26.218) replaced with official web TV ──
-    "elta_sports_fhd_": ("ELTA Sports (FHD)", "featured", "HD", [
+    "elta_sports_fhd_": ("ELTA Sports (FHD)", "live", "HD", [
         {"url": "https://elta-webtv-live.elt.gr/elta/master.m3u8", "name": "ELTA Sports Live", "quality": "HD", "referrer": "https://www.elt.gr/", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
 
     # ── Macao Sports: Dead custom server (74.91.26.218) replaced with official TDM stream ──
-    "macao_sports_fhd_": ("Macao Sports (FHD)", "featured", "FHD", [
+    "macao_sports_fhd_": ("Macao Sports (FHD)", "live", "FHD", [
         {"url": "https://tdm.mma.gov.mo/live/sport-hd/index.m3u8", "name": "TDM Macao Sport HD", "quality": "FHD", "referrer": "https://www.tdm.com.mo/", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
 
@@ -589,7 +616,8 @@ CUSTOM_CHANNEL_SERVERS = {
 
     # ── Somoy TV: thebosstv.com only works locally. Official stream for production. ──
     "somoy_tv": ("Somoy TV", "featured", "HD", [
-        {"url": "https://stream.somoytv.com/live/somoytv.stream/playlist.m3u8", "name": "Somoy TV Official", "quality": "HD", "referrer": "https://www.somoytv.com/", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/index.m3u8", "name": "Somoy TV GPCDN", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
+        {"url": "https://bozztv.com/rongo/rongo-somoy/index.m3u8", "name": "Somoy TV Rongo", "quality": "HD", "referrer": "", "user_agent": "", "license_type": "", "license_key": ""},
     ]),
 }
 

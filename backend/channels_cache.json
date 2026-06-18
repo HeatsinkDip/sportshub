@@ -18,48 +18,12 @@
     ]
   },
   {
-    "id": "cctv_5_full_hd_",
-    "name": "CCTV 5 (Full HD)",
-    "category": "featured",
-    "logo": "https://upload.wikimedia.org/wikipedia/zh/3/33/CCTV-5_Logo.png",
-    "quality": "SD",
-    "servers": [
-      {
-        "url": "https://cctvwbndali.liveplay.myqcloud.com/cctv/cctv5hd/index.m3u8",
-        "name": "CCTV 5 HD",
-        "quality": "HD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://cctvwbndali.liveplay.myqcloud.com/cctv/cctv5/index.m3u8",
-        "name": "CCTV 5",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      }
-    ]
-  },
-  {
     "id": "colatv",
     "name": "ColaTV",
     "category": "featured",
     "logo": "https://colatv.app/favicon.png",
     "quality": "FHD",
     "servers": [
-      {
-        "url": "https://live.egmdispatch.com/live/66456922_70c1623f74d46af75be97f3b75ec2858_autoChange.m3u8?auth_key=1781830346-0-0-00a08f954f10619d5ffb9dd38574baf1",
-        "name": "ColaTV - Thụy Sĩ vs ĐTQG Bosnia Herzegovina",
-        "quality": "FHD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
       {
         "url": "https://live05.msdht.app/live/24561735.m3u8",
         "name": "ColaTV Custom",
@@ -135,24 +99,6 @@
     ]
   },
   {
-    "id": "elta_sports_fhd_",
-    "name": "ELTA Sports (FHD)",
-    "category": "featured",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/5/5b/ELTA_logo.svg",
-    "quality": "HD",
-    "servers": [
-      {
-        "url": "https://elta-webtv-live.elt.gr/elta/master.m3u8",
-        "name": "ELTA Sports Live",
-        "quality": "HD",
-        "referrer": "https://www.elt.gr/",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      }
-    ]
-  },
-  {
     "id": "fox_5",
     "name": "Fox 5",
     "category": "featured",
@@ -189,24 +135,6 @@
     ]
   },
   {
-    "id": "macao_sports_fhd_",
-    "name": "Macao Sports (FHD)",
-    "category": "featured",
-    "logo": "https://static.wikia.nocookie.net/logopedia/images/2/2c/TDMSport.png",
-    "quality": "FHD",
-    "servers": [
-      {
-        "url": "https://tdm.mma.gov.mo/live/sport-hd/index.m3u8",
-        "name": "TDM Macao Sport HD",
-        "quality": "FHD",
-        "referrer": "https://www.tdm.com.mo/",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      }
-    ]
-  },
-  {
     "id": "ptv_sports",
     "name": "PTV Sports",
     "category": "featured",
@@ -214,8 +142,26 @@
     "quality": "FHD",
     "servers": [
       {
+        "url": "http://180.94.28.28:8097/PTV-Sports/index.fmp4.m3u8?token=0afd64dfdff056a802054ceb369650609e3f7903-ce3f54a7704ae11d5cc2c64e6af9db86-1781451407-1781447807",
+        "name": "PTV Sports Server 1",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cdn5.zohanayaan.com:1686/hls/ptvpk.m3u8?md5=DBM0hjTg6S45MXITDbxt8Q&expires=1781817619",
+        "name": "PTV Sports Server 2",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
         "url": "http://198.195.239.50:8095/ptv/index.m3u8",
-        "name": "PTV Sports Server 1 (BDIX)",
+        "name": "PTV Sports Server 3",
         "quality": "FHD",
         "referrer": "",
         "user_agent": "",
@@ -224,7 +170,7 @@
       },
       {
         "url": "http://180.94.28.28/ptv/index.m3u8",
-        "name": "PTV Sports Server 2 (BDIX)",
+        "name": "PTV Sports Server 4",
         "quality": "FHD",
         "referrer": "",
         "user_agent": "",
@@ -233,7 +179,7 @@
       },
       {
         "url": "https://tvsen7.aynaott.com/ptvsports-hd/index.m3u8",
-        "name": "PTV Sports HD",
+        "name": "PTV Sports Server 5",
         "quality": "HD",
         "referrer": "",
         "user_agent": "",
@@ -241,35 +187,8 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn5.zohanayaan.com:1686/hls/ptvpk.m3u8?md5=DBM0hjTg6S45MXITDbxt8Q&expires=1781817619",
-        "name": "PTV Sports",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "http://180.94.28.28:8097/PTV-Sports/index.fmp4.m3u8?token=0afd64dfdff056a802054ceb369650609e3f7903-ce3f54a7704ae11d5cc2c64e6af9db86-1781451407-1781447807",
-        "name": "PTV SPORTS",
-        "quality": "SD",
-        "referrer": "",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
-        "url": "https://cdn10.zohanayaan.com:1686/hls/ptvpk.m3u8?md5=jOX31xbcHIpxcnXNQsL_8g&expires=1781821216",
-        "name": "PTV Sports",
-        "quality": "SD",
-        "referrer": "https://executeandship.com/",
-        "user_agent": "",
-        "license_type": "",
-        "license_key": ""
-      },
-      {
         "url": "https://tvsen5.aynaott.com/PtvSports/index.m3u8",
-        "name": "PTV SPORTS HD",
+        "name": "PTV Sports Server 6",
         "quality": "HD",
         "referrer": "",
         "user_agent": "",
@@ -286,10 +205,10 @@
     "quality": "FHD",
     "servers": [
       {
-        "url": "https://stream.somoytv.com/live/somoytv.stream/playlist.m3u8",
-        "name": "Somoy TV Official",
-        "quality": "HD",
-        "referrer": "https://www.somoytv.com/",
+        "url": "https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/index.m3u8",
+        "name": "Somoy TV",
+        "quality": "SD",
+        "referrer": "",
         "user_agent": "",
         "license_type": "",
         "license_key": ""
@@ -316,6 +235,15 @@
         "url": "http://198.195.239.50:8095/tsports/index.m3u8",
         "name": "T Sports",
         "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "http://198.195.239.50:8095/tsports/tracks-v1a1/mono.m3u8",
+        "name": "T Sports Server 2 (Direct BDIX)",
+        "quality": "FHD",
         "referrer": "",
         "user_agent": "",
         "license_type": "",
@@ -396,6 +324,15 @@
       {
         "url": "https://1nyaler.streamhostingcdn.top/stream/52/index.m3u8",
         "name": "TUDN Custom",
+        "quality": "FHD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://streaming.alwaysdata.net/tudn.php",
+        "name": "TUDN (1080p)",
         "quality": "FHD",
         "referrer": "",
         "user_agent": "",
@@ -495,6 +432,51 @@
     ]
   },
   {
+    "id": "cctv_5_full_hd_",
+    "name": "CCTV 5 (Full HD)",
+    "category": "live",
+    "logo": "https://upload.wikimedia.org/wikipedia/zh/3/33/CCTV-5_Logo.png",
+    "quality": "SD",
+    "servers": [
+      {
+        "url": "https://cctvwbndali.liveplay.myqcloud.com/cctv/cctv5hd/index.m3u8",
+        "name": "CCTV 5 HD",
+        "quality": "HD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      },
+      {
+        "url": "https://cctvwbndali.liveplay.myqcloud.com/cctv/cctv5/index.m3u8",
+        "name": "CCTV 5",
+        "quality": "SD",
+        "referrer": "",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
+    "id": "elta_sports_fhd_",
+    "name": "ELTA Sports (FHD)",
+    "category": "live",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/5/5b/ELTA_logo.svg",
+    "quality": "HD",
+    "servers": [
+      {
+        "url": "https://elta-webtv-live.elt.gr/elta/master.m3u8",
+        "name": "ELTA Sports Live",
+        "quality": "HD",
+        "referrer": "https://www.elt.gr/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
     "id": "espn",
     "name": "ESPN",
     "category": "live",
@@ -520,7 +502,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn9.zohanayaan.com:1686/hls/espnusa.m3u8?md5=BI5pxYn5C2IorKYdsQ5icQ&expires=1781821221",
+        "url": "https://cdn1.zohanayaan.com:1686/hls/espnusa.m3u8?md5=-MVlcdev2hGp0Oson7SBuw&expires=1781822419",
         "name": "ESPN 1",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -529,7 +511,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn6.zohanayaan.com:1686/hls/espn2.m3u8?md5=j0Fqx7H0qLSAlxOb_wC7ig&expires=1781821221",
+        "url": "https://cdn8.zohanayaan.com:1686/hls/espn2.m3u8?md5=2-DhEG3xn4cYot9kZ4uTSA&expires=1781822420",
         "name": "ESPN 2",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -702,6 +684,24 @@
     ]
   },
   {
+    "id": "macao_sports_fhd_",
+    "name": "Macao Sports (FHD)",
+    "category": "live",
+    "logo": "https://static.wikia.nocookie.net/logopedia/images/2/2c/TDMSport.png",
+    "quality": "FHD",
+    "servers": [
+      {
+        "url": "https://tdm.mma.gov.mo/live/sport-hd/index.m3u8",
+        "name": "TDM Macao Sport HD",
+        "quality": "FHD",
+        "referrer": "https://www.tdm.com.mo/",
+        "user_agent": "",
+        "license_type": "",
+        "license_key": ""
+      }
+    ]
+  },
+  {
     "id": "sky_sports",
     "name": "Sky Sports",
     "category": "live",
@@ -790,7 +790,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn4.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=A3IBd5XGA0Az35rJaJrLag&expires=1781821218",
+        "url": "https://cdn3.zohanayaan.com:1686/hls/sky1nz.m3u8?md5=uwqUMYbSU_5xD0-dmlLwYw&expires=1781822417",
         "name": "Sky Sport Nz 1",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -799,7 +799,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn4.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=5StP9_1f-niJiU1BJl6qCQ&expires=1781821218",
+        "url": "https://cdn10.zohanayaan.com:1686/hls/sky2nz.m3u8?md5=EV19U72a9c2Z93PGgQ6LXA&expires=1781822417",
         "name": "Sky Sport Nz 2",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -808,7 +808,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn5.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=dlorxhGpBoiBuzgOY7ToTw&expires=1781821219",
+        "url": "https://cdn5.zohanayaan.com:1686/hls/sky3nz.m3u8?md5=RGtZc1jQ7Vyk-DKzZMB4YQ&expires=1781822417",
         "name": "Sky Sport Nz 3",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -817,7 +817,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn4.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=jnsyl8Jp5EyIl4lLNTGWUA&expires=1781821219",
+        "url": "https://cdn7.zohanayaan.com:1686/hls/sky4nz.m3u8?md5=4zvtBpfcjEmZG_BqjJIi2w&expires=1781822417",
         "name": "Sky Sport Nz 4",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -826,7 +826,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn3.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=2yTkpcMNJFOuOjq3Lty_KQ&expires=1781821219",
+        "url": "https://cdn4.zohanayaan.com:1686/hls/sky5nz.m3u8?md5=FmRl4B5lQlDEF9crXieZ7A&expires=1781822417",
         "name": "Sky Sport Nz 5",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -835,7 +835,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn6.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=FKgzWfHn0y8DnVcj_GX8vw&expires=1781821219",
+        "url": "https://cdn9.zohanayaan.com:1686/hls/sky6nz.m3u8?md5=wz86KwclLQaScdM2UjjR4w&expires=1781822417",
         "name": "Sky Sport 6 Nz",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -844,7 +844,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn4.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=9xE-YJWea4vyaE628-jHtw&expires=1781821219",
+        "url": "https://cdn3.zohanayaan.com:1686/hls/sky7nz.m3u8?md5=11S9yU9jA2Oo7mrAbXY-7g&expires=1781822417",
         "name": "Sky Sport Nz 7",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -853,7 +853,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn5.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=XjExtn-1Je7yOGrLoms4qA&expires=1781821219",
+        "url": "https://cdn9.zohanayaan.com:1686/hls/sky8nz.m3u8?md5=-aYHIGjTj9UyLdVv381nTA&expires=1781822418",
         "name": "Sky Sport Nz 8",
         "quality": "SD",
         "referrer": "https://executeandship.com/",
@@ -862,7 +862,7 @@
         "license_key": ""
       },
       {
-        "url": "https://cdn8.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=a95E_4GoOhg1nPSfLJzrjQ&expires=1781821219",
+        "url": "https://cdn4.zohanayaan.com:1686/hls/sky9nz.m3u8?md5=dinFN2JzEmhQv2DQwd9CNg&expires=1781822418",
         "name": "Sky Sport Nz 9",
         "quality": "SD",
         "referrer": "https://executeandship.com/",

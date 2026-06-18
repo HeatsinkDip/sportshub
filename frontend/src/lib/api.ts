@@ -55,7 +55,7 @@ export const FALLBACK_CHANNELS: Channel[] = [
   {
     id: "cctv_5_full_hd_",
     name: "CCTV 5 (Full HD)",
-    category: "featured",
+    category: "live",
     logo: "https://upload.wikimedia.org/wikipedia/commons/d/d3/CCTVNewLogo.svg",
     quality: "FHD",
     servers: [{ url: "https://live12.szyac.com/live/35291799.m3u8", name: "CCTV Custom", quality: "FHD", referrer: "", user_agent: "" }]
@@ -63,7 +63,7 @@ export const FALLBACK_CHANNELS: Channel[] = [
   {
     id: "elta_sports_fhd_",
     name: "ELTA Sports (FHD)",
-    category: "featured",
+    category: "live",
     logo: "https://upload.wikimedia.org/wikipedia/commons/5/5b/ELTA_logo.svg",
     quality: "FHD",
     servers: [{ url: "https://live12.szyac.com/live/22457616.m3u8", name: "ELTA Sports Custom", quality: "FHD", referrer: "", user_agent: "" }]
@@ -71,7 +71,7 @@ export const FALLBACK_CHANNELS: Channel[] = [
   {
     id: "macao_sports_fhd_",
     name: "Macao Sports (FHD)",
-    category: "featured",
+    category: "live",
     logo: "https://static.wikia.nocookie.net/logopedia/images/2/2c/TDMSport.png",
     quality: "FHD",
     servers: [{ url: "https://live12.szyac.com/live/09139583.m3u8", name: "Macao Sports Custom", quality: "FHD", referrer: "", user_agent: "" }]
@@ -205,26 +205,17 @@ export function isBdixOrLocal(urlStr: string): boolean {
     const url = new URL(urlStr);
     const host = url.hostname.toLowerCase();
     
-    // Check BDIX keywords in domain/URL
-    if (
-      host.includes("bdix") ||
-      urlStr.toLowerCase().includes("bdix") ||
-      urlStr.toLowerCase().includes("/tsports/")
-    ) {
-      return true;
-    }
-
-    // Check for loopback and local ranges
+    // Check for loopback and local private ranges
     if (
       host === "localhost" ||
       host === "127.0.0.1" ||
+      host === "::1" ||
       host.startsWith("10.") ||
       host.startsWith("192.168.")
     ) {
       return true;
     }
     
-    // Check common BDIX and private IP ranges
     const parts = host.split(".");
     if (parts.length === 4) {
       const first = parseInt(parts[0], 10);
@@ -234,16 +225,6 @@ export function isBdixOrLocal(urlStr: string): boolean {
       if (first === 172 && second >= 16 && second <= 31) {
         return true;
       }
-      
-      // Known public BDIX IP prefixes
-      if (
-        (first === 198 && second === 195) || // e.g. 198.195.239.50 (T Sports)
-        (first === 180 && second === 94) ||  // e.g. 180.94.28.28 (PTV Sports)
-        (first === 114 && second === 130) || // e.g. 114.130.57.224 (Somoy TV)
-        (first === 119 && second === 156)    // e.g. 119.156.228.231 (PTV Sports fallback)
-      ) {
-        return true;
-      }
     }
     
     return false;
@@ -251,9 +232,7 @@ export function isBdixOrLocal(urlStr: string): boolean {
     const lower = urlStr.toLowerCase();
     return (
       lower.startsWith("http://10.") ||
-      lower.startsWith("http://192.168.") ||
-      lower.includes("bdix") ||
-      lower.includes("/tsports/")
+      lower.startsWith("http://192.168.")
     );
   }
 }
